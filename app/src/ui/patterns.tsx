@@ -72,7 +72,7 @@ function PinTile({ pin, width }: { pin: Pin; width: number }) {
 
 /** Abwechslungsreiche Kachelhöhen, aber stabil je Foto. */
 export function pinRatio(seed: number): number {
-  const r = [1.25, 1.5, 1.0, 1.33, 1.6, 1.15];
+  const r = [1.4, 1.7, 1.2, 1.5, 1.8, 1.3];
   return r[Math.abs(seed * 7 + 3) % r.length];
 }
 

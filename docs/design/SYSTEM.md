@@ -108,3 +108,6 @@ Weitere: `motion` (fast 120 ms, base 220 ms, pop-Feder fürs Herz), `hit` = 44 (
 
 ## Raster wie Pinterest
 Token `grid` (Rand 4, Spaltenabstand 6, Ecken 16, Fußzeile 28). Kacheln: nur Bild + kleine Zeile (Name grau, Merken-Symbol). `Tab` = Text-Reiter mit Strich (Filterleiste).
+
+## Dock (Tab-Leiste)
+`Dock` in `src/ui/dock.tsx`: schwebt unten mittig, jedes Symbol in eigenem runden Quadrat (Token `dock`, Farben `dock`/`onDock`). Screens mit Tab-Leiste brauchen unten `dock.clearance` Platz. Hochladen = + oben rechts auf Home.

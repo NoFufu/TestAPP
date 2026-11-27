@@ -9,7 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FilterBar } from '../../src/components/ui';
 import { BIELEFELD, catInfo, distanceKm, fmtDist } from '../../src/data/spots';
 import { useStore } from '../../src/store';
-import { PhotoGrid, T, hit, radius, space, useColors, useIsDark } from '../../src/ui';
+import { PhotoGrid, T, hit, radius, space, useColors, useIsDark, dock } from '../../src/ui';
 
 type Mode = 'map' | 'grid';
 const CARD_W = 150;
@@ -107,7 +107,7 @@ export default function Explore() {
           })}
         </MapView>
       ) : (
-        <ScrollView contentContainerStyle={{ paddingTop: headerH, paddingBottom: space.xxl }}>
+        <ScrollView contentContainerStyle={{ paddingTop: headerH, paddingBottom: dock.clearance }}>
           {sorted.length ? (
             <PhotoGrid
               layout="mosaic"

@@ -9,7 +9,7 @@ import { CATS, type Cat } from '../../src/data/spots';
 import { useAuth } from '../../src/lib/auth';
 import { cleanInstagramUrl, createSpot, gpsFromExif } from '../../src/lib/upload';
 import { useStore } from '../../src/store';
-import { Button, Chip, T, haptic, radius, space, type, useColors } from '../../src/ui';
+import { Button, Chip, T, haptic, radius, space, type, useColors, dock } from '../../src/ui';
 
 type Photo = { uri: string; gps: { lat: number; lon: number } | null };
 type Where = { lat: number; lon: number; source: 'foto' | 'standort' | 'karte' };
@@ -187,7 +187,7 @@ function PhotoSlot({ label, hint, photo, onCamera, onLibrary }: {
 }
 
 const st = StyleSheet.create({
-  page: { padding: space.lg, gap: space.xl, paddingBottom: space.xxl },
+  page: { padding: space.lg, gap: space.xl, paddingBottom: dock.clearance },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: space.lg, padding: space.xl },
   photos: { flexDirection: 'row', gap: space.md },
   slot: { aspectRatio: 4 / 5, borderRadius: radius.card, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },

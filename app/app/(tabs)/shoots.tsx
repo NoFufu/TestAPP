@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { fmtDist } from '../../src/data/spots';
 import { useStore } from '../../src/store';
-import { Button, PhotoGrid, T, space, useColors } from '../../src/ui';
+import { Button, PhotoGrid, T, space, useColors, dock } from '../../src/ui';
 
 /** Shoots: gemerkte Spots. Später: eigene Shoot-Listen mit Route (Etappe G). */
 export default function Shoots() {
@@ -13,7 +13,7 @@ export default function Shoots() {
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: c.paper }}>
-      <ScrollView contentContainerStyle={{ paddingBottom: space.xxl }}>
+      <ScrollView contentContainerStyle={{ paddingBottom: dock.clearance }}>
         <View style={st.head}>
           <T variant="title" accessibilityRole="header">Shoots</T>
           <T color="asphalt">

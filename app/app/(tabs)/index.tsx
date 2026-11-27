@@ -6,7 +6,7 @@ import { FilterBar } from '../../src/components/ui';
 import { PHOTO_SPOT_IDS } from '../../src/data/images';
 import { fmtDist } from '../../src/data/spots';
 import { useStore } from '../../src/store';
-import { Masonry, Skeleton, T, pinRatio, space, useColors, type Pin } from '../../src/ui';
+import { IconButton, Masonry, Skeleton, T, pinRatio, space, useColors, type Pin, dock } from '../../src/ui';
 
 /** Home: Raster mit allen Fotos der Spots (leer und mit Person). Tippen öffnet den Spot groß. */
 export default function Home() {
@@ -37,10 +37,11 @@ export default function Home() {
       <ScrollView
         stickyHeaderIndices={[1]}
         refreshControl={<RefreshControl refreshing={false} onRefresh={reload} tintColor={c.asphalt} />}
-        contentContainerStyle={{ paddingBottom: space.xxl }}
+        contentContainerStyle={{ paddingBottom: dock.clearance }}
       >
         <View style={st.bar}>
-          <T variant="title" accessibilityRole="header">fitspot</T>
+          <T variant="title" accessibilityRole="header" style={{ flex: 1 }}>fitspot</T>
+          <IconButton icon="add" size={30} label="Neuen Spot hochladen" onPress={() => router.push('/upload')} />
         </View>
         <View style={{ backgroundColor: c.paper }}>
           <FilterBar />
@@ -64,7 +65,7 @@ export default function Home() {
 }
 
 const st = StyleSheet.create({
-  bar: { minHeight: 48, justifyContent: 'center', paddingHorizontal: space.lg },
+  bar: { minHeight: 48, flexDirection: 'row', alignItems: 'center', paddingLeft: space.lg, paddingRight: space.sm },
   loading: { flexDirection: 'row', gap: space.sm, padding: space.sm },
   empty: { padding: space.xl, gap: space.sm },
 });

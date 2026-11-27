@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { fmtDist } from '../../src/data/spots';
 import { useAuth } from '../../src/lib/auth';
 import { useStore } from '../../src/store';
-import { Avatar, Button, PhotoGrid, T, space, useColors } from '../../src/ui';
+import { Avatar, Button, PhotoGrid, T, space, useColors, dock } from '../../src/ui';
 
 export default function Profile() {
   const c = useColors();
@@ -41,7 +41,7 @@ export default function Profile() {
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: c.paper }}>
-      <ScrollView contentContainerStyle={{ paddingBottom: space.xxl }}>
+      <ScrollView contentContainerStyle={{ paddingBottom: dock.clearance }}>
         <View style={st.head}>
           <Pressable onPress={changeAvatar} disabled={busy} accessibilityRole="button" accessibilityLabel="Profilbild ändern">
             <Avatar source={profile.avatar_url ? { uri: profile.avatar_url } : undefined} size={84} ring="new"
