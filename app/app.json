@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "fitspot",
+    "slug": "fitspot",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.nofufu.fitspot"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "com.nofufu.fitspot"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      "expo-image",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "fitspot braucht Zugriff auf deine Fotos, damit du Spots hochladen kannst.",
+          "cameraPermission": "fitspot braucht die Kamera, damit du Spots direkt fotografieren kannst."
+        }
+      ]
+    ],
+    "scheme": "fitspot"
+  }
+}
