@@ -117,3 +117,6 @@ Token `grid` (Rand 4, Spaltenabstand 6, Ecken 16, Fußzeile 28). Kacheln: nur Bi
 
 ## PhotoPin
 `<PhotoPin photo dot active />`: runde Foto-Markierung für Karten (Entdecken, Shoots). Im `Marker` mit `anchor={{x:0.5,y:1}}` und `tracksViewChanges` nur kurz an.
+
+## Kategorie-Symbole
+Jede Kategorie hat in `CATS` ein `icon` aus **MaterialCommunityIcons** (zweite Icon-Familie, nur hierfür; hat Tür, Burg, Treppe, Strand …). `PhotoPin` zeigt es als kleines farbiges Rund-Schild unten rechts.

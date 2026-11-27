@@ -9,20 +9,29 @@ export type Cat =
   | 'industrial'
   | 'treppe'
   | 'nacht'
-  | 'architektur';
+  | 'architektur'
+  | 'strand'
+  | 'aussicht'
+  | 'altstadt';
 
-export const CATS: { key: Cat; label: string; color: string }[] = [
-  { key: 'urban', label: 'Urban & Street', color: catColors.urban },
-  { key: 'tuer', label: 'Türen', color: catColors.tuer },
-  { key: 'natur', label: 'Natur', color: catColors.natur },
-  { key: 'cafe', label: 'Café', color: catColors.cafe },
-  { key: 'industrial', label: 'Industrial', color: catColors.industrial },
-  { key: 'treppe', label: 'Treppen', color: catColors.treppe },
-  { key: 'nacht', label: 'Nacht & Neon', color: catColors.nacht },
-  { key: 'architektur', label: 'Architektur', color: catColors.architektur },
+/** Symbol je Kategorie (MaterialCommunityIcons, hat Tür, Burg, Treppe …). */
+export type CatIcon = 'spray' | 'door' | 'tree' | 'coffee' | 'factory' | 'stairs' | 'weather-night' | 'domain' | 'beach' | 'binoculars' | 'castle';
+
+export const CATS: { key: Cat; label: string; color: string; icon: CatIcon }[] = [
+  { key: 'urban', label: 'Urban & Street', color: catColors.urban, icon: 'spray' },
+  { key: 'tuer', label: 'Türen', color: catColors.tuer, icon: 'door' },
+  { key: 'natur', label: 'Natur', color: catColors.natur, icon: 'tree' },
+  { key: 'cafe', label: 'Café', color: catColors.cafe, icon: 'coffee' },
+  { key: 'industrial', label: 'Industrial', color: catColors.industrial, icon: 'factory' },
+  { key: 'treppe', label: 'Treppen', color: catColors.treppe, icon: 'stairs' },
+  { key: 'nacht', label: 'Nacht & Neon', color: catColors.nacht, icon: 'weather-night' },
+  { key: 'architektur', label: 'Architektur', color: catColors.architektur, icon: 'domain' },
+  { key: 'strand', label: 'Strand', color: catColors.strand, icon: 'beach' },
+  { key: 'aussicht', label: 'Aussicht', color: catColors.aussicht, icon: 'binoculars' },
+  { key: 'altstadt', label: 'Altstadt & Burgen', color: catColors.altstadt, icon: 'castle' },
 ];
 /** Kurze Namen für enge Stellen (Story-Kreise). */
-export const SHORT: Partial<Record<Cat, string>> = { urban: 'Urban', nacht: 'Nacht', architektur: 'Architektur' };
+export const SHORT: Partial<Record<Cat, string>> = { urban: 'Urban', nacht: 'Nacht', architektur: 'Architektur', altstadt: 'Altstadt' };
 
 export const catInfo = (c: Cat) => CATS.find((x) => x.key === c)!;
 
@@ -35,6 +44,9 @@ export const TIPS: Record<Cat, { best: string; tip: string }> = {
   treppe: { best: 'Früh morgens, wenig Leute', tip: '24 mm · f/5.6 · von unten nach oben' },
   nacht: { best: 'Blaue Stunde bis 23 Uhr', tip: '35 mm · f/1.4 · ISO 1600, Neon als Licht' },
   architektur: { best: 'Mittags, klare Kanten', tip: '24 mm · f/8 · Linien gerade halten' },
+  strand: { best: 'Sonnenaufgang, leerer Strand', tip: '35 mm · f/4 · Horizont gerade' },
+  aussicht: { best: 'Später Nachmittag bis Sonnenuntergang', tip: '24 mm · f/8 · Person klein vor der Stadt' },
+  altstadt: { best: 'Früh morgens, bevor es voll wird', tip: '35 mm · f/2.8 · Gassen als Rahmen' },
 };
 
 /** Gebündeltes Bild (require) oder Datei-URI vom Upload. */
@@ -55,11 +67,20 @@ export type Spot = {
   creator?: string | null;
   creatorAvatar?: string | null;
   instagramUrl?: string | null;
+  city?: City;
 };
 
 /** Simulierter Standort (Jahnplatz). Echter Standort kommt mit expo-location. */
 export const ME = { lat: 52.0225, lon: 8.533 };
 export const BIELEFELD = { latitude: 52.0215, longitude: 8.531, latitudeDelta: 0.035, longitudeDelta: 0.035 };
+
+/** Städte mit Spots. Mitte = Stadtzentrum, Ausschnitt für die Karte. */
+export type City = 'Bielefeld' | 'Barcelona';
+export const CITIES: Record<City, { lat: number; lon: number; region: typeof BIELEFELD }> = {
+  Bielefeld: { lat: ME.lat, lon: ME.lon, region: BIELEFELD },
+  Barcelona: { lat: 41.3874, lon: 2.1686, region: { latitude: 41.3874, longitude: 2.1686, latitudeDelta: 0.09, longitudeDelta: 0.09 } },
+};
+export const CITY_NAMES = Object.keys(CITIES) as City[];
 
 type Raw = [number, string, Cat[], number, number, string, string, number];
 const RAW: Raw[] = [

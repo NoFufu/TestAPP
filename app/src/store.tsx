@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { SPOT_IMAGES } from './data/images';
-import { CATS, ME, SAMPLE_SPOTS, distanceKm, type Cat, type Spot } from './data/spots';
+import { CATS, CITIES, CITY_NAMES, ME, SAMPLE_SPOTS, distanceKm, type Cat, type City, type Spot } from './data/spots';
 import { photoUrl, supabase, type NearbyRow } from './lib/supabase';
 
 type UserSpot = Omit<Spot, 'images'> & { uri: string };
@@ -18,6 +18,9 @@ type Store = {
   locate: () => Promise<{ lat: number; lon: number } | null>;
   spots: (Spot & { dist: number })[];
   visible: (Spot & { dist: number })[];
+  /** Stadt, die Karte und Feed gerade zeigen. */
+  city: City;
+  setCity: (c: City) => void;
   filters: Set<Cat>;
   toggleFilter: (c: Cat) => void;
   clearFilters: () => void;
@@ -41,6 +44,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [userSpots, setUserSpots] = useState<UserSpot[]>([]);
   const [mapCenter, setMapCenter] = useState({ lat: 52.0215, lon: 8.531 });
   const [remote, setRemote] = useState<Spot[] | null>(null);
+  const [city, setCity] = useState<City>('Bielefeld');
   const [source, setSource] = useState<Store['source']>('loading');
   const [me, setMe] = useState(ME);
   const [realLocation, setRealLocation] = useState(false);
@@ -61,18 +65,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => { locate(); }, [locate]);
 
   const reload = useCallback(() => {
-    supabase
-      .rpc('spots_nearby', { lat: ME.lat, lon: ME.lon, radius_m: 20000 })
+    Promise.all(CITY_NAMES.map((name) => supabase
+      .rpc('spots_nearby', { lat: CITIES[name].lat, lon: CITIES[name].lon, radius_m: 20000 })
       .then(({ data, error }) => {
         if (error || !data) throw error ?? new Error('keine Daten');
+        return (data as NearbyRow[]).map((r) => ({ r, city: name }));
+      })))
+      .then((lists) => {
         const valid = new Set(CATS.map((c) => c.key));
-        setRemote((data as NearbyRow[]).map((r) => ({
-          id: r.id, name: r.name, desc: r.description, area: r.area, lat: r.lat, lon: r.lon, likes: r.likes_count,
+        setRemote(lists.flat().map(({ r, city }) => ({
+          id: r.id, name: r.name, desc: r.description, area: r.area, lat: r.lat, lon: r.lon, likes: r.likes_count, city,
           cats: r.categories.filter((c): c is Cat => valid.has(c as Cat)),
-          // Titelbild aus dem Speicher; die 30 Start-Spots nutzen vorerst die mitgelieferten Platzhalter.
+          // Titelbild aus dem Speicher; Start-Spots nutzen die mitgelieferten Bilder.
           images: [
             r.cover_path ? { uri: photoUrl(r.cover_path) } : SPOT_IMAGES[r.id]?.[0],
             r.person_path ? { uri: photoUrl(r.person_path) } : SPOT_IMAGES[r.id]?.[1],
+            ...(SPOT_IMAGES[r.id]?.slice(2) ?? []),
           ].filter((x): x is NonNullable<typeof x> => x != null),
           creator: r.creator, creatorAvatar: r.creator_avatar, instagramUrl: r.instagram_url,
         })).filter((s) => s.cats.length && s.images.length));
@@ -130,12 +138,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [userSpots, remote, me]);
 
   const visible = useMemo(
-    () => (filters.size ? spots.filter((s) => s.cats.some((c) => filters.has(c))) : spots),
-    [spots, filters],
+    () => spots.filter((s) => (s.city ?? 'Bielefeld') === city && (!filters.size || s.cats.some((c) => filters.has(c)))),
+    [spots, filters, city],
   );
 
   const value: Store = {
-    source, reload, me, realLocation, locate, spots, visible, filters, toggleFilter, clearFilters: () => setFilters(new Set()),
+    source, reload, city, setCity, me, realLocation, locate, spots, visible, filters, toggleFilter, clearFilters: () => setFilters(new Set()),
     saved, toggleSave, addSpot, likedPosts, toggleLikePost, mapCenter, setMapCenter,
   };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

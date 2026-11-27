@@ -10,8 +10,10 @@ import { Button, PhotoGrid, PhotoPin, T, radius, space, useColors, useIsDark, do
 /** Shoots: gemerkte Spots. Später: eigene Shoot-Listen mit Route (Etappe G). */
 export default function Shoots() {
   const c = useColors();
-  const { spots, saved } = useStore();
+  const { spots, saved, city } = useStore();
   const dark = useIsDark();
+  // Karte nur für eine Stadt, sonst wird sie zur Europakarte mit winzigen Punkten.
+  const onMap = (() => { const l = spots.filter((s) => saved.has(s.id)); const here = l.filter((s) => (s.city ?? 'Bielefeld') === city); return here.length ? here : l.filter((s) => (s.city ?? 'Bielefeld') === (l[0]?.city ?? 'Bielefeld')); })();
   const { width } = useWindowDimensions();
   const map = useRef<MapView>(null);
   // Fotos laden kurz nach, danach Markierungen einfrieren (schneller).
@@ -38,23 +40,23 @@ export default function Shoots() {
         ) : null}
         {list.length ? (
           <View style={st.mapWrap}>
-            <T variant="name" accessibilityRole="header">Auf der Karte</T>
+            <T variant="name" accessibilityRole="header">Auf der Karte · {onMap[0]?.city ?? 'Bielefeld'}</T>
             <MapView
               ref={map}
               style={{ width: width - space.lg * 2, height: width - space.lg * 2, borderRadius: radius.card }}
-              initialRegion={{ latitude: list[0].lat, longitude: list[0].lon, latitudeDelta: 0.05, longitudeDelta: 0.05 }}
-              onMapReady={() => map.current?.fitToCoordinates(list.map((s) => ({ latitude: s.lat, longitude: s.lon })),
+              initialRegion={{ latitude: onMap[0].lat, longitude: onMap[0].lon, latitudeDelta: 0.05, longitudeDelta: 0.05 }}
+              onMapReady={() => map.current?.fitToCoordinates(onMap.map((s) => ({ latitude: s.lat, longitude: s.lon })),
                 { edgePadding: { top: space.xxl * 2, bottom: space.xxl, left: space.xxl, right: space.xxl }, animated: false })}
               showsUserLocation
               showsPointsOfInterests={false}
               userInterfaceStyle={dark ? 'dark' : 'light'}
               accessibilityLabel="Karte mit deinen gemerkten Spots"
             >
-              {list.map((s) => (
+              {onMap.map((s) => (
                 <Marker key={s.id} coordinate={{ latitude: s.lat, longitude: s.lon }} anchor={{ x: 0.5, y: 1 }}
                   tracksViewChanges={livePins} accessibilityLabel={s.name}
                   onPress={() => router.push(`/spot/${s.id}`)}>
-                  <PhotoPin photo={s.images[0]} dot={catInfo(s.cats[0]).color} />
+                  <PhotoPin photo={s.images[0]} dot={catInfo(s.cats[0]).color} icon={catInfo(s.cats[0]).icon} />
                 </Marker>
               ))}
             </MapView>

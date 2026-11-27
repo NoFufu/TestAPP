@@ -52,7 +52,7 @@ export default function SpotDetail() {
   const similar = useMemo(() => {
     if (!s) return [];
     return spots
-      .filter((x) => x.id !== s.id && x.cats.some((k) => s.cats.includes(k)))
+      .filter((x) => x.id !== s.id && (x.city ?? 'Bielefeld') === (s.city ?? 'Bielefeld') && x.cats.some((k) => s.cats.includes(k)))
       .map((x) => ({ x, d: distanceKm(s, x) }))
       .sort((a, b) => a.d - b.d)
       .slice(0, 12);
@@ -110,7 +110,7 @@ export default function SpotDetail() {
 
         <View style={st.body}>
           <T variant="title" accessibilityRole="header">{s.name}</T>
-          <T variant="small" color="asphalt">{s.area || 'Bielefeld'} · {fmtDist(s.dist)} · {s.cats.map((k) => catInfo(k).label).join(', ')}</T>
+          <T variant="small" color="asphalt">{s.area || s.city || 'Bielefeld'} · {fmtDist(s.dist)} · {s.cats.map((k) => catInfo(k).label).join(', ')}</T>
           {s.desc ? <T numberOfLines={3}>{s.desc}</T> : null}
           {light ? <SunArc sunrise={light.sunrise} sunset={light.sunset} golden={light.golden} now={light.now} /> : null}
         </View>

@@ -60,6 +60,9 @@ export const catColors = {
   treppe: '#7B74C9',
   nacht: '#3E9DB3',
   architektur: '#7E8896',
+  strand: '#C9A23A',
+  aussicht: '#4F86C6',
+  altstadt: '#8C6B4F',
 } as const;
 
 /** 4er-Raster */

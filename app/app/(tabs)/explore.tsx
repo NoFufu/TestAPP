@@ -7,7 +7,7 @@ import { FlatList, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import MapView, { Marker } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FilterBar } from '../../src/components/ui';
-import { BIELEFELD, catInfo, distanceKm, fmtDist } from '../../src/data/spots';
+import { BIELEFELD, CITIES, CITY_NAMES, catInfo, distanceKm, fmtDist } from '../../src/data/spots';
 import { useStore } from '../../src/store';
 import { PhotoGrid, PhotoPin, T, hit, radius, space, useColors, useIsDark, dock } from '../../src/ui';
 
@@ -21,7 +21,7 @@ export default function Explore() {
   const dark = useIsDark();
   const insets = useSafeAreaInsets();
   const map = useRef<MapView>(null);
-  const { visible, setMapCenter, source, me, realLocation, locate } = useStore();
+  const { visible, setMapCenter, source, me, realLocation, locate, city, setCity } = useStore();
   const [mode, setMode] = useState<Mode>('map');
   const [selId, setSelId] = useState<number | null>(null);
   const [livePins, setLivePins] = useState(true);
@@ -53,6 +53,12 @@ export default function Explore() {
       map.current?.animateToRegion({ latitude: me.lat, longitude: me.lon, latitudeDelta: 0.02, longitudeDelta: 0.02 }, 600);
     }
   }, [realLocation, me]);
+
+  function switchCity() {
+    const next = CITY_NAMES[(CITY_NAMES.indexOf(city) + 1) % CITY_NAMES.length];
+    setCity(next); setSelId(null);
+    map.current?.animateToRegion(CITIES[next].region, 700);
+  }
 
   async function goToMe() {
     const here = realLocation ? me : await locate();
@@ -95,7 +101,7 @@ export default function Explore() {
                 anchor={{ x: 0.5, y: 1 }}
                 accessibilityLabel={s.name}
               >
-                <PhotoPin photo={s.images[0]} dot={catInfo(s.cats[0]).color} active={active} />
+                <PhotoPin photo={s.images[0]} dot={catInfo(s.cats[0]).color} icon={catInfo(s.cats[0]).icon} active={active} />
               </Marker>
             );
           })}
@@ -126,7 +132,11 @@ export default function Explore() {
         onLayout={(e) => setHeaderH(e.nativeEvent.layout.height)}
       >
         <View style={st.top}>
-          <T variant="title" accessibilityRole="header">Bielefeld</T>
+          <Pressable onPress={switchCity} hitSlop={space.sm} accessibilityRole="button"
+            accessibilityLabel={`Stadt: ${city}. Tippen, um die Stadt zu wechseln`} style={st.city}>
+            <T variant="title" accessibilityRole="header">{city}</T>
+            <Ionicons name="chevron-down" size={18} color={c.ink} />
+          </Pressable>
           <T variant="small" color="asphalt" style={{ flex: 1 }}>{status}</T>
           <View style={[st.seg, { backgroundColor: c.fill }]} accessibilityRole="tablist">
             {(['map', 'grid'] as const).map((m) => (
@@ -194,6 +204,7 @@ export default function Explore() {
 }
 
 const st = StyleSheet.create({
+  city: { flexDirection: 'row', alignItems: 'center', gap: space.xs },
   header: { position: 'absolute', top: 0, left: 0, right: 0, overflow: 'hidden' },
   top: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingHorizontal: space.lg },
   seg: { flexDirection: 'row', padding: 3, borderRadius: radius.pill },

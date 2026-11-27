@@ -24,7 +24,7 @@ export default function Home() {
         photo: img,
         ratio: pinRatio(s.id * 3 + k),
         title: s.name,
-        subtitle: `${s.area || 'Bielefeld'}, ${fmtDist(s.dist)}`,
+        subtitle: `${s.area || s.city || 'Bielefeld'}, ${fmtDist(s.dist)}`,
         label: `${s.name}, ${k ? 'mit Person' : 'der Spot'}, ${fmtDist(s.dist)} entfernt. Öffnen`,
         saved: saved.has(s.id),
         onPress: () => router.push({ pathname: '/spot/[id]', params: { id: String(s.id), photo: String(k) } }),
