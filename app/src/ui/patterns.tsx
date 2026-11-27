@@ -1,9 +1,10 @@
 import { Image, type ImageSource } from 'expo-image';
 import type React from 'react';
 import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
-import { IconButton, T, haptic } from './components';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { T, haptic } from './components';
 import { useColors } from './theme';
-import { radius, space } from './tokens';
+import { grid, radius, space } from './tokens';
 
 /* ---------- Masonry ---------- */
 export type Pin = {
@@ -21,21 +22,21 @@ export type Pin = {
 /** Zweispaltiges Raster mit unterschiedlich hohen Kacheln. Verteilt Kacheln immer auf die kürzere Spalte. */
 export function Masonry({ pins, header }: { pins: Pin[]; header?: React.ReactNode }) {
   const { width } = useWindowDimensions();
-  const gap = space.sm;
-  const colW = (width - gap * 3) / 2;
+  const gap = grid.gap;
+  const colW = (width - grid.edge * 2 - gap) / 2;
   const cols: Pin[][] = [[], []];
   const h = [0, 0];
   for (const p of pins) {
     const i = h[0] <= h[1] ? 0 : 1;
     cols[i].push(p);
-    h[i] += colW * p.ratio + (p.title ? 44 : 0) + gap;
+    h[i] += colW * p.ratio + (p.title || p.onSave ? grid.footer : gap);
   }
   return (
     <View>
       {header}
-      <View style={{ flexDirection: 'row', gap, paddingHorizontal: gap }}>
+      <View style={{ flexDirection: 'row', gap, paddingHorizontal: grid.edge }}>
         {cols.map((col, ci) => (
-          <View key={ci} style={{ width: colW, gap }}>
+          <View key={ci} style={{ width: colW }}>
             {col.map((p) => <PinTile key={p.key} pin={p} width={colW} />)}
           </View>
         ))}
@@ -46,23 +47,22 @@ export function Masonry({ pins, header }: { pins: Pin[]; header?: React.ReactNod
 
 function PinTile({ pin, width }: { pin: Pin; width: number }) {
   const c = useColors();
+  const foot = pin.title || pin.onSave;
   return (
-    <View>
+    <View style={{ marginBottom: foot ? 0 : grid.gap }}>
       <Pressable onPress={pin.onPress} accessibilityRole="button" accessibilityLabel={pin.label}>
-        <Image source={pin.photo} style={{ width, height: width * pin.ratio, borderRadius: radius.card - 4, backgroundColor: c.fill }}
+        <Image source={pin.photo} style={{ width, height: width * pin.ratio, borderRadius: grid.radius, backgroundColor: c.fill }}
           contentFit="cover" transition={150} />
       </Pressable>
-      {pin.title ? (
+      {foot ? (
         <View style={st.pinText}>
-          <View style={{ flex: 1 }}>
-            <T variant="label" numberOfLines={1}>{pin.title}</T>
-            {pin.subtitle ? <T variant="small" color="asphalt" numberOfLines={1}>{pin.subtitle}</T> : null}
-          </View>
+          <T variant="small" color="asphalt" numberOfLines={1} style={{ flex: 1 }}>{pin.title ?? ''}</T>
           {pin.onSave ? (
-            <IconButton icon={pin.saved ? 'bookmark' : 'bookmark-outline'} size={20}
-              label={pin.saved ? `${pin.title} aus Merkliste entfernen` : `${pin.title} merken`}
-              color={pin.saved ? c.cherry : c.ink}
-              onPress={() => { haptic.select(); pin.onSave?.(); }} style={{ minWidth: 36, minHeight: 40 }} />
+            <Pressable hitSlop={space.md} accessibilityRole="button"
+              accessibilityLabel={pin.saved ? `${pin.title ?? 'Spot'} aus Merkliste entfernen` : `${pin.title ?? 'Spot'} merken`}
+              onPress={() => { haptic.select(); pin.onSave?.(); }}>
+              <Ionicons name={pin.saved ? 'bookmark' : 'bookmark-outline'} size={16} color={pin.saved ? c.cherry : c.asphalt} />
+            </Pressable>
           ) : null}
         </View>
       ) : null}
@@ -124,6 +124,6 @@ export function PhotoGrid({ items, layout = 'square' }: { items: GridItem[]; lay
 }
 
 const st = StyleSheet.create({
-  pinText: { flexDirection: 'row', alignItems: 'center', paddingLeft: space.xs, paddingTop: space.xs },
+  pinText: { flexDirection: 'row', alignItems: 'center', height: grid.footer, paddingHorizontal: space.xs, gap: space.xs },
   wrap: { flexDirection: 'row', flexWrap: 'wrap' },
 });

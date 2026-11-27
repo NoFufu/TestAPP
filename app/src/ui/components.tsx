@@ -106,6 +106,18 @@ export function Chip({ label, selected, dot, onPress }: ChipProps) {
   );
 }
 
+/* ---------- Tab (Text-Reiter wie bei Pinterest) ---------- */
+/** Reiter: nur Text, ausgewählt fett mit Strich darunter. */
+export function Tab({ label, selected, onPress }: { label: string; selected?: boolean; onPress: () => void }) {
+  const c = useColors();
+  return (
+    <Pressable onPress={onPress} accessibilityRole="tab" accessibilityState={{ selected: !!selected }} style={s.tab}>
+      <Text style={[type.name, { color: selected ? c.ink : c.asphalt }]}>{label}</Text>
+      <View style={[s.tabLine, { backgroundColor: selected ? c.ink : 'transparent' }]} />
+    </Pressable>
+  );
+}
+
 /* ---------- SpotSign (Erkennungszeichen) ---------- */
 type SpotSignProps = { name: string; distance?: string; onPress?: () => void; style?: StyleProp<ViewStyle> };
 /** Das Spot-Schild: sitzt unten links auf Fotos, wie ein Straßenschild. */
@@ -229,6 +241,8 @@ export const haptic = {
 };
 
 const s = StyleSheet.create({
+  tab: { minHeight: hit, justifyContent: 'center', gap: space.xs, paddingTop: space.xs },
+  tabLine: { height: 2, borderRadius: radius.pill },
   btn: { minHeight: hit + 4, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: space.sm, paddingHorizontal: space.xl, borderRadius: radius.pill },
   iconBtn: { minWidth: hit, minHeight: hit, alignItems: 'center', justifyContent: 'center' },
   chip: { minHeight: 36, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: space.md + 2, borderRadius: radius.pill, borderWidth: 1 },

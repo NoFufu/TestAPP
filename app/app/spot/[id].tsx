@@ -10,7 +10,7 @@ import { catInfo, distanceKm, fmtDist, type SpotImage } from '../../src/data/spo
 import { useAuth } from '../../src/lib/auth';
 import { loadSpotPhotos, type SpotPhoto } from '../../src/lib/upload';
 import { useStore } from '../../src/store';
-import { Button, Chip, IconButton, Masonry, SunArc, T, pinRatio, radius, space, useColors, type Pin } from '../../src/ui';
+import { Button, IconButton, Masonry, SunArc, T, grid, pinRatio, radius, space, useColors, type Pin } from '../../src/ui';
 
 type Shot = { key: string; src: SpotImage; label: string };
 
@@ -90,7 +90,7 @@ export default function SpotDetail() {
         <View style={st.hero}>
           {big ? (
             <Image source={big.src} accessibilityLabel={`${s.name}: ${big.label}`}
-              style={{ width: width - space.sm * 2, height: (width - space.sm * 2) * 1.3, backgroundColor: c.fill, borderRadius: radius.card }}
+              style={{ width: width - grid.edge * 2, height: (width - grid.edge * 2) * 1.3, backgroundColor: c.fill, borderRadius: grid.radius * 2 }}
               contentFit="cover" transition={150} />
           ) : null}
           <IconButton icon="chevron-down" label="Schließen" color={c.onPhoto} size={24} onPress={() => router.back()}
@@ -111,22 +111,17 @@ export default function SpotDetail() {
         </View>
 
         <View style={st.body}>
-          <T variant="display" accessibilityRole="header">{s.name}</T>
-          <T variant="small" color="asphalt">{s.area || 'Bielefeld'} · {fmtDist(s.dist)}</T>
-          {s.desc ? <T numberOfLines={3}>{s.desc}</T> : null}
-          <View style={st.row}>
-            {s.cats.map((k) => <Chip key={k} label={catInfo(k).label} dot={catInfo(k).color} />)}
-          </View>
+          <T variant="title" accessibilityRole="header">{s.name}</T>
+          <T variant="small" color="asphalt">{s.area || 'Bielefeld'} · {fmtDist(s.dist)} · {s.cats.map((k) => catInfo(k).label).join(', ')}</T>
+          {s.desc ? <T numberOfLines={2}>{s.desc}</T> : null}
           {light ? (
-            <View style={[st.sunCard, { backgroundColor: c.surface }]}>
-              <SunArc sunrise={light.sunrise} sunset={light.sunset} golden={light.golden} now={light.now} />
-            </View>
+            <SunArc sunrise={light.sunrise} sunset={light.sunset} golden={light.golden} now={light.now} />
           ) : null}
         </View>
 
         {morePins.length ? (
           <View style={st.section}>
-            <T variant="title" accessibilityRole="header" style={st.pad}>Fotos hier</T>
+            <T variant="name" accessibilityRole="header" style={st.head}>Fotos hier</T>
             <Masonry pins={morePins} />
           </View>
         ) : null}
@@ -149,7 +144,7 @@ export default function SpotDetail() {
 
         {similarPins.length ? (
           <View style={st.section}>
-            <T variant="title" accessibilityRole="header" style={st.pad}>Mehr wie das</T>
+            <T variant="name" accessibilityRole="header" style={st.head}>Mehr wie das</T>
             <Masonry pins={similarPins} />
           </View>
         ) : null}
@@ -160,13 +155,13 @@ export default function SpotDetail() {
 
 const st = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: space.lg, padding: space.xl },
-  hero: { paddingHorizontal: space.sm, paddingTop: space.sm },
+  hero: { paddingHorizontal: grid.edge, paddingTop: grid.edge },
   close: { position: 'absolute', top: space.lg, left: space.lg, borderRadius: radius.pill },
-  actions: { flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingHorizontal: space.md, paddingTop: space.md },
-  body: { paddingHorizontal: space.lg, paddingTop: space.xs, gap: space.sm },
+  actions: { flexDirection: 'row', alignItems: 'center', gap: space.xs, paddingHorizontal: space.sm, paddingTop: space.sm },
+  body: { paddingHorizontal: space.lg, gap: space.sm },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
-  sunCard: { padding: space.md, borderRadius: radius.card },
-  section: { gap: space.md, paddingTop: space.lg },
+  section: { gap: space.sm, paddingTop: space.xl },
   pad: { paddingHorizontal: space.lg },
+  head: { textAlign: 'center' },
   instaTile: { gap: space.md, padding: space.md, borderRadius: radius.thumb + 2, borderWidth: StyleSheet.hairlineWidth },
 });

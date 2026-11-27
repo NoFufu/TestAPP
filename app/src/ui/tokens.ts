@@ -61,6 +61,9 @@ export const catColors = {
 /** 4er-Raster */
 export const space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 } as const;
 
+/** Pinterest-artiges Raster: schmaler Rand, enge Spalten, runde Kacheln */
+export const grid = { edge: 4, gap: 6, radius: 16, footer: 28 } as const;
+
 /** Ecken nach Rolle, nicht eine für alles */
 export const radius = {
   photo: 0,    // Feed-Fotos randlos

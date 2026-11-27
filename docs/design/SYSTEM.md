@@ -104,3 +104,7 @@ Weitere: `motion` (fast 120 ms, base 220 ms, pop-Feder fürs Herz), `hit` = 44 (
 
 ## SunArc (Sonnenuhr)
 `<SunArc sunrise sunset golden now />` aus `src/ui/sun.tsx`: Halbbogen von Aufgang bis Untergang, Golden Hour in `sun`-Farbe, Sonne an der aktuellen Stelle, Status-Satz in der Mitte. Farben: Tokens `sun`, `sunTrack`.
+- Update: SunArc ist jetzt klein (Mini-Bogen + ein Satz), sitzt in der Infozeile.
+
+## Raster wie Pinterest
+Token `grid` (Rand 4, Spaltenabstand 6, Ecken 16, Fußzeile 28). Kacheln: nur Bild + kleine Zeile (Name grau, Merken-Symbol). `Tab` = Text-Reiter mit Strich (Filterleiste).
