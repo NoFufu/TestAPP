@@ -1,10 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { ME, SAMPLE_SPOTS, distanceKm, type Cat, type Spot } from './data/spots';
+import { SPOT_IMAGES } from './data/images';
+import { CATS, ME, SAMPLE_SPOTS, distanceKm, type Cat, type Spot } from './data/spots';
+import { photoUrl, supabase, type NearbyRow } from './lib/supabase';
 
 type UserSpot = Omit<Spot, 'images'> & { uri: string };
 
 type Store = {
+  /** 'cloud' = aus Supabase geladen, 'local' = Beispieldaten in der App. */
+  source: 'loading' | 'cloud' | 'local';
+  reload: () => void;
   spots: (Spot & { dist: number })[];
   visible: (Spot & { dist: number })[];
   filters: Set<Cat>;
@@ -26,6 +31,26 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [saved, setSaved] = useState<Set<number>>(new Set());
   const [userSpots, setUserSpots] = useState<UserSpot[]>([]);
   const [mapCenter, setMapCenter] = useState({ lat: 52.0215, lon: 8.531 });
+  const [remote, setRemote] = useState<Spot[] | null>(null);
+  const [source, setSource] = useState<Store['source']>('loading');
+
+  const reload = useCallback(() => {
+    supabase
+      .rpc('spots_nearby', { lat: ME.lat, lon: ME.lon, radius_m: 20000 })
+      .then(({ data, error }) => {
+        if (error || !data) throw error ?? new Error('keine Daten');
+        const valid = new Set(CATS.map((c) => c.key));
+        setRemote((data as NearbyRow[]).map((r) => ({
+          id: r.id, name: r.name, desc: r.description, area: r.area, lat: r.lat, lon: r.lon, likes: r.likes_count,
+          cats: r.categories.filter((c): c is Cat => valid.has(c as Cat)),
+          // Titelbild aus dem Speicher; die 30 Start-Spots nutzen vorerst die mitgelieferten Platzhalter.
+          images: r.cover_path ? [{ uri: photoUrl(r.cover_path) }] : SPOT_IMAGES[r.id] ?? [],
+        })).filter((s) => s.cats.length && s.images.length));
+        setSource('cloud');
+      })
+      .then(undefined, () => { setRemote(null); setSource('local'); });
+  }, []);
+  useEffect(reload, [reload]);
 
   useEffect(() => {
     AsyncStorage.multiGet([K_SAVED, K_USER]).then(([[, s], [, u]]) => {
@@ -61,8 +86,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const spots = useMemo(() => {
     const own: Spot[] = userSpots.map(({ uri, ...rest }) => ({ ...rest, images: [{ uri }], user: true }));
-    return [...SAMPLE_SPOTS, ...own].map((s) => ({ ...s, dist: distanceKm(ME, s) }));
-  }, [userSpots]);
+    return [...(remote ?? SAMPLE_SPOTS), ...own].map((s) => ({ ...s, dist: distanceKm(ME, s) }));
+  }, [userSpots, remote]);
 
   const visible = useMemo(
     () => (filters.size ? spots.filter((s) => s.cats.some((c) => filters.has(c))) : spots),
@@ -70,7 +95,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   );
 
   const value: Store = {
-    spots, visible, filters, toggleFilter, clearFilters: () => setFilters(new Set()),
+    source, reload, spots, visible, filters, toggleFilter, clearFilters: () => setFilters(new Set()),
     saved, toggleSave, addSpot, mapCenter, setMapCenter,
   };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

@@ -32,7 +32,7 @@ Jeder kann Spots hochladen, so einfach wie ein Inserat bei Vinted. Die App prüf
 | Framework | **React Native mit Expo**, Sprache **TypeScript** | iOS-Builds in der Cloud ohne Mac, Updates ohne Store-Release, fertige Bausteine für Karte, Kamera und Abo |
 | Navigation | Expo Router (Dateien in `app/app/` = Bildschirme) | Standard bei Expo |
 | Karte | `react-native-maps` (Apple Maps auf iOS, Google Maps auf Android) | gratis, echte Kartendaten |
-| Backend | **Supabase**, Region Frankfurt | Datenbank mit Umkreissuche (PostGIS), Login, Bildspeicher, DSGVO-freundlich |
+| Backend | **Supabase**, Region eu-west-1 (Irland) | Datenbank mit Umkreissuche (PostGIS), Login, Bildspeicher, DSGVO-freundlich |
 | Upload-Prüfung | Supabase Edge Function + Vision-KI + Regeln | siehe Kapitel 5 |
 | Abos | **RevenueCat** | erspart den App-Store-/Play-Abo-Code |
 | Screenshot-Schutz | `expo-screen-capture` | Android blockiert echt, iOS nur Bildschirmaufnahmen |
@@ -46,7 +46,7 @@ Jeder kann Spots hochladen, so einfach wie ein Inserat bei Vinted. Die App prüf
 |---|---|---|
 | **0 · Klick-Prototyp** | HTML-Prototyp im Browser (`prototype/index.html`) | ✅ fertig |
 | **1a · App-Grundgerüst** | Expo-App mit allen 5 Bildschirmen, echte Karte, Filter, Feed, Upload mit gespielter Prüfung, Merkliste, Screenshot-Schutz. Daten liegen noch lokal in der App. | ✅ fertig, wartet auf Test am Handy |
-| **1b · Backend** | Supabase-Projekt, Tabellen (Kapitel 4), Spots aus der Datenbank laden, Bilder in den Speicher, Login per Apple/Google/E-Mail zum Hochladen | ⏳ als Nächstes |
+| **1b · Backend** | Supabase-Projekt, Tabellen (Kapitel 4), Spots aus der Datenbank laden, Bilder in den Speicher, Login per Apple/Google/E-Mail zum Hochladen | 🔶 läuft: Datenbank + 30 Spots live, App lädt Spots aus Supabase. Offen: Login, Upload in den Speicher |
 | **1c · Echte Prüfung** | GPS aus dem Foto lesen, Metadaten vor dem Veröffentlichen entfernen, Duplikat-Check, KI-Check, Warteschlange für Handprüfung, Melde-Button | offen |
 | **1d · Echter Standort** | `expo-location`: Entfernungen und Startausschnitt der Karte nach echtem Standort | offen |
 | **2 · Testphase** | TestFlight (iOS) + interner Test (Play) mit 30–100 Leuten in Bielefeld, 200–500 Spots vorbefüllen | offen |
@@ -55,10 +55,10 @@ Jeder kann Spots hochladen, so einfach wie ein Inserat bei Vinted. Die App prüf
 
 ### Phase 1b im Detail (nächste Schritte)
 
-1. Supabase-Projekt anlegen (machst du, kostenlos, Region *Frankfurt*). Ich brauche danach URL und den öffentlichen „anon key".
-2. Tabellen + Sicherheitsregeln als SQL-Migration ins Repo (`supabase/migrations/`).
-3. Die 30 Beispiel-Spots als Startdaten in die Datenbank.
-4. App lädt Spots per Umkreissuche statt aus `src/data/spots.ts`.
+1. ✅ Supabase-Projekt `weqedfymanchzptccotk` (Region eu-west-1, Irland, also EU).
+2. ✅ Tabellen + Sicherheitsregeln als SQL-Migration (`supabase/migrations/`), eingespielt.
+3. ✅ Die 30 Beispiel-Spots als Startdaten (`supabase/seed.sql`).
+4. ✅ App lädt Spots per Umkreissuche (`spots_nearby`). Ohne Netz fällt sie auf die lokalen Beispieldaten zurück.
 5. Upload speichert Bild im Supabase Storage und legt den Spot mit Status `pending` an.
 6. Login (erst E-Mail-Link, Apple/Google kurz vor Phase 2).
 

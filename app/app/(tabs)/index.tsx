@@ -11,7 +11,7 @@ import { useTheme } from '../../src/theme';
 
 export default function MapScreen() {
   const t = useTheme();
-  const { visible, setMapCenter } = useStore();
+  const { visible, setMapCenter, source } = useStore();
   const [selId, setSelId] = useState<number | null>(null);
   const sel = visible.find((s) => s.id === selId) ?? null;
 
@@ -21,7 +21,9 @@ export default function MapScreen() {
         <View style={st.top}>
           <Text style={[st.brand, { color: t.ink }]}>fit<Text style={{ color: t.accent }}>spot</Text></Text>
           <View style={[st.city, { backgroundColor: t.bg }]}><Text style={{ color: t.ink, fontWeight: '600', fontSize: 13 }}>Bielefeld</Text></View>
-          <Text style={[st.count, { color: t.muted }]}>{visible.length} Spots</Text>
+          <Text style={[st.count, { color: t.muted }]}>
+            {source === 'loading' ? 'lädt …' : `${visible.length} Spots${source === 'local' ? ' · offline' : ''}`}
+          </Text>
         </View>
         <FilterBar />
       </SafeAreaView>
