@@ -111,3 +111,6 @@ export const motion = {
 
 /** Mindest-Tippfläche (Apple HIG) */
 export const hit = 44;
+
+/** Kleine Vorschaubilder in Listen */
+export const thumbSize = 64;

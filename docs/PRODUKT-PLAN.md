@@ -128,6 +128,7 @@ Jede Etappe ist ein eigenes Sitzungs-Thema und endet mit einem Update auf **prev
 | **H · Social & Credits** | Fitpics an Spots ✅, Merkliste in der Cloud, Credits für Spots und Fotos, Rangliste Bielefeld (Likes vorerst gestrichen) | M |
 | **I · Testphase** (Phase 2) | TestFlight/Play-Test mit 30–100 Leuten, Feedback einbauen | – |
 | **J · Abo** (Phase 3) | RevenueCat, Plus-Funktionen | M |
+| **K · Eigene Inhalte verwalten** ✅ 27.11. | Profil → „Meine Inhalte": eigene Spots mit Status, bearbeiten (Name, Beschreibung, Kategorien), löschen; eigene Fotos löschen. Spots mit fremden Fotos sind nicht löschbar (Migration 0004) | S |
 
 Empfohlene Reihenfolge: **D0 → A → B → C → D**, parallel dazu **E** (du sammelst Fotos). Dann F → G → H → I → J.
 
@@ -184,4 +185,5 @@ Pins kleiner, unten eine wischbare Spot-Leiste wie bei Apple Karten ✅ (27.11.)
 |---|---|---|
 | Uploads | sofort sichtbar (`testphase_autolive` setzt `live`) | neue Migration: `pending`, Prüfung (Etappe F) |
 | Login | E-Mail + Passwort, **ohne Bestätigungs-Mail** (`mailer_autoconfirm = true`) | eigener Mail-Dienst (SMTP), Bestätigung wieder an, Code-Login möglich |
+| Bearbeiten | Änderungen an sichtbaren Spots gehen ohne neue Prüfung live | Änderungen erneut prüfen (Etappe F) |
 | Mails | Supabase-Standard, max. 2 pro Stunde | eigener Mail-Dienst |

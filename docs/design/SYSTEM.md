@@ -111,3 +111,6 @@ Token `grid` (Rand 4, Spaltenabstand 6, Ecken 16, Fußzeile 28). Kacheln: nur Bi
 
 ## Dock (Tab-Leiste)
 `Dock` in `src/ui/dock.tsx`: schwebt unten mittig, jedes Symbol in eigenem runden Quadrat (Token `dock`, Farben `dock`/`onDock`). Screens mit Tab-Leiste brauchen unten `dock.clearance` Platz. Hochladen = + oben rechts auf Home.
+
+## StatusBadge
+`<StatusBadge status="pending|live|rejected" />`: kleines umrandetes Schild für den Prüf-Status eigener Inhalte (Sichtbar = Tinte, Wird geprüft = Asphalt, Abgelehnt = danger). Vorschaubilder in Listen: `thumbSize` (64) mit `radius.thumb`.

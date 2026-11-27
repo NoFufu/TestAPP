@@ -241,6 +241,7 @@ export const haptic = {
 };
 
 const s = StyleSheet.create({
+  badge: { borderWidth: 1, borderRadius: radius.pill, paddingHorizontal: space.sm, paddingVertical: 2, alignSelf: 'flex-start' },
   tab: { minHeight: hit, justifyContent: 'center', gap: space.xs, paddingTop: space.xs },
   tabLine: { height: 2, borderRadius: radius.pill },
   btn: { minHeight: hit + 4, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: space.sm, paddingHorizontal: space.xl, borderRadius: radius.pill },
@@ -251,3 +252,16 @@ const s = StyleSheet.create({
   sheet: { borderRadius: radius.card, borderWidth: StyleSheet.hairlineWidth, overflow: 'hidden' },
   center: { alignItems: 'center', justifyContent: 'center' },
 });
+
+/* ---------- StatusBadge ---------- */
+/** Kleines Schild für den Prüf-Status eigener Inhalte. */
+export function StatusBadge({ status }: { status: 'pending' | 'live' | 'rejected' }) {
+  const c = useColors();
+  const label = status === 'live' ? 'Sichtbar' : status === 'pending' ? 'Wird geprüft' : 'Abgelehnt';
+  const color = status === 'rejected' ? c.danger : status === 'live' ? c.ink : c.asphalt;
+  return (
+    <View style={[s.badge, { borderColor: color }]} accessible accessibilityLabel={`Status: ${label}`}>
+      <Text style={[type.small, { color }]}>{label}</Text>
+    </View>
+  );
+}

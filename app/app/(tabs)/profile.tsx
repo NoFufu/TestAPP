@@ -62,6 +62,9 @@ export default function Profile() {
         </View>
         <View style={st.actions}>
           <Button label="Spot hochladen" icon="add" style={{ flex: 1 }} onPress={() => router.navigate('/upload')} />
+          <Button label="Meine Inhalte" icon="create-outline" variant="secondary" style={{ flex: 1 }} onPress={() => router.push('/mine')} />
+        </View>
+        <View style={[st.actions, { paddingTop: 0 }]}>
           <Button label="Abmelden" variant="secondary" style={{ flex: 1 }} onPress={signOut} />
         </View>
         {mine.length ? (
