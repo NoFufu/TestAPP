@@ -30,9 +30,9 @@ export function CityButton({ onSwitch }: { onSwitch?: (c: City) => void }) {
   return (
     <Pressable hitSlop={space.sm} accessibilityRole="button" accessibilityLabel={`Stadt: ${city}. Tippen für ${next}`}
       onPress={() => { haptic.select(); setCity(next); onSwitch?.(next); }} style={s.city}>
-      <T variant="label" color="asphalt">{CITIES[city].country}</T>
-      <T variant="label">{city}</T>
-      <Ionicons name="chevron-down" size={14} color={c.asphalt} />
+      <T variant="title" color="asphalt">{CITIES[city].country}</T>
+      <T variant="title">{city}</T>
+      <Ionicons name="chevron-down" size={18} color={c.asphalt} />
     </Pressable>
   );
 }
