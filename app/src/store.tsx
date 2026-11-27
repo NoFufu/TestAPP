@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Location from 'expo-location';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { SPOT_IMAGES } from './data/images';
 import { CATS, ME, SAMPLE_SPOTS, distanceKm, type Cat, type Spot } from './data/spots';
@@ -10,6 +11,11 @@ type Store = {
   /** 'cloud' = aus Supabase geladen, 'local' = Beispieldaten in der App. */
   source: 'loading' | 'cloud' | 'local';
   reload: () => void;
+  /** Dein Standort (echt, wenn erlaubt; sonst Jahnplatz). */
+  me: { lat: number; lon: number };
+  realLocation: boolean;
+  /** Fragt nach Standort-Erlaubnis und aktualisiert `me`. Gibt den Standort zurück oder null. */
+  locate: () => Promise<{ lat: number; lon: number } | null>;
   spots: (Spot & { dist: number })[];
   visible: (Spot & { dist: number })[];
   filters: Set<Cat>;
@@ -33,6 +39,23 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [mapCenter, setMapCenter] = useState({ lat: 52.0215, lon: 8.531 });
   const [remote, setRemote] = useState<Spot[] | null>(null);
   const [source, setSource] = useState<Store['source']>('loading');
+  const [me, setMe] = useState(ME);
+  const [realLocation, setRealLocation] = useState(false);
+
+  const locate = useCallback(async () => {
+    try {
+      const perm = await Location.requestForegroundPermissionsAsync();
+      if (!perm.granted) return null;
+      const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      const here = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+      setMe(here);
+      setRealLocation(true);
+      return here;
+    } catch {
+      return null;
+    }
+  }, []);
+  useEffect(() => { locate(); }, [locate]);
 
   const reload = useCallback(() => {
     supabase
@@ -86,8 +109,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const spots = useMemo(() => {
     const own: Spot[] = userSpots.map(({ uri, ...rest }) => ({ ...rest, images: [{ uri }], user: true }));
-    return [...(remote ?? SAMPLE_SPOTS), ...own].map((s) => ({ ...s, dist: distanceKm(ME, s) }));
-  }, [userSpots, remote]);
+    return [...(remote ?? SAMPLE_SPOTS), ...own].map((s) => ({ ...s, dist: distanceKm(me, s) }));
+  }, [userSpots, remote, me]);
 
   const visible = useMemo(
     () => (filters.size ? spots.filter((s) => s.cats.some((c) => filters.has(c))) : spots),
@@ -95,7 +118,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   );
 
   const value: Store = {
-    source, reload, spots, visible, filters, toggleFilter, clearFilters: () => setFilters(new Set()),
+    source, reload, me, realLocation, locate, spots, visible, filters, toggleFilter, clearFilters: () => setFilters(new Set()),
     saved, toggleSave, addSpot, mapCenter, setMapCenter,
   };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

@@ -34,6 +34,12 @@
           "cameraPermission": "fitspot braucht die Kamera, damit du Spots direkt fotografieren kannst.",
           "microphonePermission": false
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "fitspot zeigt dir Foto-Spots in deiner N\u00e4he."
+        }
       ]
     ],
     "scheme": "fitspot",

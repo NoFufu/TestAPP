@@ -117,6 +117,7 @@ Jede Etappe ist ein eigenes Sitzungs-Thema und endet mit einem Update auf **prev
 
 | Etappe | Inhalt | Größe |
 |---|---|---|
+| **D0 · Richtige Karte** (vorgezogen) | Karte randlos wie Apple Karten, schwebende Filter, echter Standort, Foto-Pins, Info-Karte unten | S |
 | **A · Login & Upload** (Phase 1b fertig) | E-Mail-Login (Magic Link), Profil-Tabelle, Fotos in Supabase Storage, Uploads mit Status „wird geprüft" | M |
 | **B · Design-System** | Farben, Schrift, Abstände, Grundbausteine; Tab-Leiste mit Icons | S |
 | **C · Insta-Umbau** | Home-Feed mit Post-Karten + Doppeltipp-Like, Entdecken mit Raster ↔ Karte, Profil mit Raster, neue Spot-Seite | L |
@@ -128,7 +129,7 @@ Jede Etappe ist ein eigenes Sitzungs-Thema und endet mit einem Update auf **prev
 | **I · Testphase** (Phase 2) | TestFlight/Play-Test mit 30–100 Leuten, Feedback einbauen | – |
 | **J · Abo** (Phase 3) | RevenueCat, Plus-Funktionen | M |
 
-Empfohlene Reihenfolge: **A → B → C → D**, parallel dazu **E** (du sammelst Fotos). Dann F → G → H → I → J.
+Empfohlene Reihenfolge: **D0 → A → B → C → D**, parallel dazu **E** (du sammelst Fotos). Dann F → G → H → I → J.
 
 ---
 
@@ -145,9 +146,12 @@ Nach der Testphase entscheiden wir mit diesen Zahlen, ob Abo, mehr Städte oder 
 
 ---
 
-## 7. Offene Fragen an dich
+## 7. Entscheidungen (27.11.2026)
 
-1. **Fokus**: eher Outfit-Poster oder Fotografen? Das bestimmt, ob Home mit Menschen-Fotos (Outfits) oder Spot-Fotos startet. Vorschlag: Outfits, weil sie mehr Leute ansprechen.
-2. **Fotos**: Kannst du mit Freunden in den nächsten Wochen 50–100 Bielefeld-Spots fotografieren (je 2–3 Bilder, Hochformat)?
-3. **Kommentare**: von Anfang an, oder erst nur Likes? Kommentare bedeuten mehr Moderationsaufwand.
-4. **Name**: Bleibt es bei „fitspot"? Für das Design-System (Logo, Farbe) wäre das gut zu wissen.
+| Frage | Antwort |
+|---|---|
+| Fokus | **Outfits**: Home startet mit Outfit-Fotos an Spots |
+| Echte Fotos | Ja, später. Bis dahin sucht Claude echte Bielefelder Spots (Orte, keine fremden Fotos) als Basis heraus |
+| Kommentare | Vorerst **nur Likes** |
+| Name | „fitspot" ist nur ein **Platzhalter** |
+| Karte | Dringend: **richtige Apple-Maps-Karte** im Stil der Karten-App (randlos, Standort, Foto-Pins) → vorgezogen als Etappe **D0** |
