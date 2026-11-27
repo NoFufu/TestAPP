@@ -1,11 +1,11 @@
 import { router } from 'expo-router';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { fmtDist } from '../../src/data/spots';
+import { catInfo, fmtDist } from '../../src/data/spots';
 import { useStore } from '../../src/store';
-import { Button, PhotoGrid, T, radius, space, useColors, useIsDark, dock } from '../../src/ui';
+import { Button, PhotoGrid, PhotoPin, T, radius, space, useColors, useIsDark, dock } from '../../src/ui';
 
 /** Shoots: gemerkte Spots. Später: eigene Shoot-Listen mit Route (Etappe G). */
 export default function Shoots() {
@@ -14,6 +14,9 @@ export default function Shoots() {
   const dark = useIsDark();
   const { width } = useWindowDimensions();
   const map = useRef<MapView>(null);
+  // Fotos laden kurz nach, danach Markierungen einfrieren (schneller).
+  const [livePins, setLivePins] = useState(true);
+  useEffect(() => { setLivePins(true); const t = setTimeout(() => setLivePins(false), 1500); return () => clearTimeout(t); }, [saved]);
   const list = spots.filter((s) => saved.has(s.id)).sort((a, b) => a.dist - b.dist);
 
   return (
@@ -48,9 +51,11 @@ export default function Shoots() {
               accessibilityLabel="Karte mit deinen gemerkten Spots"
             >
               {list.map((s) => (
-                <Marker key={s.id} coordinate={{ latitude: s.lat, longitude: s.lon }} pinColor={c.cherry}
-                  title={s.name} description={`${fmtDist(s.dist)} · antippen zum Öffnen`}
-                  onCalloutPress={() => router.push(`/spot/${s.id}`)} />
+                <Marker key={s.id} coordinate={{ latitude: s.lat, longitude: s.lon }} anchor={{ x: 0.5, y: 1 }}
+                  tracksViewChanges={livePins} accessibilityLabel={s.name}
+                  onPress={() => router.push(`/spot/${s.id}`)}>
+                  <PhotoPin photo={s.images[0]} dot={catInfo(s.cats[0]).color} />
+                </Marker>
               ))}
             </MapView>
           </View>

@@ -4,3 +4,4 @@ export * from './components';
 export * from './patterns';
 export * from './sun';
 export * from './dock';
+export * from './photopin';

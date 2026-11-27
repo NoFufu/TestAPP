@@ -114,3 +114,6 @@ Token `grid` (Rand 4, Spaltenabstand 6, Ecken 16, Fußzeile 28). Kacheln: nur Bi
 
 ## StatusBadge
 `<StatusBadge status="pending|live|rejected" />`: kleines umrandetes Schild für den Prüf-Status eigener Inhalte (Sichtbar = Tinte, Wird geprüft = Asphalt, Abgelehnt = danger). Vorschaubilder in Listen: `thumbSize` (64) mit `radius.thumb`.
+
+## PhotoPin
+`<PhotoPin photo dot active />`: runde Foto-Markierung für Karten (Entdecken, Shoots). Im `Marker` mit `anchor={{x:0.5,y:1}}` und `tracksViewChanges` nur kurz an.
