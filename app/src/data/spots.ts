@@ -1,3 +1,4 @@
+import { catColors } from '../ui/tokens';
 import { SPOT_IMAGES } from './images';
 
 export type Cat =
@@ -11,14 +12,14 @@ export type Cat =
   | 'architektur';
 
 export const CATS: { key: Cat; label: string; color: string }[] = [
-  { key: 'urban', label: 'Urban & Street', color: '#FF6B3D' },
-  { key: 'tuer', label: 'Türen', color: '#E0478C' },
-  { key: 'natur', label: 'Natur', color: '#3AA35A' },
-  { key: 'cafe', label: 'Café', color: '#C48A3A' },
-  { key: 'industrial', label: 'Industrial', color: '#B5523B' },
-  { key: 'treppe', label: 'Treppen', color: '#7A6CF0' },
-  { key: 'nacht', label: 'Nacht & Neon', color: '#14B4D4' },
-  { key: 'architektur', label: 'Architektur', color: '#6E7E95' },
+  { key: 'urban', label: 'Urban & Street', color: catColors.urban },
+  { key: 'tuer', label: 'Türen', color: catColors.tuer },
+  { key: 'natur', label: 'Natur', color: catColors.natur },
+  { key: 'cafe', label: 'Café', color: catColors.cafe },
+  { key: 'industrial', label: 'Industrial', color: catColors.industrial },
+  { key: 'treppe', label: 'Treppen', color: catColors.treppe },
+  { key: 'nacht', label: 'Nacht & Neon', color: catColors.nacht },
+  { key: 'architektur', label: 'Architektur', color: catColors.architektur },
 ];
 export const catInfo = (c: Cat) => CATS.find((x) => x.key === c)!;
 

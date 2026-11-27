@@ -19,6 +19,7 @@
 - Tokens und Schlüssel nie in den Chat, in Code oder Commits. Neue Schlüssel nur über das Formular (Netzwerk-Secrets der Umgebung „fitspot"). Ausnahme: der öffentliche Supabase-Key in `app/.env`.
 
 ## Technik
+- **Design-System:** `app/src/ui/` (Tokens + Bausteine), Doku `docs/design/SYSTEM.md`. In Screens keine Hex-Farben, Pixelwerte oder Schriftgrößen direkt, immer Tokens/Bausteine. Fehlt etwas, im System ergänzen.
 - App: Expo (SDK 58) + Expo Router + TypeScript in `app/`. Tabs kommen aus `expo-router/js-tabs`. Icons: `@expo/vector-icons` (Ionicons).
 - Pakete mit `npx expo install <paket>` hinzufügen. `app/.npmrc` setzt `legacy-peer-deps=true` (Peer-Konflikt react/react-dom 19.3). Schlägt `expo install` fehl, die Version aus `node_modules/expo/bundledNativeModules.json` nehmen und mit `npm install` installieren.
 - Expo: Projekt `@nofufu1234s-team/nofufu`, ID `e9eb2025-8e60-432a-ae89-13a9a89b6c06`. EAS-CLI immer mit `EXPO_TOKEN=proxy-injected` aufrufen, der echte Token wird vom Proxy eingefügt.

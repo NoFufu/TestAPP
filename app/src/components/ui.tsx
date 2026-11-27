@@ -1,4 +1,5 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Chip as UIChip } from '../ui';
 import { CATS, catInfo, type Cat } from '../data/spots';
 import { useStore } from '../store';
 import { useTheme } from '../theme';
@@ -23,18 +24,7 @@ export function Tags({ cats, onPhoto }: { cats: Cat[]; onPhoto?: boolean }) {
 }
 
 export function Chip({ label, color, active, onPress }: { label: string; color?: string; active: boolean; onPress: () => void }) {
-  const t = useTheme();
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityState={{ selected: active }}
-      style={[s.chip, { backgroundColor: active ? t.ink : t.surface, borderColor: active ? t.ink : t.line }]}
-    >
-      {color ? <View style={[s.dot, { backgroundColor: color, width: 9, height: 9 }]} /> : null}
-      <Text style={[s.chipText, { color: active ? t.bg : t.ink }]}>{label}</Text>
-    </Pressable>
-  );
+  return <UIChip label={label} dot={color} selected={active} onPress={onPress} />;
 }
 
 /** Filterleiste: „Alle“ + Kategorien, mehrere gleichzeitig wählbar. */
@@ -56,6 +46,4 @@ const s = StyleSheet.create({
   tagText: { fontSize: 11.5, fontWeight: '600' },
   dot: { width: 7, height: 7, borderRadius: 5 },
   bar: { gap: 8, paddingHorizontal: 16, paddingVertical: 10 },
-  chip: { flexDirection: 'row', alignItems: 'center', gap: 7, paddingHorizontal: 13, paddingVertical: 8, borderRadius: 999, borderWidth: 1 },
-  chipText: { fontSize: 13.5, fontWeight: '500' },
 });
