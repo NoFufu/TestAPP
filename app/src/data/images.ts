@@ -36,3 +36,20 @@ export const SPOT_IMAGES: Record<number, SpotImage[]> = {
   29: [require('../../assets/spots/29a.jpg'), require('../../assets/spots/29b.jpg')],
   30: [require('../../assets/spots/30a.jpg'), require('../../assets/spots/30b.jpg')],
 };
+
+/** Barcelona: gezeichnete Platzhalter, echte Fotos folgen. */
+SPOT_IMAGES[9001] = [require('../../assets/spots/barcelona/9001a.jpg')];
+SPOT_IMAGES[9002] = [require('../../assets/spots/barcelona/9002a.jpg')];
+SPOT_IMAGES[9003] = [require('../../assets/spots/barcelona/9003a.jpg')];
+SPOT_IMAGES[9004] = [require('../../assets/spots/barcelona/9004a.jpg')];
+SPOT_IMAGES[9005] = [require('../../assets/spots/barcelona/9005a.jpg')];
+SPOT_IMAGES[9006] = [require('../../assets/spots/barcelona/9006a.jpg')];
+SPOT_IMAGES[9007] = [require('../../assets/spots/barcelona/9007a.jpg')];
+SPOT_IMAGES[9008] = [require('../../assets/spots/barcelona/9008a.jpg')];
+SPOT_IMAGES[9009] = [require('../../assets/spots/barcelona/9009a.jpg')];
+SPOT_IMAGES[9010] = [require('../../assets/spots/barcelona/9010a.jpg')];
+SPOT_IMAGES[9011] = [require('../../assets/spots/barcelona/9011a.jpg')];
+SPOT_IMAGES[9012] = [require('../../assets/spots/barcelona/9012a.jpg')];
+SPOT_IMAGES[9013] = [require('../../assets/spots/barcelona/9013a.jpg')];
+SPOT_IMAGES[9014] = [require('../../assets/spots/barcelona/9014a.jpg')];
+SPOT_IMAGES[9015] = [require('../../assets/spots/barcelona/9015a.jpg')];

@@ -187,3 +187,6 @@ Pins kleiner, unten eine wischbare Spot-Leiste wie bei Apple Karten ✅ (27.11.)
 | Login | E-Mail + Passwort, **ohne Bestätigungs-Mail** (`mailer_autoconfirm = true`) | eigener Mail-Dienst (SMTP), Bestätigung wieder an, Code-Login möglich |
 | Bearbeiten | Änderungen an sichtbaren Spots gehen ohne neue Prüfung live | Änderungen erneut prüfen (Etappe F) |
 | Mails | Supabase-Standard, max. 2 pro Stunde | eigener Mail-Dienst |
+
+## Barcelona (27.11.2026)
+15 Spots (IDs 9001–9015, Migration 0006), Koordinaten ungefähr, Platzhalterbilder in `app/assets/spots/barcelona/`. Offen: echte Fotos mit Lizenz (Wikimedia/Openverse waren aus der Cloud gesperrt), Koordinaten und Öffnungszeiten prüfen. Liste und Quellen: Übergabe-Datei fitspot-barcelona.
