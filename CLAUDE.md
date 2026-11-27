@@ -1,13 +1,29 @@
 # fitspot – Hinweise für Claude
 
+## Zusammenarbeit
 - Sprache mit dem Nutzer: Deutsch, kurz und ohne Fachjargon.
+- Kleine Schritte: ein Thema pro Sitzung (z. B. „Login"). Bei größeren Aufgaben zuerst kurz den Plan nennen.
+- Modelle: Sonnet arbeitet, Opus berät als Advisor (`.claude/settings.json`). Den Advisor bei Datenbank-, Sicherheits- und Architekturfragen nutzen.
 - Plan und Phasenstatus: `docs/PLAN.md`. Nach jeder abgeschlossenen Phase dort den Status aktualisieren.
-- App: Expo (SDK 58) + Expo Router + TypeScript in `app/`. Tabs kommen aus `expo-router/js-tabs`.
-- Pakete mit `npx expo install <paket>` hinzufügen. `app/.npmrc` setzt `legacy-peer-deps=true` (Peer-Konflikt react/react-dom 19.3). Schlägt `expo install` wegen Expo-Login fehl, die Version aus `node_modules/expo/bundledNativeModules.json` nehmen und mit `npm install` installieren.
-- Icons: `@expo/vector-icons` (Ionicons).
-- Vor jedem Commit: `cd app && npx tsc --noEmit`. Zusätzlich prüft `npx expo export --platform android --output-dir <tmp>`, ob das Bundle baut.
-- Beispieldaten in `app/src/data/spots.ts` sind erfunden (Koordinaten ungefähr). Die Bilder in `app/assets/spots/` sind generierte Platzhalter.
+
+## Nach jeder Änderung (Pflicht)
+1. `cd app && npx tsc --noEmit` muss fehlerfrei sein. Bei größeren Änderungen zusätzlich `npx expo export --platform android --output-dir <tmp>`.
+2. Committen und auf `main` pushen.
+3. Update veröffentlichen (nur Kanal **preview**):
+   `cd app && EXPO_TOKEN=proxy-injected npx eas-cli@latest update --branch preview --environment preview --message "<was sich geändert hat>" --non-interactive`
+4. Dem Nutzer sagen, dass das Update online ist: App in Expo Go schließen und über Projects → nofufu → preview neu öffnen.
+
+## Nie ohne ausdrückliche Zustimmung
+- Kein Update auf `production`, kein App-Store-/Play-Store-Build oder -Upload.
+- Keine Datenbank-Daten löschen, keine Rechte (RLS/Grants) lockern.
+- Tokens und Schlüssel nie in den Chat, in Code oder Commits. Neue Schlüssel nur über das Formular (Netzwerk-Secrets der Umgebung „fitspot"). Ausnahme: der öffentliche Supabase-Key in `app/.env`.
+
+## Technik
+- App: Expo (SDK 58) + Expo Router + TypeScript in `app/`. Tabs kommen aus `expo-router/js-tabs`. Icons: `@expo/vector-icons` (Ionicons).
+- Pakete mit `npx expo install <paket>` hinzufügen. `app/.npmrc` setzt `legacy-peer-deps=true` (Peer-Konflikt react/react-dom 19.3). Schlägt `expo install` fehl, die Version aus `node_modules/expo/bundledNativeModules.json` nehmen und mit `npm install` installieren.
+- Expo: Projekt `@nofufu1234s-team/nofufu`, ID `e9eb2025-8e60-432a-ae89-13a9a89b6c06`. EAS-CLI immer mit `EXPO_TOKEN=proxy-injected` aufrufen, der echte Token wird vom Proxy eingefügt.
+- Supabase: Projekt `weqedfymanchzptccotk`. Öffentliche URL + publishable key stehen in `app/.env` und als EAS-Umgebungsvariablen.
+  SQL ausführen über die Management API: `POST https://api.supabase.com/v1/projects/weqedfymanchzptccotk/database/query` mit `{"query": "..."}`.
+  Schemaänderungen immer als neue Datei in `supabase/migrations/` anlegen, dann einspielen. Nie bestehende Migrationen ändern.
+- Beispieldaten in `app/src/data/spots.ts` und `supabase/seed.sql` sind erfunden (Koordinaten ungefähr). Die Bilder in `app/assets/spots/` sind generierte Platzhalter.
 - Prototyp `prototype/index.html` ist eine eigenständige HTML-Datei, veröffentlicht als Artifact https://claude.ai/artifact/WcngG8WcNPhgv4ZXL4XVnG.
-- Supabase: Projekt `weqedfymanchzptccotk`. Öffentliche URL + publishable key stehen in `app/.env` (darf ins Repo, Schutz über RLS).
-  SQL ausführen über die Management API: `POST https://api.supabase.com/v1/projects/weqedfymanchzptccotk/database/query` mit `{"query": "..."}`. Der Token wird vom Proxy der Umgebung „fitspot" eingefügt.
-  Neue Schemaänderungen immer als neue Datei in `supabase/migrations/` anlegen und dann einspielen.
