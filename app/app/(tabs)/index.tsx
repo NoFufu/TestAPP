@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { useMemo } from 'react';
 import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { PHOTO_SPOT_IDS } from '../../src/data/images';
 import { buildPosts, fmtAgo } from '../../src/data/posts';
 import { CATS, SHORT, fmtDist, type Cat } from '../../src/data/spots';
 import { useStore } from '../../src/store';
@@ -16,7 +17,7 @@ export default function Home() {
 
   // Story-Bild je Kategorie: Titelbild des nächstgelegenen Spots dieser Kategorie
   const stories = useMemo(
-    () => CATS.map((cat) => ({ ...cat, spot: [...spots].sort((a, b) => a.dist - b.dist).find((s) => s.cats.includes(cat.key)) }))
+    () => CATS.map((cat) => ({ ...cat, spot: [...spots].sort((a, b) => Number(PHOTO_SPOT_IDS.has(b.id)) - Number(PHOTO_SPOT_IDS.has(a.id)) || a.dist - b.dist).find((s) => s.cats.includes(cat.key)) }))
       .filter((x) => x.spot),
     [spots],
   );

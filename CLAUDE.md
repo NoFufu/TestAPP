@@ -26,5 +26,5 @@
 - Supabase: Projekt `weqedfymanchzptccotk`. Öffentliche URL + publishable key stehen in `app/.env` und als EAS-Umgebungsvariablen.
   SQL ausführen über die Management API: `POST https://api.supabase.com/v1/projects/weqedfymanchzptccotk/database/query` mit `{"query": "..."}`.
   Schemaänderungen immer als neue Datei in `supabase/migrations/` anlegen, dann einspielen. Nie bestehende Migrationen ändern.
-- Beispieldaten in `app/src/data/spots.ts` und `supabase/seed.sql` sind erfunden (Koordinaten ungefähr). Die Bilder in `app/assets/spots/` sind generierte Platzhalter.
+- Beispieldaten in `app/src/data/spots.ts` und `supabase/seed.sql` sind erfunden (Koordinaten ungefähr). Bilder in `app/assets/spots/`: 10 Spots haben KI-Testfotos (s. `TESTBILDER.md`, `PHOTO_SPOT_IDS`), der Rest sind gezeichnete Platzhalter. Neue Doppelbilder: in der Mitte teilen, links = `{id}a` (leer), rechts = `{id}b` (Outfit).
 - Prototyp `prototype/index.html` ist eine eigenständige HTML-Datei, veröffentlicht als Artifact https://claude.ai/artifact/WcngG8WcNPhgv4ZXL4XVnG.

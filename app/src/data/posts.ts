@@ -1,3 +1,4 @@
+import { PHOTO_SPOT_IDS } from './images';
 import type { Cat, Spot } from './spots';
 
 /**
@@ -37,7 +38,8 @@ export function buildPosts(spots: Spot[]): Post[] {
       caption: CAPTIONS[s.cats[0]][s.id % 2],
       likes: Math.round(s.likes * 0.4),
     }))
-    .sort((a, b) => a.hoursAgo - b.hoursAgo);
+    // Spots mit Testfotos zuerst, sonst nach Alter
+    .sort((a, b) => Number(PHOTO_SPOT_IDS.has(b.spotId)) - Number(PHOTO_SPOT_IDS.has(a.spotId)) || a.hoursAgo - b.hoursAgo);
 }
 
 export const fmtAgo = (h: number) => (h < 24 ? `vor ${h} Std.` : `vor ${Math.floor(h / 24)} T.`);

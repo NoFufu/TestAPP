@@ -1,6 +1,9 @@
 // Platzhalterfotos aus dem Prototyp (generiert). Werden durch echte Uploads ersetzt.
 import type { SpotImage } from './spots';
 
+/** Spots mit fotorealistischen Testbildern (KI-generiert, s. assets/spots/TESTBILDER.md). */
+export const PHOTO_SPOT_IDS = new Set([1, 7, 11, 13, 14, 18, 21, 23, 26, 29]);
+
 export const SPOT_IMAGES: Record<number, SpotImage[]> = {
   1: [require('../../assets/spots/1a.jpg'), require('../../assets/spots/1b.jpg')],
   2: [require('../../assets/spots/2a.jpg'), require('../../assets/spots/2b.jpg')],
