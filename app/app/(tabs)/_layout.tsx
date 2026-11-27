@@ -4,7 +4,7 @@ import { Dock, type DockItem } from '../../src/ui';
 /** Hochladen ist kein Tab mehr, sondern das + oben rechts auf Home. */
 const ITEMS: DockItem[] = [
   { name: 'index', label: 'Home', on: 'home', off: 'home-outline' },
-  { name: 'explore', label: 'Entdecken', on: 'search', off: 'search-outline' },
+  { name: 'explore', label: 'Entdecken', on: 'map', off: 'map-outline' },
   { name: 'shoots', label: 'Gemerkte Spots', on: 'bookmark', off: 'bookmark-outline' },
   { name: 'profile', label: 'Profil', on: 'person-circle', off: 'person-circle-outline' },
 ];

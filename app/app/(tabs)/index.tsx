@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { useMemo } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { FilterBar } from '../../src/components/ui';
+import { CityButton, FilterBar } from '../../src/components/ui';
 import { PHOTO_SPOT_IDS } from '../../src/data/images';
 import { fmtDist } from '../../src/data/spots';
 import { useStore } from '../../src/store';
@@ -40,7 +40,9 @@ export default function Home() {
         contentContainerStyle={{ paddingBottom: dock.clearance }}
       >
         <View style={st.bar}>
-          <T variant="title" accessibilityRole="header" style={{ flex: 1 }}>fitspot</T>
+          <T variant="title" accessibilityRole="header">fitspot</T>
+          <CityButton />
+          <View style={{ flex: 1 }} />
           <IconButton icon="add" size={30} label="Neuen Spot hochladen" onPress={() => router.push('/upload')} />
         </View>
         <View style={{ backgroundColor: c.paper }}>
@@ -65,7 +67,7 @@ export default function Home() {
 }
 
 const st = StyleSheet.create({
-  bar: { minHeight: 48, flexDirection: 'row', alignItems: 'center', paddingLeft: space.lg, paddingRight: space.sm },
+  bar: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: space.md, paddingLeft: space.lg, paddingRight: space.sm },
   loading: { flexDirection: 'row', gap: space.sm, padding: space.sm },
   empty: { padding: space.xl, gap: space.sm },
 });

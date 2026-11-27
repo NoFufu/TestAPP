@@ -6,8 +6,8 @@ import { useEffect, useRef, useState } from 'react';
 import { FlatList, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FilterBar } from '../../src/components/ui';
-import { BIELEFELD, CITIES, CITY_NAMES, catInfo, distanceKm, fmtDist } from '../../src/data/spots';
+import { CityButton, FilterBar } from '../../src/components/ui';
+import { BIELEFELD, CITIES, catInfo, distanceKm, fmtDist } from '../../src/data/spots';
 import { useStore } from '../../src/store';
 import { PhotoGrid, PhotoPin, T, hit, radius, space, useColors, useIsDark, dock } from '../../src/ui';
 
@@ -21,11 +21,12 @@ export default function Explore() {
   const dark = useIsDark();
   const insets = useSafeAreaInsets();
   const map = useRef<MapView>(null);
-  const { visible, setMapCenter, source, me, realLocation, locate, city, setCity } = useStore();
+  const { visible, setMapCenter, me, realLocation, locate } = useStore();
   const [mode, setMode] = useState<Mode>('map');
   const [selId, setSelId] = useState<number | null>(null);
   const [livePins, setLivePins] = useState(true);
   const [headerH, setHeaderH] = useState(120);
+  const dockTop = Math.max(insets.bottom + dock.bottom, space.sm) + dock.size + space.sm;
   const sorted = [...visible].sort((a, b) => a.dist - b.dist);
   const list = useRef<FlatList<(typeof sorted)[number]>>(null);
   const fromCarousel = useRef(false);
@@ -54,18 +55,11 @@ export default function Explore() {
     }
   }, [realLocation, me]);
 
-  function switchCity() {
-    const next = CITY_NAMES[(CITY_NAMES.indexOf(city) + 1) % CITY_NAMES.length];
-    setCity(next); setSelId(null);
-    map.current?.animateToRegion(CITIES[next].region, 700);
-  }
-
   async function goToMe() {
     const here = realLocation ? me : await locate();
     if (here) map.current?.animateToRegion({ latitude: here.lat, longitude: here.lon, latitudeDelta: 0.015, longitudeDelta: 0.015 }, 500);
   }
 
-  const status = source === 'loading' ? 'lädt …' : `${visible.length} Spots${source === 'local' ? ', offline' : ''}`;
 
   return (
     <View style={{ flex: 1, backgroundColor: c.paper }}>
@@ -81,7 +75,7 @@ export default function Explore() {
           userInterfaceStyle={dark ? 'dark' : 'light'}
           onRegionChangeComplete={(r) => setMapCenter({ lat: r.latitude, lon: r.longitude })}
           onPress={() => setSelId(null)}
-          mapPadding={{ top: headerH, bottom: CARD_H + space.lg, left: 0, right: 0 }}
+          mapPadding={{ top: headerH, bottom: CARD_H + dockTop + space.sm, left: 0, right: 0 }}
         >
           {visible.map((s) => {
             const active = selId === s.id;
@@ -132,12 +126,9 @@ export default function Explore() {
         onLayout={(e) => setHeaderH(e.nativeEvent.layout.height)}
       >
         <View style={st.top}>
-          <Pressable onPress={switchCity} hitSlop={space.sm} accessibilityRole="button"
-            accessibilityLabel={`Stadt: ${city}. Tippen, um die Stadt zu wechseln`} style={st.city}>
-            <T variant="title" accessibilityRole="header">{city}</T>
-            <Ionicons name="chevron-down" size={18} color={c.ink} />
-          </Pressable>
-          <T variant="small" color="asphalt" style={{ flex: 1 }}>{status}</T>
+          <T variant="title" accessibilityRole="header">fitspot</T>
+          <CityButton onSwitch={(next) => { setSelId(null); map.current?.animateToRegion(CITIES[next].region, 700); }} />
+          <View style={{ flex: 1 }} />
           <View style={[st.seg, { backgroundColor: c.fill }]} accessibilityRole="tablist">
             {(['map', 'grid'] as const).map((m) => (
               <Pressable
@@ -171,7 +162,7 @@ export default function Explore() {
           horizontal
           data={sorted}
           keyExtractor={(s) => String(s.id)}
-          style={st.carousel}
+          style={[st.carousel, { bottom: dockTop }]}
           contentContainerStyle={{ paddingHorizontal: space.md, gap: space.sm }}
           showsHorizontalScrollIndicator={false}
           snapToInterval={CARD_W + space.sm}
@@ -204,7 +195,6 @@ export default function Explore() {
 }
 
 const st = StyleSheet.create({
-  city: { flexDirection: 'row', alignItems: 'center', gap: space.xs },
   header: { position: 'absolute', top: 0, left: 0, right: 0, overflow: 'hidden' },
   top: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingHorizontal: space.lg },
   seg: { flexDirection: 'row', padding: 3, borderRadius: radius.pill },

@@ -1,7 +1,8 @@
-import { ScrollView, StyleSheet } from 'react-native';
-import { CATS } from '../data/spots';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { Pressable, ScrollView, StyleSheet } from 'react-native';
+import { CATS, CITIES, CITY_NAMES, type City } from '../data/spots';
 import { useStore } from '../store';
-import { Tab, space } from '../ui';
+import { T, Tab, haptic, space, useColors } from '../ui';
 
 /** Filterleiste: „Alle“ + Kategorien, mehrere gleichzeitig wählbar. Gilt für Karte und Raster. */
 export function FilterBar() {
@@ -17,5 +18,21 @@ export function FilterBar() {
 }
 
 const s = StyleSheet.create({
+  city: { flexDirection: 'row', alignItems: 'center', gap: space.xs },
   bar: { gap: space.xl, paddingHorizontal: space.lg },
 });
+
+/** Land (grau) + Stadt. Tippen wechselt zur nächsten Stadt. */
+export function CityButton({ onSwitch }: { onSwitch?: (c: City) => void }) {
+  const c = useColors();
+  const { city, setCity } = useStore();
+  const next = CITY_NAMES[(CITY_NAMES.indexOf(city) + 1) % CITY_NAMES.length];
+  return (
+    <Pressable hitSlop={space.sm} accessibilityRole="button" accessibilityLabel={`Stadt: ${city}. Tippen für ${next}`}
+      onPress={() => { haptic.select(); setCity(next); onSwitch?.(next); }} style={s.city}>
+      <T variant="label" color="asphalt">{CITIES[city].country}</T>
+      <T variant="label">{city}</T>
+      <Ionicons name="chevron-down" size={14} color={c.asphalt} />
+    </Pressable>
+  );
+}

@@ -76,9 +76,9 @@ export const BIELEFELD = { latitude: 52.0215, longitude: 8.531, latitudeDelta: 0
 
 /** Städte mit Spots. Mitte = Stadtzentrum, Ausschnitt für die Karte. */
 export type City = 'Bielefeld' | 'Barcelona';
-export const CITIES: Record<City, { lat: number; lon: number; region: typeof BIELEFELD }> = {
-  Bielefeld: { lat: ME.lat, lon: ME.lon, region: BIELEFELD },
-  Barcelona: { lat: 41.3874, lon: 2.1686, region: { latitude: 41.3874, longitude: 2.1686, latitudeDelta: 0.09, longitudeDelta: 0.09 } },
+export const CITIES: Record<City, { country: string; lat: number; lon: number; region: typeof BIELEFELD }> = {
+  Bielefeld: { country: 'GER', lat: ME.lat, lon: ME.lon, region: BIELEFELD },
+  Barcelona: { country: 'SP', lat: 41.3874, lon: 2.1686, region: { latitude: 41.3874, longitude: 2.1686, latitudeDelta: 0.09, longitudeDelta: 0.09 } },
 };
 export const CITY_NAMES = Object.keys(CITIES) as City[];
 
