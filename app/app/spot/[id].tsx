@@ -1,6 +1,5 @@
 import { Image } from 'expo-image';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { usePreventScreenCapture } from 'expo-screen-capture';
 import { useCallback, useMemo, useRef, useState, type ComponentRef } from 'react';
 import { Linking, Platform, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -16,7 +15,6 @@ type Shot = { key: string; src: SpotImage; label: string };
 
 /** Spot groß: Foto oben, Infos, darunter alle Fotos an diesem Spot und ähnliche Spots. */
 export default function SpotDetail() {
-  usePreventScreenCapture();
   const c = useColors();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
@@ -105,9 +103,7 @@ export default function SpotDetail() {
             <IconButton icon="camera-outline" label="Eigenes Foto hinzufügen"
               onPress={() => session ? router.push({ pathname: '/add-photo', params: { spot: String(s.id) } }) : router.push('/login')} />
           ) : null}
-          <View style={{ flex: 1, alignItems: 'center' }}>
-            {light ? <SunArc sunrise={light.sunrise} sunset={light.sunset} golden={light.golden} now={light.now} /> : null}
-          </View>
+          <View style={{ flex: 1 }} />
           <Button label={isSaved ? 'Gemerkt' : 'Merken'} icon={isSaved ? 'bookmark' : 'bookmark-outline'}
             variant={isSaved ? 'secondary' : 'primary'} onPress={() => toggleSave(s.id)} />
         </View>
@@ -115,7 +111,8 @@ export default function SpotDetail() {
         <View style={st.body}>
           <T variant="title" accessibilityRole="header">{s.name}</T>
           <T variant="small" color="asphalt">{s.area || 'Bielefeld'} · {fmtDist(s.dist)} · {s.cats.map((k) => catInfo(k).label).join(', ')}</T>
-          {s.desc ? <T numberOfLines={2}>{s.desc}</T> : null}
+          {s.desc ? <T numberOfLines={3}>{s.desc}</T> : null}
+          {light ? <SunArc sunrise={light.sunrise} sunset={light.sunset} golden={light.golden} now={light.now} /> : null}
         </View>
 
         {morePins.length ? (
@@ -156,10 +153,10 @@ const st = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: space.lg, padding: space.xl },
   hero: { paddingHorizontal: grid.edge, paddingTop: grid.edge },
   close: { position: 'absolute', top: space.lg, left: space.lg, borderRadius: radius.pill },
-  actions: { flexDirection: 'row', alignItems: 'center', gap: space.xs, paddingHorizontal: space.sm, paddingTop: space.sm },
-  body: { paddingHorizontal: space.lg, gap: space.sm },
+  actions: { flexDirection: 'row', alignItems: 'center', gap: space.xs, paddingHorizontal: space.sm, paddingVertical: space.md },
+  body: { paddingHorizontal: space.lg, paddingTop: space.xs, gap: space.md },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
-  section: { gap: space.sm, paddingTop: space.xl },
+  section: { gap: space.md, paddingTop: space.xxl },
   pad: { paddingHorizontal: space.lg },
   head: { textAlign: 'center' },
   instaTile: { gap: space.md, padding: space.md, borderRadius: radius.thumb + 2, borderWidth: StyleSheet.hairlineWidth },

@@ -66,7 +66,7 @@ export const catColors = {
 export const space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 } as const;
 
 /** Pinterest-artiges Raster: schmaler Rand, enge Spalten, runde Kacheln */
-export const grid = { edge: 2, gap: 4, radius: 16, footer: 28 } as const;
+export const grid = { edge: 2, gap: 4, radius: 16, footer: 34 } as const;
 
 /** Schwebende Tab-Leiste: einzelne runde Quadrate */
 export const dock = { size: 52, gap: 10, radius: 18, bottom: -14, clearance: 80 } as const;
