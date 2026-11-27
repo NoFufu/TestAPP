@@ -2,7 +2,7 @@ import { Image, type ImageSource } from 'expo-image';
 import type React from 'react';
 import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { T, haptic } from './components';
+import { GlowPress, T, haptic } from './components';
 import { useColors } from './theme';
 import { grid, radius, space } from './tokens';
 
@@ -50,10 +50,10 @@ function PinTile({ pin, width }: { pin: Pin; width: number }) {
   const foot = pin.title || pin.onSave;
   return (
     <View style={{ marginBottom: foot ? 0 : grid.gap }}>
-      <Pressable onPress={pin.onPress} accessibilityRole="button" accessibilityLabel={pin.label}>
+      <GlowPress rounded={grid.radius} onPress={pin.onPress} accessibilityRole="button" accessibilityLabel={pin.label}>
         <Image source={pin.photo} style={{ width, height: width * pin.ratio, borderRadius: grid.radius, backgroundColor: c.fill }}
           contentFit="cover" transition={150} />
-      </Pressable>
+      </GlowPress>
       {foot ? (
         <View style={st.pinText}>
           <T variant="small" color="asphalt" numberOfLines={1} style={{ flex: 1 }}>{pin.title ?? ''}</T>
@@ -89,9 +89,9 @@ export function PhotoGrid({ items, layout = 'square' }: { items: GridItem[]; lay
     return (
       <View style={[st.wrap, { gap }]}>
         {items.map((it) => (
-          <Pressable key={it.key} onPress={it.onPress} accessibilityRole="button" accessibilityLabel={it.label}>
+          <GlowPress rounded={0} key={it.key} onPress={it.onPress} accessibilityRole="button" accessibilityLabel={it.label}>
             <Image source={it.photo} style={{ width: cell, height: cell, backgroundColor: c.fill }} contentFit="cover" />
-          </Pressable>
+          </GlowPress>
         ))}
       </View>
     );
@@ -104,16 +104,16 @@ export function PhotoGrid({ items, layout = 'square' }: { items: GridItem[]; lay
       {groups.map((g, gi) => {
         const [big, ...small] = g;
         const Big = (
-          <Pressable key={big.key} onPress={big.onPress} accessibilityRole="button" accessibilityLabel={big.label}>
+          <GlowPress rounded={0} key={big.key} onPress={big.onPress} accessibilityRole="button" accessibilityLabel={big.label}>
             <Image source={big.photo} style={{ width: cell * 2 + gap, height: cell * 2 + gap, backgroundColor: c.fill }} contentFit="cover" />
-          </Pressable>
+          </GlowPress>
         );
         const Small = (
           <View key="s" style={{ gap }}>
             {small.map((it) => (
-              <Pressable key={it.key} onPress={it.onPress} accessibilityRole="button" accessibilityLabel={it.label}>
+              <GlowPress rounded={0} key={it.key} onPress={it.onPress} accessibilityRole="button" accessibilityLabel={it.label}>
                 <Image source={it.photo} style={{ width: cell, height: cell, backgroundColor: c.fill }} contentFit="cover" />
-              </Pressable>
+              </GlowPress>
             ))}
           </View>
         );

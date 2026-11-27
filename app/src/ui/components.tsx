@@ -265,3 +265,21 @@ export function StatusBadge({ status }: { status: 'pending' | 'live' | 'rejected
     </View>
   );
 }
+
+/* ---------- GlowPress ---------- */
+/** Pressable für Kacheln und Posts: solange der Finger drauf ist, leuchtet ein warmer Glow dahinter und die Kachel sinkt leicht ein. */
+export function GlowPress({ rounded = 16, style, children, ...rest }: ComponentProps<typeof Pressable> & { rounded?: number; children: ReactNode }) {
+  const c = useColors();
+  return (
+    <Pressable {...rest} style={(state) => [
+      { borderRadius: rounded },
+      state.pressed && {
+        backgroundColor: c.glow, shadowColor: c.glow, shadowOpacity: 0.85, shadowRadius: 16, shadowOffset: { width: 0, height: 0 },
+        elevation: 14, transform: [{ scale: 0.97 }],
+      },
+      typeof style === 'function' ? style(state) : style,
+    ]}>
+      {children}
+    </Pressable>
+  );
+}
