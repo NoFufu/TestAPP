@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "fitspot",
-    "slug": "fitspot",
+    "slug": "nofufu",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -31,10 +31,28 @@
         "expo-image-picker",
         {
           "photosPermission": "fitspot braucht Zugriff auf deine Fotos, damit du Spots hochladen kannst.",
-          "cameraPermission": "fitspot braucht die Kamera, damit du Spots direkt fotografieren kannst."
+          "cameraPermission": "fitspot braucht die Kamera, damit du Spots direkt fotografieren kannst.",
+          "microphonePermission": false
         }
       ]
     ],
-    "scheme": "fitspot"
+    "scheme": "fitspot",
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "e9eb2025-8e60-432a-ae89-13a9a89b6c06"
+      }
+    },
+    "owner": "nofufu1234s-team",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/e9eb2025-8e60-432a-ae89-13a9a89b6c06"
+    }
   }
 }
