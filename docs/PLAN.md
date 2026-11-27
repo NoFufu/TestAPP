@@ -1,5 +1,7 @@
 # Plan: fitspot, eine App für Foto-Spots und Outfits
 
+> Was der App fehlt, wie sie wirklich nützlich wird, und die Insta-ähnliche Optik: siehe [`PRODUKT-PLAN.md`](PRODUKT-PLAN.md) (Etappen A–J).
+
 Stand: 27.11.2026 · Arbeitstitel: **fitspot** (Name ist noch offen) · Startstadt: **Bielefeld**
 
 ---

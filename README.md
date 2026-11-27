@@ -5,6 +5,7 @@ Foto-Spots in deiner Stadt finden, nach Stil filtern und selbst hochladen. Start
 | Was | Wo |
 |---|---|
 | Plan & Phasen | [`docs/PLAN.md`](docs/PLAN.md) |
+| Produkt-Plan (Funktionen, Optik, Etappen) | [`docs/PRODUKT-PLAN.md`](docs/PRODUKT-PLAN.md) |
 | Klick-Prototyp (Browser) | [online](https://claude.ai/artifact/WcngG8WcNPhgv4ZXL4XVnG) · [`prototype/index.html`](prototype/index.html) |
 | App (Expo, React Native, TypeScript) | [`app/`](app/) |
 
