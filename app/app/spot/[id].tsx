@@ -6,13 +6,12 @@ import { Linking, Platform, ScrollView, StyleSheet, View, useWindowDimensions } 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 import SunCalc from 'suncalc';
-import { catInfo, distanceKm, fmtDist, TIPS, type SpotImage } from '../../src/data/spots';
+import { catInfo, distanceKm, fmtDist, type SpotImage } from '../../src/data/spots';
 import { useAuth } from '../../src/lib/auth';
 import { loadSpotPhotos, type SpotPhoto } from '../../src/lib/upload';
 import { useStore } from '../../src/store';
-import { Button, Chip, IconButton, Masonry, SpotSign, T, pinRatio, radius, space, useColors, type Pin } from '../../src/ui';
+import { Button, Chip, IconButton, Masonry, SunArc, T, pinRatio, radius, space, useColors, type Pin } from '../../src/ui';
 
-const hhmm = (d: Date) => (isNaN(d.getTime()) ? '–' : d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }));
 type Shot = { key: string; src: SpotImage; label: string };
 
 /** Spot groß: Foto oben, Infos, darunter alle Fotos an diesem Spot und ähnliche Spots. */
@@ -39,7 +38,7 @@ export default function SpotDetail() {
     if (!s) return null;
     const now = new Date();
     const t = SunCalc.getTimes(now, s.lat, s.lon);
-    return { golden: hhmm(t.goldenHour), sunset: hhmm(t.sunset), over: now > t.sunset };
+    return { sunrise: t.sunrise, sunset: t.sunset, golden: t.goldenHour, now };
   }, [s]);
 
   const shots = useMemo<Shot[]>(() => {
@@ -72,7 +71,6 @@ export default function SpotDetail() {
 
   const big = shots.find((x) => x.key === bigKey) ?? shots[0];
   const isSaved = saved.has(s.id);
-  const tip = TIPS[s.cats[0]];
   const instaLinks = [...new Set([s.instagramUrl, ...remote.map((r) => r.instagram_url)].filter((u): u is string => !!u))];
 
   const morePins: Pin[] = shots.filter((x) => x.key !== big?.key).map((x, i) => ({
@@ -89,13 +87,12 @@ export default function SpotDetail() {
   return (
     <View style={{ flex: 1, backgroundColor: c.paper }}>
       <ScrollView ref={scroll} contentContainerStyle={{ paddingBottom: insets.bottom + space.xxl }}>
-        <View>
+        <View style={st.hero}>
           {big ? (
             <Image source={big.src} accessibilityLabel={`${s.name}: ${big.label}`}
-              style={{ width, height: width * 1.25, backgroundColor: c.fill, borderBottomLeftRadius: radius.card, borderBottomRightRadius: radius.card }}
+              style={{ width: width - space.sm * 2, height: (width - space.sm * 2) * 1.3, backgroundColor: c.fill, borderRadius: radius.card }}
               contentFit="cover" transition={150} />
           ) : null}
-          <SpotSign name={big?.label ?? 'Der Spot'} style={st.sign} />
           <IconButton icon="chevron-down" label="Schließen" color={c.onPhoto} size={24} onPress={() => router.back()}
             style={[st.close, { backgroundColor: c.photoScrim }]} />
         </View>
@@ -104,6 +101,10 @@ export default function SpotDetail() {
           <IconButton icon="navigate-outline" label="Route zum Spot" onPress={() => Linking.openURL(Platform.OS === 'ios'
             ? `https://maps.apple.com/?daddr=${s.lat},${s.lon}&dirflg=w`
             : `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lon}&travelmode=walking`)} />
+          {!s.user ? (
+            <IconButton icon="camera-outline" label="Eigenes Foto hinzufügen"
+              onPress={() => session ? router.push({ pathname: '/add-photo', params: { spot: String(s.id) } }) : router.push('/login')} />
+          ) : null}
           <View style={{ flex: 1 }} />
           <Button label={isSaved ? 'Gemerkt' : 'Merken'} icon={isSaved ? 'bookmark' : 'bookmark-outline'}
             variant={isSaved ? 'secondary' : 'primary'} onPress={() => toggleSave(s.id)} />
@@ -111,39 +112,24 @@ export default function SpotDetail() {
 
         <View style={st.body}>
           <T variant="display" accessibilityRole="header">{s.name}</T>
-          <T variant="small" color="asphalt">{s.area || 'Bielefeld'}, {fmtDist(s.dist)} von dir. Entdeckt von {s.creator ?? 'fitspot'}.</T>
-          {s.desc ? <T>{s.desc}</T> : null}
+          <T variant="small" color="asphalt">{s.area || 'Bielefeld'} · {fmtDist(s.dist)}</T>
+          {s.desc ? <T numberOfLines={3}>{s.desc}</T> : null}
           <View style={st.row}>
             {s.cats.map((k) => <Chip key={k} label={catInfo(k).label} dot={catInfo(k).color} />)}
           </View>
           {light ? (
-            <View style={st.row}>
-              <View style={[st.tile, { backgroundColor: c.surface, borderColor: c.line }]}>
-                <T variant="small" color="asphalt">Golden Hour heute</T>
-                <T variant="stat">{light.over ? 'vorbei' : `ab ${light.golden}`}</T>
-              </View>
-              <View style={[st.tile, { backgroundColor: c.surface, borderColor: c.line }]}>
-                <T variant="small" color="asphalt">Sonnenuntergang</T>
-                <T variant="stat">{light.sunset}</T>
-              </View>
+            <View style={[st.sunCard, { backgroundColor: c.surface }]}>
+              <SunArc sunrise={light.sunrise} sunset={light.sunset} golden={light.golden} now={light.now} />
             </View>
           ) : null}
-          <T variant="small" color="asphalt">Foto-Tipp: {tip.tip}. Am besten: {tip.best}.</T>
         </View>
 
-        <View style={st.section}>
-          <View style={st.sectionHead}>
-            <T variant="title" accessibilityRole="header">Fotos an diesem Spot</T>
-            <T variant="small" color="asphalt">{shots.length}</T>
+        {morePins.length ? (
+          <View style={st.section}>
+            <T variant="title" accessibilityRole="header" style={st.pad}>Fotos hier</T>
+            <Masonry pins={morePins} />
           </View>
-          {!s.user ? (
-            <Button label="Eigenes Foto hier hinzufügen" icon="camera-outline" variant="secondary" style={st.add}
-              onPress={() => session ? router.push({ pathname: '/add-photo', params: { spot: String(s.id) } }) : router.push('/login')} />
-          ) : null}
-          {morePins.length ? <Masonry pins={morePins} /> : (
-            <T color="asphalt" style={st.pad}>Noch keine weiteren Fotos. Sei der Erste, der hier ein Fitpic teilt.</T>
-          )}
-        </View>
+        ) : null}
 
         {instaLinks.length ? (
           <View style={[st.section, st.pad]}>
@@ -153,7 +139,7 @@ export default function SpotDetail() {
                 style={{ height: Math.round(width * 1.45), backgroundColor: c.surface }} accessibilityLabel="Eingebetteter Instagram-Post" />
             ) : (
               <View key={url} style={[st.instaTile, { backgroundColor: c.surface, borderColor: c.line }]}>
-                <T color="asphalt">Beim Laden werden Daten an Instagram (Meta) übertragen.</T>
+                <T variant="small" color="asphalt">Lädt Inhalte von Instagram (Meta).</T>
                 <Button label="Instagram-Post laden" icon="logo-instagram" variant="secondary"
                   onPress={() => setShowInsta((p) => new Set(p).add(url))} />
               </View>
@@ -163,7 +149,7 @@ export default function SpotDetail() {
 
         {similarPins.length ? (
           <View style={st.section}>
-            <T variant="title" accessibilityRole="header" style={st.pad}>Ähnliche Spots</T>
+            <T variant="title" accessibilityRole="header" style={st.pad}>Mehr wie das</T>
             <Masonry pins={similarPins} />
           </View>
         ) : null}
@@ -174,15 +160,13 @@ export default function SpotDetail() {
 
 const st = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: space.lg, padding: space.xl },
-  sign: { position: 'absolute', left: space.md, bottom: space.md },
-  close: { position: 'absolute', top: space.md, left: space.sm, borderRadius: radius.pill },
+  hero: { paddingHorizontal: space.sm, paddingTop: space.sm },
+  close: { position: 'absolute', top: space.lg, left: space.lg, borderRadius: radius.pill },
   actions: { flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingHorizontal: space.md, paddingTop: space.md },
-  body: { padding: space.lg, gap: space.md },
+  body: { paddingHorizontal: space.lg, paddingTop: space.xs, gap: space.sm },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
-  tile: { flex: 1, minWidth: 140, gap: 2, padding: space.md, borderRadius: radius.thumb + 2, borderWidth: StyleSheet.hairlineWidth },
+  sunCard: { padding: space.md, borderRadius: radius.card },
   section: { gap: space.md, paddingTop: space.lg },
-  sectionHead: { flexDirection: 'row', alignItems: 'baseline', gap: space.sm, paddingHorizontal: space.lg },
-  add: { marginHorizontal: space.lg },
   pad: { paddingHorizontal: space.lg },
   instaTile: { gap: space.md, padding: space.md, borderRadius: radius.thumb + 2, borderWidth: StyleSheet.hairlineWidth },
 });

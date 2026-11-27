@@ -101,3 +101,6 @@ Weitere: `motion` (fast 120 ms, base 220 ms, pop-Feder fürs Herz), `hit` = 44 (
 - Screenreader: alle Icon-Knöpfe, Fotos, Raster-Kacheln, Pins, Story-Kreise und Tabs haben Beschreibungen. Nicht tippbare Chips werden als Text angesagt.
 - „Bewegung reduzieren" wird beachtet (Lade-Puls aus, Herz ohne Feder).
 - Offen: Test mit VoiceOver am iPhone; Kategorie-Chip-Rahmen hell (1.2:1), ist durch Text erkennbar, ggf. kräftiger.
+
+## SunArc (Sonnenuhr)
+`<SunArc sunrise sunset golden now />` aus `src/ui/sun.tsx`: Halbbogen von Aufgang bis Untergang, Golden Hour in `sun`-Farbe, Sonne an der aktuellen Stelle, Status-Satz in der Mitte. Farben: Tokens `sun`, `sunTrack`.

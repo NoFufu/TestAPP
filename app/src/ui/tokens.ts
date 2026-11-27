@@ -20,6 +20,8 @@ export const palette = {
     onPhoto: '#FFFFFF',      // Icons/Text direkt auf Fotos
     photoScrim: 'rgba(0,0,0,0.45)', // Fläche hinter Icons auf Fotos
     shadow: '#000000',
+    sun: '#E39A2D',       // Sonnenbogen, Golden Hour
+    sunTrack: '#E2E3DF',
   },
   dark: {
     paper: '#000000',
@@ -37,6 +39,8 @@ export const palette = {
     onPhoto: '#FFFFFF',
     photoScrim: 'rgba(0,0,0,0.45)',
     shadow: '#000000',
+    sun: '#F2B04A',
+    sunTrack: '#2C2E31',
   },
 } as const;
 
