@@ -17,6 +17,9 @@ export const palette = {
     onSign: '#FFFFFF',
     danger: '#B3261E',
     scrim: 'rgba(0,0,0,0.45)',
+    onPhoto: '#FFFFFF',      // Icons/Text direkt auf Fotos
+    photoScrim: 'rgba(0,0,0,0.45)', // Fläche hinter Icons auf Fotos
+    shadow: '#000000',
   },
   dark: {
     paper: '#000000',
@@ -31,6 +34,9 @@ export const palette = {
     onSign: '#16181B',
     danger: '#FF8A80',
     scrim: 'rgba(0,0,0,0.6)',
+    onPhoto: '#FFFFFF',
+    photoScrim: 'rgba(0,0,0,0.45)',
+    shadow: '#000000',
   },
 } as const;
 

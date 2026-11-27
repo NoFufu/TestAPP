@@ -24,17 +24,20 @@ type Store = {
   saved: Set<number>;
   toggleSave: (id: number) => void;
   addSpot: (s: UserSpot) => void;
+  likedPosts: Set<string>;
+  toggleLikePost: (id: string) => void;
   /** Mitte der Karte, dort landen neue Uploads (bis GPS aus dem Foto kommt). */
   mapCenter: { lat: number; lon: number };
   setMapCenter: (c: { lat: number; lon: number }) => void;
 };
 
 const Ctx = createContext<Store | null>(null);
-const K_SAVED = 'fs_saved', K_USER = 'fs_user';
+const K_SAVED = 'fs_saved', K_USER = 'fs_user', K_LIKES = 'fs_likes';
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [filters, setFilters] = useState<Set<Cat>>(new Set());
   const [saved, setSaved] = useState<Set<number>>(new Set());
+  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [userSpots, setUserSpots] = useState<UserSpot[]>([]);
   const [mapCenter, setMapCenter] = useState({ lat: 52.0215, lon: 8.531 });
   const [remote, setRemote] = useState<Spot[] | null>(null);
@@ -76,7 +79,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(reload, [reload]);
 
   useEffect(() => {
-    AsyncStorage.multiGet([K_SAVED, K_USER]).then(([[, s], [, u]]) => {
+    AsyncStorage.multiGet([K_SAVED, K_USER, K_LIKES]).then(([[, s], [, u], [, l]]) => {
+      if (l) setLikedPosts(new Set(JSON.parse(l)));
       if (s) setSaved(new Set(JSON.parse(s)));
       if (u) setUserSpots(JSON.parse(u));
     }).catch(() => {});
@@ -87,6 +91,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
       AsyncStorage.setItem(K_SAVED, JSON.stringify([...next])).catch(() => {});
+      return next;
+    });
+  }, []);
+
+  const toggleLikePost = useCallback((id: string) => {
+    setLikedPosts((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      AsyncStorage.setItem(K_LIKES, JSON.stringify([...next])).catch(() => {});
       return next;
     });
   }, []);
@@ -119,7 +132,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const value: Store = {
     source, reload, me, realLocation, locate, spots, visible, filters, toggleFilter, clearFilters: () => setFilters(new Set()),
-    saved, toggleSave, addSpot, mapCenter, setMapCenter,
+    saved, toggleSave, addSpot, likedPosts, toggleLikePost, mapCenter, setMapCenter,
   };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

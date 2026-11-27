@@ -94,3 +94,10 @@ Weitere: `motion` (fast 120 ms, base 220 ms, pop-Feder fürs Herz), `hit` = 44 (
 - Jeder `IconButton` hat ein `label`, Fotos haben eine Beschreibung.
 - Kontrast: Text ≥ 4.5:1 (geprüft: `asphalt` auf `paper` 5.3:1, `cherry` auf `paper` 5.5:1, dunkel `asphalt` auf Schwarz 8.3:1).
 - Dynamische Schriftgröße nicht blockieren (kein `allowFontScaling={false}`).
+
+## Prüfstand 27.11.2026 (am Code, nicht am Gerät)
+- Kontraste: alle Texte ≥ 4.5:1 (s. oben). Spot-Schild Weiß auf Tinte 17:1.
+- Tippflächen: Icon-Knöpfe, Standort-Knopf, Schließen ≥ 44. Chips 36 hoch + 4 hitSlop, Umschalter Karte/Raster 34 hoch + 6 hitSlop.
+- Screenreader: alle Icon-Knöpfe, Fotos, Raster-Kacheln, Pins, Story-Kreise und Tabs haben Beschreibungen. Nicht tippbare Chips werden als Text angesagt.
+- „Bewegung reduzieren" wird beachtet (Lade-Puls aus, Herz ohne Feder).
+- Offen: Test mit VoiceOver am iPhone; Kategorie-Chip-Rahmen hell (1.2:1), ist durch Text erkennbar, ggf. kräftiger.

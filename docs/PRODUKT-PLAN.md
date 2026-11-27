@@ -117,10 +117,10 @@ Jede Etappe ist ein eigenes Sitzungs-Thema und endet mit einem Update auf **prev
 
 | Etappe | Inhalt | Größe |
 |---|---|---|
-| **D0 · Richtige Karte** (vorgezogen) | Karte randlos wie Apple Karten, schwebende Filter, echter Standort, Foto-Pins, Info-Karte unten | S |
+| **D0 · Richtige Karte** ✅ (vorgezogen) | Karte randlos wie Apple Karten, schwebende Filter, echter Standort, Foto-Pins, Info-Karte unten | S |
 | **A · Login & Upload** (Phase 1b fertig) | E-Mail-Login (Magic Link), Profil-Tabelle, Fotos in Supabase Storage, Uploads mit Status „wird geprüft" | M |
-| **B · Design-System** | Farben, Schrift, Abstände, Grundbausteine; Tab-Leiste mit Icons | S |
-| **C · Insta-Umbau** | Home-Feed mit Post-Karten + Doppeltipp-Like, Entdecken mit Raster ↔ Karte, Profil mit Raster, neue Spot-Seite | L |
+| **B · Design-System** ✅ | Farben, Schrift, Abstände, Grundbausteine; Tab-Leiste mit Icons (`docs/design/SYSTEM.md`) | S |
+| **C · Insta-Umbau** ✅ (mit Beispiel-Beiträgen) | Home-Feed mit Post-Karten + Doppeltipp-Like, Entdecken mit Raster ↔ Karte, Profil mit Raster, neue Spot-Seite | L |
 | **D · Echter Standort + Licht** | `expo-location`, Radius-Filter, Sonnenstand und Golden Hour pro Spot, Wand-Himmelsrichtung beim Upload | M |
 | **E · Echte Fotos** | Du fotografierst 50–100 Spots, ich baue einen einfachen Admin-Upload für Startfotos | M (vor allem deine Zeit) |
 | **F · Prüfung** (Phase 1c) | GPS-Check, Metadaten entfernen, Duplikat-Check, KI-Check, Melde-Button | M |

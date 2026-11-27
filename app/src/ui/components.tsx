@@ -3,7 +3,7 @@ import { Image, type ImageSource } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import { useEffect, useRef, type ComponentProps, type ReactNode } from 'react';
 import {
-  ActivityIndicator, Animated, Pressable, StyleSheet, Text, View,
+  AccessibilityInfo, ActivityIndicator, Animated, Pressable, StyleSheet, Text, View,
   type PressableProps, type StyleProp, type TextProps, type ViewStyle,
 } from 'react-native';
 import { useColors } from './theme';
@@ -91,8 +91,10 @@ export function Chip({ label, selected, dot, onPress }: ChipProps) {
   return (
     <Pressable
       onPress={onPress}
-      accessibilityRole="button"
-      accessibilityState={{ selected: !!selected }}
+      disabled={!onPress}
+      hitSlop={4}
+      accessibilityRole={onPress ? 'button' : 'text'}
+      accessibilityState={onPress ? { selected: !!selected } : undefined}
       style={({ pressed }) => [
         s.chip,
         { backgroundColor: selected ? c.ink : c.surface, borderColor: selected ? c.ink : c.line, opacity: pressed ? 0.75 : 1 },
@@ -124,9 +126,9 @@ export function SpotSign({ name, distance, onPress, style }: SpotSignProps) {
 }
 
 /* ---------- Avatar ---------- */
-type AvatarProps = { source?: ImageSource | number; size?: number; ring?: 'new' | 'seen' | 'none'; label?: string };
+type AvatarProps = { source?: ImageSource | number; size?: number; ring?: 'new' | 'seen' | 'none'; label?: string; initials?: string };
 /** Rundes Profil- oder Story-Bild. ring=new: Tintenring (neu), seen: grauer Ring. */
-export function Avatar({ source, size = 32, ring = 'none', label }: AvatarProps) {
+export function Avatar({ source, size = 32, ring = 'none', label, initials }: AvatarProps) {
   const c = useColors();
   const pad = ring === 'none' ? 0 : 2.5;
   return (
@@ -134,11 +136,17 @@ export function Avatar({ source, size = 32, ring = 'none', label }: AvatarProps)
       accessibilityLabel={label}
       style={{ width: size, height: size, borderRadius: size / 2, padding: pad, backgroundColor: ring === 'new' ? c.ink : ring === 'seen' ? c.line : 'transparent' }}
     >
-      <Image
-        source={source}
-        style={{ flex: 1, borderRadius: size / 2, borderWidth: ring === 'none' ? 0 : 2, borderColor: c.paper, backgroundColor: c.fill }}
-        contentFit="cover"
-      />
+      {source ? (
+        <Image
+          source={source}
+          style={{ flex: 1, borderRadius: size / 2, borderWidth: ring === 'none' ? 0 : 2, borderColor: c.paper, backgroundColor: c.fill }}
+          contentFit="cover"
+        />
+      ) : (
+        <View style={{ flex: 1, borderRadius: size / 2, borderWidth: ring === 'none' ? 0 : 2, borderColor: c.paper, backgroundColor: c.fill, alignItems: 'center', justifyContent: 'center' }}>
+          {initials ? <Text style={[type.label, { color: c.asphalt, fontSize: Math.round(size * 0.38) }]}>{initials}</Text> : null}
+        </View>
+      )}
     </View>
   );
 }
@@ -149,12 +157,17 @@ export function Skeleton({ style }: { style?: StyleProp<ViewStyle> }) {
   const c = useColors();
   const o = useRef(new Animated.Value(0.6)).current;
   useEffect(() => {
-    const loop = Animated.loop(Animated.sequence([
-      Animated.timing(o, { toValue: 1, duration: 700, useNativeDriver: true }),
-      Animated.timing(o, { toValue: 0.6, duration: 700, useNativeDriver: true }),
-    ]));
-    loop.start();
-    return () => loop.stop();
+    let stopped = false;
+    let loop: Animated.CompositeAnimation | null = null;
+    AccessibilityInfo.isReduceMotionEnabled().then((reduce) => {
+      if (stopped || reduce) return;
+      loop = Animated.loop(Animated.sequence([
+        Animated.timing(o, { toValue: 1, duration: 700, useNativeDriver: true }),
+        Animated.timing(o, { toValue: 0.6, duration: 700, useNativeDriver: true }),
+      ]));
+      loop.start();
+    });
+    return () => { stopped = true; loop?.stop(); };
   }, [o]);
   return <Animated.View style={[{ backgroundColor: c.fill, opacity: o }, style]} />;
 }
@@ -190,12 +203,18 @@ export function LikeBurst({ trigger }: { trigger: number }) {
   const opacity = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     if (!trigger) return;
-    scale.setValue(0.3);
     opacity.setValue(1);
+    AccessibilityInfo.isReduceMotionEnabled().then((reduce) => {
+    scale.setValue(reduce ? 1 : 0.3);
+    if (reduce) {
+      Animated.sequence([Animated.delay(450), Animated.timing(opacity, { toValue: 0, duration: motion.base, useNativeDriver: true })]).start();
+      return;
+    }
     Animated.parallel([
       Animated.spring(scale, { toValue: 1, useNativeDriver: true, ...motion.pop }),
       Animated.sequence([Animated.delay(450), Animated.timing(opacity, { toValue: 0, duration: motion.base, useNativeDriver: true })]),
     ]).start();
+    });
   }, [trigger, scale, opacity]);
   return (
     <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, s.center, { opacity, transform: [{ scale }] }]}>

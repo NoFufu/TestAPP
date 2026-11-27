@@ -36,7 +36,7 @@ export function PostCard(p: PostCardProps) {
   return (
     <View style={{ backgroundColor: c.paper }}>
       <View style={st.head}>
-        <Avatar source={p.avatar} size={32} label={p.author} />
+        <Avatar source={p.avatar} size={32} label={p.author} initials={p.author.slice(0, 1).toUpperCase()} />
         <T variant="name">{p.author}</T>
         {p.when ? <T variant="small" color="asphalt">{p.when}</T> : null}
       </View>
@@ -86,7 +86,7 @@ export function PhotoGrid({ items, layout = 'square' }: { items: GridItem[]; lay
     return (
       <View style={[st.wrap, { gap }]}>
         {items.map((it) => (
-          <Pressable key={it.key} onPress={it.onPress} accessibilityLabel={it.label}>
+          <Pressable key={it.key} onPress={it.onPress} accessibilityRole="button" accessibilityLabel={it.label}>
             <Image source={it.photo} style={{ width: cell, height: cell, backgroundColor: c.fill }} contentFit="cover" />
           </Pressable>
         ))}
@@ -101,14 +101,14 @@ export function PhotoGrid({ items, layout = 'square' }: { items: GridItem[]; lay
       {groups.map((g, gi) => {
         const [big, ...small] = g;
         const Big = (
-          <Pressable key={big.key} onPress={big.onPress} accessibilityLabel={big.label}>
+          <Pressable key={big.key} onPress={big.onPress} accessibilityRole="button" accessibilityLabel={big.label}>
             <Image source={big.photo} style={{ width: cell * 2 + gap, height: cell * 2 + gap, backgroundColor: c.fill }} contentFit="cover" />
           </Pressable>
         );
         const Small = (
           <View key="s" style={{ gap }}>
             {small.map((it) => (
-              <Pressable key={it.key} onPress={it.onPress} accessibilityLabel={it.label}>
+              <Pressable key={it.key} onPress={it.onPress} accessibilityRole="button" accessibilityLabel={it.label}>
                 <Image source={it.photo} style={{ width: cell, height: cell, backgroundColor: c.fill }} contentFit="cover" />
               </Pressable>
             ))}

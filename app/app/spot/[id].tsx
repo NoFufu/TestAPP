@@ -1,104 +1,129 @@
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { usePreventScreenCapture } from 'expo-screen-capture';
-import { useState } from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Tags } from '../../src/components/ui';
-import { TIPS, fmtDist } from '../../src/data/spots';
+import { useMemo, useState } from 'react';
+import { Linking, Platform, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import SunCalc from 'suncalc';
+import { catInfo, fmtDist, TIPS } from '../../src/data/spots';
 import { useStore } from '../../src/store';
-import { useTheme } from '../../src/theme';
+import { Button, Chip, IconButton, PhotoGrid, SpotSign, T, radius, space, useColors } from '../../src/ui';
+
+const hhmm = (d: Date) => (isNaN(d.getTime()) ? '–' : d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }));
 
 export default function SpotDetail() {
   usePreventScreenCapture();
-  const t = useTheme();
+  const c = useColors();
+  const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { spots, saved, toggleSave } = useStore();
   const [page, setPage] = useState(0);
   const s = spots.find((x) => String(x.id) === id);
 
+  const light = useMemo(() => {
+    if (!s) return null;
+    const now = new Date();
+    const t = SunCalc.getTimes(now, s.lat, s.lon);
+    return { golden: hhmm(t.goldenHour), sunset: hhmm(t.sunset), over: now > t.sunset };
+  }, [s]);
+
   if (!s) {
     return (
-      <SafeAreaView style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: t.bg }}>
-        <Text style={{ color: t.ink }}>Diesen Spot gibt es nicht mehr.</Text>
-      </SafeAreaView>
+      <View style={[st.center, { backgroundColor: c.paper }]}>
+        <T>Diesen Spot gibt es nicht mehr.</T>
+        <Button label="Zurück" variant="secondary" onPress={() => router.back()} />
+      </View>
     );
   }
+
   const tip = TIPS[s.cats[0]];
   const isSaved = saved.has(s.id);
-  const captions = s.user ? ['Dein Upload'] : ['Übersicht', 'Outfit-Beispiel'];
+  const captions = s.user ? ['Dein Upload'] : ['Der Spot', 'Outfit-Beispiel'];
 
   return (
-    <View style={{ flex: 1, backgroundColor: t.surface }}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-        <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false}
-          onMomentumScrollEnd={(e) => setPage(Math.round(e.nativeEvent.contentOffset.x / width))}>
-          {s.images.map((img, i) => (
-            <View key={i} style={{ width, height: width * 1.15, backgroundColor: '#111' }}>
-              <Image source={img} style={StyleSheet.absoluteFill} contentFit="cover" />
-              <Text style={st.cap}>{captions[i] ?? ''}</Text>
+    <View style={{ flex: 1, backgroundColor: c.paper }}>
+      <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + space.xxl }}>
+        <View>
+          <ScrollView
+            horizontal pagingEnabled showsHorizontalScrollIndicator={false}
+            onMomentumScrollEnd={(e) => setPage(Math.round(e.nativeEvent.contentOffset.x / width))}
+          >
+            {s.images.map((img, i) => (
+              <Image key={i} source={img} accessibilityLabel={`${s.name}: ${captions[i] ?? 'Foto'}`}
+                style={{ width, height: width * 1.25, backgroundColor: c.fill }} contentFit="cover" />
+            ))}
+          </ScrollView>
+          <SpotSign name={s.area} distance={fmtDist(s.dist)} style={st.sign} />
+          {s.images.length > 1 ? (
+            <View style={st.dots} accessibilityLabel={`Foto ${page + 1} von ${s.images.length}`}>
+              {s.images.map((_, i) => (
+                <View key={i} style={[st.dot, { backgroundColor: c.onPhoto, opacity: i === page ? 1 : 0.5 }]} />
+              ))}
             </View>
-          ))}
-        </ScrollView>
-        {s.images.length > 1 ? (
-          <View style={st.dots}>
-            {s.images.map((_, i) => <View key={i} style={[st.dot, { backgroundColor: i === page ? t.ink : t.line, width: i === page ? 16 : 6 }]} />)}
-          </View>
-        ) : null}
+          ) : null}
+          <IconButton icon="close" label="Schließen" color={c.onPhoto} size={22} onPress={() => router.back()}
+            style={[st.close, { top: space.md, backgroundColor: c.photoScrim }]} />
+        </View>
 
-        <View style={{ padding: 16, gap: 14 }}>
-          <Tags cats={s.cats} />
-          <Text style={[st.h, { color: t.ink }]}>{s.name}</Text>
-          <Text style={{ color: t.muted, fontSize: 12.5 }}>{s.area} · {fmtDist(s.dist)} von dir · ♥ {s.likes}</Text>
-          <Text style={{ color: t.ink, lineHeight: 22 }}>{s.desc}</Text>
+        <View style={st.body}>
+          <T variant="display" accessibilityRole="header">{s.name}</T>
+          <T variant="small" color="asphalt">{captions[page]}. {s.likes.toLocaleString('de-DE')} Likes</T>
+          <View style={st.row}>
+            {s.cats.map((k) => <Chip key={k} label={catInfo(k).label} dot={catInfo(k).color} />)}
+          </View>
+          <T>{s.desc}</T>
 
-          <View style={[st.facts, { backgroundColor: t.bg }]}>
-            <Fact k="BESTE ZEIT" v={tip.best} />
-            <Fact k="FOTO-TIPP" v={tip.tip} mono />
-            <Fact k="POSITION" v={`${s.lat.toFixed(4)}° N, ${s.lon.toFixed(4)}° O`} mono />
+          {light ? (
+            <View style={st.row}>
+              <View style={[st.tile, { backgroundColor: c.surface, borderColor: c.line }]}>
+                <T variant="small" color="asphalt">Golden Hour heute</T>
+                <T variant="stat">{light.over ? 'vorbei' : `ab ${light.golden}`}</T>
+              </View>
+              <View style={[st.tile, { backgroundColor: c.surface, borderColor: c.line }]}>
+                <T variant="small" color="asphalt">Sonnenuntergang</T>
+                <T variant="stat">{light.sunset}</T>
+              </View>
+            </View>
+          ) : null}
+
+          <View style={[st.tipBox, { borderColor: c.line }]}>
+            <T variant="label">Foto-Tipp</T>
+            <T color="asphalt">{tip.tip}. Am besten: {tip.best}.</T>
           </View>
 
-          <View style={{ flexDirection: 'row', gap: 10 }}>
-            <Pressable style={[st.btn, { backgroundColor: t.accent }]}
-              onPress={() => Linking.openURL(`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lon}&travelmode=walking`)}>
-              <Text style={{ color: t.accentInk, fontWeight: '600' }}>Route</Text>
-            </Pressable>
-            <Pressable style={[st.btn, { borderWidth: 1, borderColor: t.line, backgroundColor: t.bg }]} onPress={() => toggleSave(s.id)}>
-              <Text style={{ color: t.ink, fontWeight: '600' }}>{isSaved ? 'Gemerkt ✓' : 'Merken'}</Text>
-            </Pressable>
-          </View>
-          <View style={[st.soon, { borderColor: t.line }]}>
-            <Text style={{ color: t.muted, fontSize: 13.5, lineHeight: 19 }}>
-              <Text style={{ color: t.ink, fontWeight: '700' }}>Outfit-Fotos von anderen</Text> an diesem Spot und Social Credits kommen in Phase 3.
-            </Text>
+          <View style={st.row}>
+            <Button label="Route" icon="navigate" style={{ flex: 1 }}
+              onPress={() => Linking.openURL(Platform.OS === 'ios'
+                ? `https://maps.apple.com/?daddr=${s.lat},${s.lon}&dirflg=w`
+                : `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lon}&travelmode=walking`)} />
+            <Button label={isSaved ? 'Gemerkt' : 'Merken'} icon={isSaved ? 'bookmark' : 'bookmark-outline'} variant="secondary"
+              style={{ flex: 1 }} onPress={() => toggleSave(s.id)} />
           </View>
         </View>
-      </ScrollView>
-      <Pressable onPress={() => router.back()} style={st.close} accessibilityLabel="Schließen" hitSlop={8}>
-        <Text style={{ color: '#fff', fontSize: 18, fontWeight: '700' }}>✕</Text>
-      </Pressable>
-    </View>
-  );
-}
 
-function Fact({ k, v, mono }: { k: string; v: string; mono?: boolean }) {
-  const t = useTheme();
-  return (
-    <View style={{ flexDirection: 'row', gap: 16 }}>
-      <Text style={{ width: 86, fontSize: 11, fontWeight: '600', letterSpacing: 0.7, color: t.muted, paddingTop: 2 }}>{k}</Text>
-      <Text style={{ flex: 1, color: t.ink, fontSize: mono ? 13 : 14, fontFamily: mono ? 'monospace' : undefined }}>{v}</Text>
+        {!s.user && s.images[1] ? (
+          <View style={{ gap: space.sm }}>
+            <T variant="name" style={{ paddingHorizontal: space.lg }}>Outfits an diesem Spot</T>
+            <PhotoGrid items={[{ key: 'o1', photo: s.images[1], label: 'Outfit-Beispiel', onPress: () => setPage(1) }]} />
+            <T variant="small" color="asphalt" style={{ paddingHorizontal: space.lg }}>
+              Hier erscheinen bald die Outfit-Fotos aus der Community.
+            </T>
+          </View>
+        ) : null}
+      </ScrollView>
     </View>
   );
 }
 
 const st = StyleSheet.create({
-  cap: { position: 'absolute', left: 12, bottom: 12, color: '#fff', fontSize: 11, backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, overflow: 'hidden' },
-  dots: { flexDirection: 'row', gap: 6, justifyContent: 'center', paddingTop: 10 },
-  dot: { height: 6, borderRadius: 3 },
-  h: { fontSize: 27, fontWeight: '800', letterSpacing: -0.5 },
-  facts: { gap: 10, padding: 14, borderRadius: 16 },
-  btn: { flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: 14 },
-  soon: { borderWidth: 1, borderStyle: 'dashed', borderRadius: 14, padding: 12 },
-  close: { position: 'absolute', top: 14, right: 14, width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center' },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: space.lg, padding: space.xl },
+  sign: { position: 'absolute', left: space.md, bottom: space.md },
+  dots: { position: 'absolute', bottom: space.lg, right: space.md, flexDirection: 'row', gap: 5 },
+  dot: { width: 6, height: 6, borderRadius: 3 },
+  close: { position: 'absolute', right: space.sm, borderRadius: radius.pill },
+  body: { padding: space.lg, gap: space.md },
+  row: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
+  tile: { flex: 1, minWidth: 140, gap: 2, padding: space.md, borderRadius: radius.thumb + 2, borderWidth: StyleSheet.hairlineWidth },
+  tipBox: { gap: space.xs, padding: space.md, borderRadius: radius.thumb + 2, borderWidth: StyleSheet.hairlineWidth },
 });

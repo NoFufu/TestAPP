@@ -21,6 +21,9 @@ export const CATS: { key: Cat; label: string; color: string }[] = [
   { key: 'nacht', label: 'Nacht & Neon', color: catColors.nacht },
   { key: 'architektur', label: 'Architektur', color: catColors.architektur },
 ];
+/** Kurze Namen für enge Stellen (Story-Kreise). */
+export const SHORT: Partial<Record<Cat, string>> = { urban: 'Urban', nacht: 'Nacht', architektur: 'Architektur' };
+
 export const catInfo = (c: Cat) => CATS.find((x) => x.key === c)!;
 
 export const TIPS: Record<Cat, { best: string; tip: string }> = {
