@@ -3,15 +3,17 @@ import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { Image as RNImage, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { FlatList, Image as RNImage, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FilterBar } from '../../src/components/ui';
 import { BIELEFELD, catInfo, distanceKm, fmtDist } from '../../src/data/spots';
 import { useStore } from '../../src/store';
-import { PhotoGrid, SpotSign, T, hit, radius, space, useColors, useIsDark } from '../../src/ui';
+import { PhotoGrid, T, hit, radius, space, useColors, useIsDark } from '../../src/ui';
 
 type Mode = 'map' | 'grid';
+const CARD_W = 150;
+const CARD_H = 190;
 
 /** Entdecken: Umschalter Karte ↔ Raster, Filter schweben oben. */
 export default function Explore() {
@@ -24,7 +26,19 @@ export default function Explore() {
   const [selId, setSelId] = useState<number | null>(null);
   const [livePins, setLivePins] = useState(true);
   const [headerH, setHeaderH] = useState(120);
-  const sel = visible.find((s) => s.id === selId) ?? null;
+  const sorted = [...visible].sort((a, b) => a.dist - b.dist);
+  const list = useRef<FlatList<(typeof sorted)[number]>>(null);
+  const fromCarousel = useRef(false);
+
+  function focus(s: (typeof sorted)[number]) {
+    setSelId(s.id);
+    map.current?.animateCamera({ center: { latitude: s.lat - 0.0012, longitude: s.lon } }, { duration: 350 });
+  }
+  // Wischen in der Leiste wählt den Spot und schwenkt die Karte
+  const onViewable = useRef(({ viewableItems }: { viewableItems: { item: (typeof sorted)[number] }[] }) => {
+    const first = viewableItems[0]?.item;
+    if (first && fromCarousel.current) focus(first);
+  }).current;
 
   useEffect(() => {
     setLivePins(true);
@@ -46,7 +60,6 @@ export default function Explore() {
   }
 
   const status = source === 'loading' ? 'lädt …' : `${visible.length} Spots${source === 'local' ? ', offline' : ''}`;
-  const sorted = [...visible].sort((a, b) => a.dist - b.dist);
 
   return (
     <View style={{ flex: 1, backgroundColor: c.paper }}>
@@ -62,7 +75,7 @@ export default function Explore() {
           userInterfaceStyle={dark ? 'dark' : 'light'}
           onRegionChangeComplete={(r) => setMapCenter({ lat: r.latitude, lon: r.longitude })}
           onPress={() => setSelId(null)}
-          mapPadding={{ top: headerH, bottom: sel ? 150 : 0, left: 0, right: 0 }}
+          mapPadding={{ top: headerH, bottom: CARD_H + space.lg, left: 0, right: 0 }}
         >
           {visible.map((s) => {
             const active = selId === s.id;
@@ -72,8 +85,10 @@ export default function Explore() {
                 coordinate={{ latitude: s.lat, longitude: s.lon }}
                 onPress={(e) => {
                   e.stopPropagation();
-                  setSelId(s.id);
-                  map.current?.animateCamera({ center: { latitude: s.lat - 0.0015, longitude: s.lon } }, { duration: 350 });
+                  focus(s);
+                  const i = sorted.findIndex((x) => x.id === s.id);
+                  fromCarousel.current = false;
+                  if (i >= 0) list.current?.scrollToIndex({ index: i, animated: true });
                 }}
                 tracksViewChanges={livePins}
                 zIndex={active ? 10 : 1}
@@ -146,17 +161,39 @@ export default function Explore() {
         </BlurView>
       ) : null}
 
-      {mode === 'map' && sel ? (
-        <BlurView intensity={85} tint={dark ? 'dark' : 'light'} style={st.sheet}>
-          <Pressable onPress={() => router.push(`/spot/${sel.id}`)} style={st.sheetInner} accessibilityRole="button" accessibilityLabel={`${sel.name} ansehen`}>
-            <Image source={sel.images[0]} style={st.sheetImg} contentFit="cover" />
-            <View style={{ flex: 1, gap: space.xs }}>
-              <SpotSign name={sel.name} distance={fmtDist(sel.dist)} />
-              <T variant="small" color="asphalt">{sel.area}, {sel.likes.toLocaleString('de-DE')} Likes</T>
-            </View>
-            <Ionicons name="chevron-forward" size={22} color={c.asphalt} />
-          </Pressable>
-        </BlurView>
+      {mode === 'map' && sorted.length ? (
+        <FlatList
+          ref={list}
+          horizontal
+          data={sorted}
+          keyExtractor={(s) => String(s.id)}
+          style={st.carousel}
+          contentContainerStyle={{ paddingHorizontal: space.md, gap: space.sm }}
+          showsHorizontalScrollIndicator={false}
+          snapToInterval={CARD_W + space.sm}
+          decelerationRate="fast"
+          getItemLayout={(_, i) => ({ length: CARD_W + space.sm, offset: (CARD_W + space.sm) * i, index: i })}
+          onScrollBeginDrag={() => { fromCarousel.current = true; }}
+          onViewableItemsChanged={onViewable}
+          viewabilityConfig={{ itemVisiblePercentThreshold: 60 }}
+          renderItem={({ item: s }) => {
+            const active = s.id === selId;
+            return (
+              <Pressable
+                onPress={() => router.push(`/spot/${s.id}`)}
+                accessibilityRole="button"
+                accessibilityLabel={`${s.name}, ${fmtDist(s.dist)} entfernt. Öffnen`}
+                style={[st.card, { backgroundColor: c.surface, borderColor: active ? c.ink : c.line }]}
+              >
+                <Image source={s.images[0]} style={st.cardImg} contentFit="cover" />
+                <View style={st.cardText}>
+                  <T variant="sign" numberOfLines={1}>{s.name}</T>
+                  <T variant="small" color="asphalt" numberOfLines={1}>{fmtDist(s.dist)}, {catInfo(s.cats[0]).label}</T>
+                </View>
+              </Pressable>
+            );
+          }}
+        />
       ) : null}
     </View>
   );
@@ -167,15 +204,16 @@ const st = StyleSheet.create({
   top: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingHorizontal: space.lg },
   seg: { flexDirection: 'row', padding: 3, borderRadius: radius.pill },
   segBtn: { width: hit, height: 34, alignItems: 'center', justifyContent: 'center', borderRadius: radius.pill },
-  pin: { width: 44, height: 44, borderRadius: 22, borderWidth: 3, overflow: 'hidden', shadowOpacity: 0.3, shadowRadius: 4, shadowOffset: { width: 0, height: 2 } },
-  pinActive: { width: 60, height: 60, borderRadius: 30 },
+  pin: { width: 32, height: 32, borderRadius: 16, borderWidth: 2, overflow: 'hidden', shadowOpacity: 0.3, shadowRadius: 4, shadowOffset: { width: 0, height: 2 } },
+  pinActive: { width: 46, height: 46, borderRadius: 23, borderWidth: 3 },
   pinImg: { width: '100%', height: '100%' },
-  pinDot: { position: 'absolute', right: 2, bottom: 2, width: 10, height: 10, borderRadius: 5, borderWidth: 1.5 },
-  pinTip: { width: 0, height: 0, borderLeftWidth: 6, borderRightWidth: 6, borderTopWidth: 8, borderLeftColor: 'transparent', borderRightColor: 'transparent', marginTop: -1 },
+  pinDot: { position: 'absolute', right: 0, bottom: 0, width: 9, height: 9, borderRadius: 4.5, borderWidth: 1.5 },
+  pinTip: { width: 0, height: 0, borderLeftWidth: 4, borderRightWidth: 4, borderTopWidth: 6, borderLeftColor: 'transparent', borderRightColor: 'transparent', marginTop: -1 },
   fab: { position: 'absolute', right: space.md + 2, width: hit, height: hit, borderRadius: radius.thumb, overflow: 'hidden' },
   fabInner: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  sheet: { position: 'absolute', left: space.md, right: space.md, bottom: space.md, borderRadius: radius.card, overflow: 'hidden' },
-  sheetInner: { flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.sm + 2 },
-  sheetImg: { width: 76, height: 95, borderRadius: radius.thumb },
   empty: { padding: space.xl, gap: space.sm },
+  carousel: { position: 'absolute', left: 0, right: 0, bottom: space.md },
+  card: { width: CARD_W, borderRadius: radius.thumb + 2, borderWidth: 1.5, overflow: 'hidden' },
+  cardImg: { width: '100%', height: CARD_H - 52 },
+  cardText: { paddingHorizontal: space.sm + 2, paddingVertical: space.sm - 2 },
 });

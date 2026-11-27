@@ -146,7 +146,37 @@ Nach der Testphase entscheiden wir mit diesen Zahlen, ob Abo, mehr Städte oder 
 
 ---
 
-## 7. Entscheidungen (27.11.2026)
+## 7. Neu aus deinem Feedback (27.11.2026)
+
+### Instagram-Post einbetten statt doppelt posten
+Beim Hochladen wählt man: **eigenes Foto** *oder* **Instagram-Link einfügen**.
+- Die App zeigt den Instagram-Post direkt im Feed und auf der Spot-Seite eingebettet (öffentliche Posts, über die offizielle Einbettung von Instagram in einer Web-Ansicht).
+- **Datenschutz:** Das Laden von Instagram-Inhalten überträgt Daten an Meta. Deshalb zeigen wir zuerst eine Vorschau-Kachel mit „Instagram-Post laden", erst nach Tippen wird geladen (Zwei-Klick-Lösung).
+- Private oder gelöschte Posts: Kachel „Post nicht mehr verfügbar", Spot bleibt erhalten.
+- Später möglich: Vorschaubild über Metas offizielle oEmbed-Schnittstelle (braucht Meta-Entwicklerkonto und App-Prüfung).
+
+### Outfit-Teile angeben
+Zu jedem Outfit-Post bis zu 8 Teile: **Was** (z. B. „Trenchcoat"), **Marke** (z. B. „Arket"), optional **Link** zum Shop.
+- Im Feed: kleines „Outfit"-Symbol auf dem Foto, Tippen zeigt die Liste.
+- Marken werden durchsuchbar („Alle Outfits mit Carhartt").
+- Shop-Links sind Werbung im rechtlichen Sinne, wenn es Affiliate-Links sind: dann Kennzeichnung „Anzeige" nötig. Vorerst nur normale Links.
+
+### Datenmodell-Ergänzung
+```
+posts        id · spot_id → spots · author → profiles · photo_path (leer bei Instagram)
+             · instagram_url (leer bei eigenem Foto) · caption · status · likes_count · created_at
+post_items   id · post_id → posts · item · brand · link
+```
+`spot_photos` mit `kind = outfit` geht in `posts` auf.
+
+### Karte
+Pins kleiner, unten eine wischbare Spot-Leiste wie bei Apple Karten ✅ (27.11.).
+
+### Einordnung in die Etappen
+- **A · Login & Upload** bekommt: Upload-Wahl Foto **oder** Instagram-Link, Outfit-Teile mit Marke.
+- **H · Social** bekommt: Marken-Suche.
+
+## 8. Entscheidungen (27.11.2026)
 
 | Frage | Antwort |
 |---|---|
