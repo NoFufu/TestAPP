@@ -86,3 +86,38 @@ export async function createSpot(uid: string, s: NewSpot, step: (i: number) => v
   step(3);
   return data.id as number;
 }
+
+/** Fügt einem bestehenden Spot ein Foto (mit Person) und/oder einen Instagram-Link hinzu. */
+export async function addPhotoToSpot(uid: string, spotId: number, uri: string | null, instagramUrl: string | null, step: (i: number) => void) {
+  step(0);
+  const small = uri ? await prepareImage(uri) : null;
+  step(1);
+  const path = small ? `${uid}/${Date.now()}-person.jpg` : null;
+  if (small && path) await uploadFile('spot-photos', path, small);
+  step(2);
+  const { error } = await supabase.from('spot_photos').insert({
+    spot_id: spotId, storage_path: path, kind: 'outfit', uploaded_by: uid, instagram_url: instagramUrl,
+  });
+  if (error) throw error;
+  step(3);
+}
+
+export type SpotPhoto = { id: number; url: string | null; kind: 'spot' | 'outfit'; instagram_url: string | null; by: string | null };
+
+/** Alle freigegebenen Fotos eines Spots, neueste zuerst. */
+export async function loadSpotPhotos(spotId: number): Promise<SpotPhoto[]> {
+  const { data, error } = await supabase
+    .from('spot_photos')
+    .select('id, storage_path, kind, instagram_url, profiles:uploaded_by (username)')
+    .eq('spot_id', spotId)
+    .eq('status', 'live')
+    .order('id', { ascending: false });
+  if (error || !data) return [];
+  return data.map((r) => ({
+    id: r.id as number,
+    url: r.storage_path ? photoUrl(r.storage_path as string) : null,
+    kind: r.kind as 'spot' | 'outfit',
+    instagram_url: r.instagram_url as string | null,
+    by: ((r.profiles as unknown as { username: string | null } | null)?.username) ?? null,
+  }));
+}

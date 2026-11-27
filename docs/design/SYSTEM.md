@@ -66,14 +66,14 @@ Weitere: `motion` (fast 120 ms, base 220 ms, pop-Feder fürs Herz), `hit` = 44 (
 | `Avatar` | `size`, `ring` = `new` · `seen` · `none` | Story-Ring in Tinte, kein Farbverlauf |
 | `Skeleton` | `style` | Statt Lade-Spinner bei Listen und Bildern |
 | `Sheet` | children | Schwebende Fläche unten (Karte, Aktionen) |
-| `LikeBurst` + `useDoubleTap` | `trigger` | Herz-Animation beim Doppeltipp |
+| `LikeBurst` + `useDoubleTap` | `trigger` | derzeit ungenutzt (Liken ist raus) |
 | `haptic` | `like()`, `select()` | Vibration bei Like / Merken / Auswahl |
 
 ## Muster (`patterns.tsx`)
 
 | Muster | Aufbau |
 |---|---|
-| `SpotCard` | Kopf (Entdecker-Avatar, Spot-Name, Ort und Entfernung) → Fotos zum Wischen (leer ↔ mit Person) mit Schild unten links → Herz / Instagram / … / Merken → „N Likes" → Beschreibung → „Entdeckt von …". Doppeltipp = Like, Einzeltipp = Spot öffnen |
+| `Masonry` + `pinRatio` | Zweispaltiges Raster mit unterschiedlich hohen Kacheln (Home, Fotos an einem Spot, Ähnliche Spots). Kachel: Foto mit Radius 16, darunter Name, Ort und Merken. Kein Liken |
 | `PhotoGrid` | `square`: 3 Spalten, 2 px Abstand (Profil) · `mosaic`: Dreiergruppen 1 groß + 2 klein, abwechselnd (Entdecken) |
 
 ---

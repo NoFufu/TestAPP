@@ -11,7 +11,7 @@ import { Avatar, Button, PhotoGrid, T, space, useColors } from '../../src/ui';
 export default function Profile() {
   const c = useColors();
   const { session, profile, signOut, saveProfile } = useAuth();
-  const { spots, saved, likedPosts } = useStore();
+  const { spots, saved } = useStore();
   const [busy, setBusy] = useState(false);
 
   if (!session || !profile?.username) {
@@ -29,7 +29,6 @@ export default function Profile() {
   const stats = [
     { n: mine.length, label: 'Spots' },
     { n: saved.size, label: 'Gemerkt' },
-    { n: likedPosts.size, label: 'Likes' },
   ];
 
   async function changeAvatar() {

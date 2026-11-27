@@ -125,7 +125,7 @@ Jede Etappe ist ein eigenes Sitzungs-Thema und endet mit einem Update auf **prev
 | **E · Echte Fotos** | Du fotografierst 50–100 Spots, ich baue einen einfachen Admin-Upload für Startfotos | M (vor allem deine Zeit) |
 | **F · Prüfung** (Phase 1c) | GPS-Check, Metadaten entfernen, Duplikat-Check, KI-Check, Melde-Button | M |
 | **G · Shoot-Listen + Farb-Filter** | Listen, Route, Teilen-Link; Hauptfarben je Foto, Farbfilter | M |
-| **H · Social & Credits** | Outfit-Fotos an Spots, Likes, Credits, Rangliste Bielefeld | M |
+| **H · Social & Credits** | Fitpics an Spots ✅, Merkliste in der Cloud, Credits für Spots und Fotos, Rangliste Bielefeld (Likes vorerst gestrichen) | M |
 | **I · Testphase** (Phase 2) | TestFlight/Play-Test mit 30–100 Leuten, Feedback einbauen | – |
 | **J · Abo** (Phase 3) | RevenueCat, Plus-Funktionen | M |
 
@@ -167,6 +167,7 @@ Pins kleiner, unten eine wischbare Spot-Leiste wie bei Apple Karten ✅ (27.11.)
 ### Einordnung in die Etappen
 - **A · Login & Upload** ✅ 27.11.: E-Mail + Passwort, Benutzername, Profilbild; Upload mit Foto vom Spot, optional Foto mit Person und Instagram-Link; Ort aus dem Foto-GPS.
 - **Home zeigt Spots** statt Outfit-Beiträgen ✅.
+- **Raster-Ansicht wie eine Pinnwand** ✅ 27.11.: Home = zweispaltiges Raster aller Spot-Fotos, **kein Liken, nur Merken**. Spot groß öffnen → darunter **alle Fotos an diesem Spot** (Fitpics von verschiedenen Leuten) und **ähnliche Spots**. Neuer Knopf „Eigenes Foto hier hinzufügen".
 
 ## 8. Entscheidungen (27.11.2026)
 

@@ -21,6 +21,7 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="spot/[id]" options={{ presentation: 'modal' }} />
         <Stack.Screen name="login" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="add-photo" options={{ presentation: 'modal' }} />
       </Stack>
     </StoreProvider>
     </AuthProvider>

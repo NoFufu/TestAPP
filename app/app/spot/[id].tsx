@@ -1,27 +1,39 @@
 import { Image } from 'expo-image';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { usePreventScreenCapture } from 'expo-screen-capture';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState, type ComponentRef } from 'react';
 import { Linking, Platform, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import SunCalc from 'suncalc';
-import { catInfo, fmtDist, TIPS } from '../../src/data/spots';
-import { useStore } from '../../src/store';
 import { WebView } from 'react-native-webview';
-import { Button, Chip, IconButton, SpotSign, T, radius, space, useColors } from '../../src/ui';
+import SunCalc from 'suncalc';
+import { catInfo, distanceKm, fmtDist, TIPS, type SpotImage } from '../../src/data/spots';
+import { useAuth } from '../../src/lib/auth';
+import { loadSpotPhotos, type SpotPhoto } from '../../src/lib/upload';
+import { useStore } from '../../src/store';
+import { Button, Chip, IconButton, Masonry, SpotSign, T, pinRatio, radius, space, useColors, type Pin } from '../../src/ui';
 
 const hhmm = (d: Date) => (isNaN(d.getTime()) ? '–' : d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }));
+type Shot = { key: string; src: SpotImage; label: string };
 
+/** Spot groß: Foto oben, Infos, darunter alle Fotos an diesem Spot und ähnliche Spots. */
 export default function SpotDetail() {
   usePreventScreenCapture();
   const c = useColors();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const scroll = useRef<ComponentRef<typeof ScrollView>>(null);
+  const { id, photo } = useLocalSearchParams<{ id: string; photo?: string }>();
   const { spots, saved, toggleSave } = useStore();
-  const [page, setPage] = useState(0);
-  const [showInsta, setShowInsta] = useState(false);
+  const { session } = useAuth();
   const s = spots.find((x) => String(x.id) === id);
+  const [remote, setRemote] = useState<SpotPhoto[]>([]);
+  const [bigKey, setBigKey] = useState<string>(`own-${photo ?? '0'}`);
+  const [showInsta, setShowInsta] = useState<Set<string>>(new Set());
+
+  // Fotos neu laden, wenn man zurückkommt (z. B. nach „Foto hinzufügen")
+  useFocusEffect(useCallback(() => {
+    if (s && !s.user) loadSpotPhotos(s.id).then(setRemote);
+  }, [s]));
 
   const light = useMemo(() => {
     if (!s) return null;
@@ -29,6 +41,25 @@ export default function SpotDetail() {
     const t = SunCalc.getTimes(now, s.lat, s.lon);
     return { golden: hhmm(t.goldenHour), sunset: hhmm(t.sunset), over: now > t.sunset };
   }, [s]);
+
+  const shots = useMemo<Shot[]>(() => {
+    if (!s) return [];
+    const own = s.images.map((src, k) => ({ key: `own-${k}`, src, label: k ? 'Mit Person' : 'Der Spot' }));
+    const ownUrls = new Set(own.map((o) => (typeof o.src === 'number' ? '' : o.src.uri)));
+    const extra = remote
+      .filter((r) => r.url && !ownUrls.has(r.url))
+      .map((r) => ({ key: `r-${r.id}`, src: { uri: r.url! }, label: r.by ? `Foto von ${r.by}` : 'Foto' }));
+    return [...own, ...extra];
+  }, [s, remote]);
+
+  const similar = useMemo(() => {
+    if (!s) return [];
+    return spots
+      .filter((x) => x.id !== s.id && x.cats.some((k) => s.cats.includes(k)))
+      .map((x) => ({ x, d: distanceKm(s, x) }))
+      .sort((a, b) => a.d - b.d)
+      .slice(0, 12);
+  }, [s, spots]);
 
   if (!s) {
     return (
@@ -39,43 +70,52 @@ export default function SpotDetail() {
     );
   }
 
-  const tip = TIPS[s.cats[0]];
+  const big = shots.find((x) => x.key === bigKey) ?? shots[0];
   const isSaved = saved.has(s.id);
-  const captions = s.user ? ['Dein Upload'] : ['Der Spot', 'Mit Person'];
+  const tip = TIPS[s.cats[0]];
+  const instaLinks = [...new Set([s.instagramUrl, ...remote.map((r) => r.instagram_url)].filter((u): u is string => !!u))];
+
+  const morePins: Pin[] = shots.filter((x) => x.key !== big?.key).map((x, i) => ({
+    key: x.key, photo: x.src, ratio: pinRatio(s.id + i), label: `${x.label}. Groß anzeigen`,
+    onPress: () => { setBigKey(x.key); scroll.current?.scrollTo({ y: 0, animated: true }); },
+  }));
+  const similarPins: Pin[] = similar.map(({ x, d }) => ({
+    key: `sim-${x.id}`, photo: x.images[0], ratio: pinRatio(x.id), title: x.name, subtitle: `${fmtDist(d)} von hier`,
+    label: `${x.name}, ${fmtDist(d)} von hier. Öffnen`, saved: saved.has(x.id),
+    onPress: () => router.push({ pathname: '/spot/[id]', params: { id: String(x.id) } }),
+    onSave: () => toggleSave(x.id),
+  }));
 
   return (
     <View style={{ flex: 1, backgroundColor: c.paper }}>
-      <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + space.xxl }}>
+      <ScrollView ref={scroll} contentContainerStyle={{ paddingBottom: insets.bottom + space.xxl }}>
         <View>
-          <ScrollView
-            horizontal pagingEnabled showsHorizontalScrollIndicator={false}
-            onMomentumScrollEnd={(e) => setPage(Math.round(e.nativeEvent.contentOffset.x / width))}
-          >
-            {s.images.map((img, i) => (
-              <Image key={i} source={img} accessibilityLabel={`${s.name}: ${captions[i] ?? 'Foto'}`}
-                style={{ width, height: width * 1.25, backgroundColor: c.fill }} contentFit="cover" />
-            ))}
-          </ScrollView>
-          <SpotSign name={s.area || 'Bielefeld'} distance={fmtDist(s.dist)} style={st.sign} />
-          {s.images.length > 1 ? (
-            <View style={st.dots} accessibilityLabel={`Foto ${page + 1} von ${s.images.length}`}>
-              {s.images.map((_, i) => (
-                <View key={i} style={[st.dot, { backgroundColor: c.onPhoto, opacity: i === page ? 1 : 0.5 }]} />
-              ))}
-            </View>
+          {big ? (
+            <Image source={big.src} accessibilityLabel={`${s.name}: ${big.label}`}
+              style={{ width, height: width * 1.25, backgroundColor: c.fill, borderBottomLeftRadius: radius.card, borderBottomRightRadius: radius.card }}
+              contentFit="cover" transition={150} />
           ) : null}
-          <IconButton icon="close" label="Schließen" color={c.onPhoto} size={22} onPress={() => router.back()}
-            style={[st.close, { top: space.md, backgroundColor: c.photoScrim }]} />
+          <SpotSign name={big?.label ?? 'Der Spot'} style={st.sign} />
+          <IconButton icon="chevron-down" label="Schließen" color={c.onPhoto} size={24} onPress={() => router.back()}
+            style={[st.close, { backgroundColor: c.photoScrim }]} />
+        </View>
+
+        <View style={st.actions}>
+          <IconButton icon="navigate-outline" label="Route zum Spot" onPress={() => Linking.openURL(Platform.OS === 'ios'
+            ? `https://maps.apple.com/?daddr=${s.lat},${s.lon}&dirflg=w`
+            : `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lon}&travelmode=walking`)} />
+          <View style={{ flex: 1 }} />
+          <Button label={isSaved ? 'Gemerkt' : 'Merken'} icon={isSaved ? 'bookmark' : 'bookmark-outline'}
+            variant={isSaved ? 'secondary' : 'primary'} onPress={() => toggleSave(s.id)} />
         </View>
 
         <View style={st.body}>
           <T variant="display" accessibilityRole="header">{s.name}</T>
-          <T variant="small" color="asphalt">Entdeckt von {s.creator ?? 'fitspot'}. {s.likes.toLocaleString('de-DE')} Likes</T>
+          <T variant="small" color="asphalt">{s.area || 'Bielefeld'}, {fmtDist(s.dist)} von dir. Entdeckt von {s.creator ?? 'fitspot'}.</T>
+          {s.desc ? <T>{s.desc}</T> : null}
           <View style={st.row}>
             {s.cats.map((k) => <Chip key={k} label={catInfo(k).label} dot={catInfo(k).color} />)}
           </View>
-          <T>{s.desc}</T>
-
           {light ? (
             <View style={st.row}>
               <View style={[st.tile, { backgroundColor: c.surface, borderColor: c.line }]}>
@@ -88,38 +128,43 @@ export default function SpotDetail() {
               </View>
             </View>
           ) : null}
-
-          <View style={[st.tipBox, { borderColor: c.line }]}>
-            <T variant="label">Foto-Tipp</T>
-            <T color="asphalt">{tip.tip}. Am besten: {tip.best}.</T>
-          </View>
-
-          <View style={st.row}>
-            <Button label="Route" icon="navigate" style={{ flex: 1 }}
-              onPress={() => Linking.openURL(Platform.OS === 'ios'
-                ? `https://maps.apple.com/?daddr=${s.lat},${s.lon}&dirflg=w`
-                : `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lon}&travelmode=walking`)} />
-            <Button label={isSaved ? 'Gemerkt' : 'Merken'} icon={isSaved ? 'bookmark' : 'bookmark-outline'} variant="secondary"
-              style={{ flex: 1 }} onPress={() => toggleSave(s.id)} />
-          </View>
+          <T variant="small" color="asphalt">Foto-Tipp: {tip.tip}. Am besten: {tip.best}.</T>
         </View>
 
-        {s.instagramUrl ? (
-          <View style={st.insta}>
-            <T variant="name">Auf Instagram</T>
-            {showInsta ? (
-              <WebView
-                source={{ uri: `${s.instagramUrl}embed/` }}
-                style={{ height: Math.round(width * 1.45), backgroundColor: c.surface }}
-                scrollEnabled={false}
-                accessibilityLabel="Eingebetteter Instagram-Post"
-              />
+        <View style={st.section}>
+          <View style={st.sectionHead}>
+            <T variant="title" accessibilityRole="header">Fotos an diesem Spot</T>
+            <T variant="small" color="asphalt">{shots.length}</T>
+          </View>
+          {!s.user ? (
+            <Button label="Eigenes Foto hier hinzufügen" icon="camera-outline" variant="secondary" style={st.add}
+              onPress={() => session ? router.push({ pathname: '/add-photo', params: { spot: String(s.id) } }) : router.push('/login')} />
+          ) : null}
+          {morePins.length ? <Masonry pins={morePins} /> : (
+            <T color="asphalt" style={st.pad}>Noch keine weiteren Fotos. Sei der Erste, der hier ein Fitpic teilt.</T>
+          )}
+        </View>
+
+        {instaLinks.length ? (
+          <View style={[st.section, st.pad]}>
+            <T variant="title" accessibilityRole="header">Auf Instagram</T>
+            {instaLinks.map((url) => showInsta.has(url) ? (
+              <WebView key={url} source={{ uri: `${url}embed/` }} scrollEnabled={false}
+                style={{ height: Math.round(width * 1.45), backgroundColor: c.surface }} accessibilityLabel="Eingebetteter Instagram-Post" />
             ) : (
-              <View style={[st.instaTile, { backgroundColor: c.surface, borderColor: c.line }]}>
+              <View key={url} style={[st.instaTile, { backgroundColor: c.surface, borderColor: c.line }]}>
                 <T color="asphalt">Beim Laden werden Daten an Instagram (Meta) übertragen.</T>
-                <Button label="Instagram-Post laden" icon="logo-instagram" variant="secondary" onPress={() => setShowInsta(true)} />
+                <Button label="Instagram-Post laden" icon="logo-instagram" variant="secondary"
+                  onPress={() => setShowInsta((p) => new Set(p).add(url))} />
               </View>
-            )}
+            ))}
+          </View>
+        ) : null}
+
+        {similarPins.length ? (
+          <View style={st.section}>
+            <T variant="title" accessibilityRole="header" style={st.pad}>Ähnliche Spots</T>
+            <Masonry pins={similarPins} />
           </View>
         ) : null}
       </ScrollView>
@@ -130,13 +175,14 @@ export default function SpotDetail() {
 const st = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: space.lg, padding: space.xl },
   sign: { position: 'absolute', left: space.md, bottom: space.md },
-  dots: { position: 'absolute', bottom: space.lg, right: space.md, flexDirection: 'row', gap: 5 },
-  dot: { width: 6, height: 6, borderRadius: 3 },
-  close: { position: 'absolute', right: space.sm, borderRadius: radius.pill },
+  close: { position: 'absolute', top: space.md, left: space.sm, borderRadius: radius.pill },
+  actions: { flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingHorizontal: space.md, paddingTop: space.md },
   body: { padding: space.lg, gap: space.md },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
   tile: { flex: 1, minWidth: 140, gap: 2, padding: space.md, borderRadius: radius.thumb + 2, borderWidth: StyleSheet.hairlineWidth },
-  insta: { gap: space.sm, paddingHorizontal: space.lg },
+  section: { gap: space.md, paddingTop: space.lg },
+  sectionHead: { flexDirection: 'row', alignItems: 'baseline', gap: space.sm, paddingHorizontal: space.lg },
+  add: { marginHorizontal: space.lg },
+  pad: { paddingHorizontal: space.lg },
   instaTile: { gap: space.md, padding: space.md, borderRadius: radius.thumb + 2, borderWidth: StyleSheet.hairlineWidth },
-  tipBox: { gap: space.xs, padding: space.md, borderRadius: radius.thumb + 2, borderWidth: StyleSheet.hairlineWidth },
 });
