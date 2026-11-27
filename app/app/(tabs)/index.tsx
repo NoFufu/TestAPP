@@ -3,22 +3,26 @@ import { useMemo } from 'react';
 import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PHOTO_SPOT_IDS } from '../../src/data/images';
-import { buildPosts, fmtAgo } from '../../src/data/posts';
 import { CATS, SHORT, fmtDist, type Cat } from '../../src/data/spots';
 import { useStore } from '../../src/store';
-import { Avatar, PostCard, Skeleton, T, space, useColors } from '../../src/ui';
+import { Avatar, Skeleton, SpotCard, T, space, useColors } from '../../src/ui';
 
-/** Home: Story-Leiste mit Kategorien, darunter Outfit-Beiträge an Spots. */
+/** Home: Story-Leiste mit Kategorien, darunter Spots. Neue Uploads und Spots mit Fotos zuerst. */
 export default function Home() {
   const c = useColors();
   const { spots, source, reload, saved, toggleSave, likedPosts, toggleLikePost, filters, toggleFilter, clearFilters } = useStore();
-  const posts = useMemo(() => buildPosts(spots), [spots]);
-  const byId = useMemo(() => new Map(spots.map((s) => [s.id, s])), [spots]);
 
-  // Story-Bild je Kategorie: Titelbild des nächstgelegenen Spots dieser Kategorie
+  const feed = useMemo(() => {
+    const score = (s: (typeof spots)[number]) => (s.creator ? 2 : 0) + (PHOTO_SPOT_IDS.has(s.id) ? 1 : 0);
+    return [...spots].sort((a, b) => score(b) - score(a) || b.id - a.id);
+  }, [spots]);
+
   const stories = useMemo(
-    () => CATS.map((cat) => ({ ...cat, spot: [...spots].sort((a, b) => Number(PHOTO_SPOT_IDS.has(b.id)) - Number(PHOTO_SPOT_IDS.has(a.id)) || a.dist - b.dist).find((s) => s.cats.includes(cat.key)) }))
-      .filter((x) => x.spot),
+    () => CATS.map((cat) => ({
+      ...cat,
+      spot: [...spots].sort((a, b) => Number(PHOTO_SPOT_IDS.has(b.id)) - Number(PHOTO_SPOT_IDS.has(a.id)) || a.dist - b.dist)
+        .find((s) => s.cats.includes(cat.key)),
+    })).filter((x) => x.spot),
     [spots],
   );
 
@@ -49,7 +53,7 @@ export default function Home() {
     return (
       <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: c.paper }}>
         {header}
-        <View style={{ padding: space.md, gap: space.md }} accessible accessibilityLabel="Beiträge werden geladen">
+        <View style={{ padding: space.md, gap: space.md }} accessible accessibilityLabel="Spots werden geladen">
           <Skeleton style={{ height: 32, width: 160, borderRadius: 16 }} />
           <Skeleton style={{ aspectRatio: 4 / 5, width: '100%' }} />
         </View>
@@ -60,33 +64,30 @@ export default function Home() {
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: c.paper }}>
       <FlatList
-        data={posts}
-        keyExtractor={(p) => p.id}
+        data={feed}
+        keyExtractor={(s) => String(s.id)}
         ListHeaderComponent={header}
         refreshControl={<RefreshControl refreshing={false} onRefresh={reload} tintColor={c.asphalt} />}
-        ListFooterComponent={
-          <T variant="small" color="asphalt" style={st.footer}>
-            Beispiel-Beiträge. Echte Outfits von euch kommen mit dem Login.
-          </T>
-        }
-        renderItem={({ item: p }) => {
-          const s = byId.get(p.spotId);
-          if (!s) return null;
-          const liked = likedPosts.has(p.id);
+        ItemSeparatorComponent={() => <View style={{ height: space.sm }} />}
+        renderItem={({ item: s }) => {
+          const key = `spot:${s.id}`;
+          const liked = likedPosts.has(key);
           return (
-            <PostCard
-              author={p.author}
-              when={fmtAgo(p.hoursAgo)}
-              photo={s.images[1]}
-              spotName={s.name}
-              distance={fmtDist(s.dist)}
-              caption={p.caption}
-              likes={p.likes + (liked ? 1 : 0)}
+            <SpotCard
+              name={s.name}
+              place={`${s.area || 'Bielefeld'}, ${fmtDist(s.dist)}`}
+              photos={s.images}
+              photoLabels={s.images.length > 1 ? ['Der Spot', 'Mit Person'] : ['Der Spot']}
+              creator={s.creator}
+              creatorAvatar={s.creatorAvatar}
+              description={s.desc}
+              likes={s.likes + (liked ? 1 : 0)}
               liked={liked}
               saved={saved.has(s.id)}
-              onLike={() => toggleLikePost(p.id)}
+              hasInstagram={!!s.instagramUrl}
+              onLike={() => toggleLikePost(key)}
               onSave={() => toggleSave(s.id)}
-              onOpenSpot={() => router.push(`/spot/${s.id}`)}
+              onOpen={() => router.push(`/spot/${s.id}`)}
             />
           );
         }}
@@ -100,5 +101,4 @@ const st = StyleSheet.create({
   stories: { gap: space.md + 2, paddingHorizontal: space.lg, paddingVertical: space.sm },
   story: { alignItems: 'center', gap: space.xs, width: 70 },
   sep: { height: StyleSheet.hairlineWidth },
-  footer: { textAlign: 'center', padding: space.xl },
 });

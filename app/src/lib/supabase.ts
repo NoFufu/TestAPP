@@ -20,6 +20,11 @@ export type NearbyRow = {
   likes_count: number;
   dist_m: number;
   cover_path: string | null;
+  person_path: string | null;
+  instagram_url: string | null;
+  creator: string | null;
+  creator_avatar: string | null;
+  created_at: string;
 };
 
 export const photoUrl = (path: string) =>

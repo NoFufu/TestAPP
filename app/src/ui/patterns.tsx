@@ -1,50 +1,68 @@
 import { Image, type ImageSource } from 'expo-image';
 import { useState } from 'react';
-import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Avatar, IconButton, LikeBurst, SpotSign, T, haptic, useDoubleTap } from './components';
 import { useColors } from './theme';
 import { space } from './tokens';
 
-/* ---------- PostCard ---------- */
-export type PostCardProps = {
-  author: string;
-  avatar?: ImageSource | number;
-  when?: string;
-  photo: ImageSource | number;
-  spotName: string;
-  distance?: string;
-  caption?: string;
+/* ---------- SpotCard ---------- */
+export type SpotCardProps = {
+  name: string;
+  place: string;          // z. B. „Westen, 450 m"
+  photos: (ImageSource | number)[];
+  photoLabels?: string[]; // z. B. ["Der Spot", "Mit Person"]
+  creator?: string | null;
+  creatorAvatar?: string | null;
+  description?: string;
   likes: number;
   liked: boolean;
   saved: boolean;
+  hasInstagram?: boolean;
   onLike: () => void;
   onSave: () => void;
-  onOpenSpot: () => void;
-  onShare?: () => void;
+  onOpen: () => void;
 };
-/** Feed-Beitrag: Kopf, Foto 4:5 randlos mit Spot-Schild, Aktionen, Likes, Bildtext. Doppeltipp = Like. */
-export function PostCard(p: PostCardProps) {
+/** Feed-Beitrag für einen Spot: Kopf, Fotos zum Wischen (leer ↔ mit Person), Aktionen, Likes, Text. Doppeltipp = Like. */
+export function SpotCard(p: SpotCardProps) {
   const c = useColors();
   const { width } = useWindowDimensions();
   const [burst, setBurst] = useState(0);
+  const [page, setPage] = useState(0);
   const tap = useDoubleTap(() => {
     if (!p.liked) p.onLike();
     haptic.like();
     setBurst((n) => n + 1);
-  });
+  }, p.onOpen);
+  const who = p.creator ? p.creator : 'fitspot';
 
   return (
     <View style={{ backgroundColor: c.paper }}>
-      <View style={st.head}>
-        <Avatar source={p.avatar} size={32} label={p.author} initials={p.author.slice(0, 1).toUpperCase()} />
-        <T variant="name">{p.author}</T>
-        {p.when ? <T variant="small" color="asphalt">{p.when}</T> : null}
-      </View>
-      <Pressable onPress={tap} accessibilityLabel={`Foto von ${p.author} am Spot ${p.spotName}. Doppeltippen zum Liken.`}>
-        <Image source={p.photo} style={{ width, height: width * 1.25, backgroundColor: c.fill }} contentFit="cover" transition={150} />
-        <SpotSign name={p.spotName} distance={p.distance} onPress={p.onOpenSpot} style={st.sign} />
-        <LikeBurst trigger={burst} />
+      <Pressable style={st.head} onPress={p.onOpen} accessibilityRole="button" accessibilityLabel={`${p.name} öffnen`}>
+        <Avatar source={p.creatorAvatar ? { uri: p.creatorAvatar } : undefined} size={32} initials={who.slice(0, 1).toUpperCase()} />
+        <View style={{ flex: 1 }}>
+          <T variant="name" numberOfLines={1}>{p.name}</T>
+          <T variant="small" color="asphalt" numberOfLines={1}>{p.place}</T>
+        </View>
       </Pressable>
+      <View>
+        <ScrollView
+          horizontal pagingEnabled showsHorizontalScrollIndicator={false}
+          onMomentumScrollEnd={(e) => setPage(Math.round(e.nativeEvent.contentOffset.x / width))}
+        >
+          {p.photos.map((ph, i) => (
+            <Pressable key={i} onPress={tap} accessibilityLabel={`${p.name}: ${p.photoLabels?.[i] ?? 'Foto'}. Doppeltippen zum Liken.`}>
+              <Image source={ph} style={{ width, height: width * 1.25, backgroundColor: c.fill }} contentFit="cover" transition={150} />
+            </Pressable>
+          ))}
+        </ScrollView>
+        {p.photoLabels?.[page] ? <SpotSign name={p.photoLabels[page]} style={st.sign} /> : null}
+        {p.photos.length > 1 ? (
+          <View style={st.dots} pointerEvents="none">
+            {p.photos.map((_, i) => <View key={i} style={[st.dot, { backgroundColor: c.onPhoto, opacity: i === page ? 1 : 0.5 }]} />)}
+          </View>
+        ) : null}
+        <LikeBurst trigger={burst} />
+      </View>
       <View style={st.actions}>
         <IconButton
           icon={p.liked ? 'heart' : 'heart-outline'}
@@ -52,7 +70,7 @@ export function PostCard(p: PostCardProps) {
           label={p.liked ? 'Like entfernen' : 'Liken'}
           onPress={() => { haptic.like(); p.onLike(); }}
         />
-        {p.onShare ? <IconButton icon="paper-plane-outline" label="Teilen" onPress={p.onShare} /> : null}
+        {p.hasInstagram ? <IconButton icon="logo-instagram" label="Instagram-Post ansehen" onPress={p.onOpen} /> : null}
         <View style={{ flex: 1 }} />
         <IconButton
           icon={p.saved ? 'bookmark' : 'bookmark-outline'}
@@ -62,12 +80,8 @@ export function PostCard(p: PostCardProps) {
       </View>
       <View style={st.text}>
         <T variant="name">{p.likes.toLocaleString('de-DE')} Likes</T>
-        {p.caption ? (
-          <T>
-            <T variant="name">{p.author} </T>
-            {p.caption}
-          </T>
-        ) : null}
+        {p.description ? <T numberOfLines={3}>{p.description}</T> : null}
+        <T variant="small" color="asphalt">Entdeckt von {who}</T>
       </View>
     </View>
   );
@@ -123,6 +137,8 @@ export function PhotoGrid({ items, layout = 'square' }: { items: GridItem[]; lay
 const st = StyleSheet.create({
   head: { flexDirection: 'row', alignItems: 'center', gap: space.sm + 2, paddingHorizontal: space.md + 2, paddingVertical: space.sm + 2 },
   sign: { position: 'absolute', left: space.md, bottom: space.md },
+  dots: { position: 'absolute', right: space.md, bottom: space.lg, flexDirection: 'row', gap: 5 },
+  dot: { width: 6, height: 6, borderRadius: 3 },
   actions: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: space.xs + 2 },
   text: { paddingHorizontal: space.md + 2, paddingBottom: space.lg, gap: 2 },
   wrap: { flexDirection: 'row', flexWrap: 'wrap' },

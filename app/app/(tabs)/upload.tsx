@@ -3,89 +3,126 @@ import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CATS, catInfo, type Cat } from '../../src/data/spots';
+import { CATS, type Cat } from '../../src/data/spots';
+import { useAuth } from '../../src/lib/auth';
+import { cleanInstagramUrl, createSpot, gpsFromExif } from '../../src/lib/upload';
 import { useStore } from '../../src/store';
 import { Button, Chip, T, haptic, radius, space, type, useColors } from '../../src/ui';
 
-type Step = { label: string; result: string; done: boolean };
-const STEP_MS = 650;
+type Photo = { uri: string; gps: { lat: number; lon: number } | null };
+type Where = { lat: number; lon: number; source: 'foto' | 'standort' | 'karte' };
+const STEPS = ['Fotos verkleinern', 'Fotos hochladen', 'Spot speichern'];
 
 export default function Upload() {
   const c = useColors();
-  const { addSpot, mapCenter } = useStore();
-  const [uri, setUri] = useState<string | null>(null);
+  const { session, profile } = useAuth();
+  const { mapCenter, me, realLocation, reload } = useStore();
+  const [empty, setEmpty] = useState<Photo | null>(null);
+  const [person, setPerson] = useState<Photo | null>(null);
+  const [insta, setInsta] = useState('');
   const [name, setName] = useState('');
+  const [desc, setDesc] = useState('');
   const [cats, setCats] = useState<Cat[]>([]);
-  const [steps, setSteps] = useState<Step[] | null>(null);
+  const [step, setStep] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [newId, setNewId] = useState<number | null>(null);
 
-  const ready = !!uri && name.trim().length > 1 && cats.length > 0 && !steps;
-  const missing = !uri ? 'Wähle zuerst ein Foto.' : name.trim().length < 2 ? 'Gib dem Spot einen Namen.' : !cats.length ? 'Wähle mindestens eine Kategorie.' : null;
+  if (!session || !profile?.username) {
+    return (
+      <SafeAreaView edges={['top']} style={[st.center, { backgroundColor: c.paper }]}>
+        <T variant="title" accessibilityRole="header">Spot hochladen</T>
+        <T color="asphalt" style={{ textAlign: 'center' }}>Melde dich an, damit dein Spot für alle sichtbar wird und dein Name dabei steht.</T>
+        <Button label="Anmelden" onPress={() => router.push('/login')} />
+      </SafeAreaView>
+    );
+  }
 
-  async function pick(camera: boolean) {
-    const opts: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], quality: 0.8, allowsEditing: true, aspect: [4, 5] };
+  const where: Where = empty?.gps ? { ...empty.gps, source: 'foto' }
+    : realLocation ? { ...me, source: 'standort' } : { ...mapCenter, source: 'karte' };
+  const instaClean = insta.trim() ? cleanInstagramUrl(insta) : null;
+  const instaInvalid = !!insta.trim() && !instaClean;
+  const busy = step !== null && step < STEPS.length;
+  const ready = !!empty && name.trim().length > 1 && cats.length > 0 && !instaInvalid && !busy;
+  const missing = !empty ? 'Wähle zuerst ein Foto vom Spot.' : name.trim().length < 2 ? 'Gib dem Spot einen Namen.'
+    : !cats.length ? 'Wähle mindestens eine Kategorie.' : instaInvalid ? 'Der Instagram-Link sieht nicht richtig aus.' : null;
+
+  async function pick(set: (p: Photo) => void, camera: boolean) {
+    const opts: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], quality: 0.9, exif: true };
     if (camera && !(await ImagePicker.requestCameraPermissionsAsync()).granted) return;
     const res = camera ? await ImagePicker.launchCameraAsync(opts) : await ImagePicker.launchImageLibraryAsync(opts);
-    if (!res.canceled) setUri(res.assets[0].uri);
+    if (!res.canceled) set({ uri: res.assets[0].uri, gps: gpsFromExif(res.assets[0].exif as Record<string, unknown>) });
   }
 
-  // Simulierte Prüfung. Echte Prüfung kommt in Etappe F.
-  function publish() {
-    const list: Step[] = [
-      { label: 'Standort im Foto prüfen', result: 'passt', done: false },
-      { label: 'Nach doppelten Bildern suchen', result: 'keine', done: false },
-      { label: 'Inhalt prüfen', result: 'in Ordnung', done: false },
-      { label: 'Kategorie erkennen', result: catInfo(cats[0]).label, done: false },
-    ];
-    setSteps(list);
-    list.forEach((_, i) => setTimeout(() => setSteps((p) => p && p.map((x, k) => (k <= i ? { ...x, done: true } : x))), STEP_MS * (i + 1)));
-    setTimeout(() => {
-      const id = 100000 + (Date.now() % 100000);
-      addSpot({ id, name: name.trim(), cats, lat: mapCenter.lat, lon: mapCenter.lon, area: 'Dein Upload', desc: 'Von dir hochgeladen. Wird vorerst nur auf diesem Handy gespeichert.', likes: 0, uri: uri! });
+  async function publish() {
+    if (!empty || !session) return;
+    setError(null);
+    try {
+      const id = await createSpot(session.user.id, {
+        name, description: desc, cats, lat: where.lat, lon: where.lon,
+        emptyUri: empty.uri, personUri: person?.uri, instagramUrl: instaClean,
+      }, setStep);
       haptic.like();
       setNewId(id);
-    }, STEP_MS * (list.length + 1));
+      reload();
+    } catch {
+      setStep(null);
+      setError('Hochladen hat nicht geklappt. Prüfe dein Internet und versuch es noch mal.');
+    }
   }
 
-  function reset() { setUri(null); setName(''); setCats([]); setSteps(null); setNewId(null); }
+  function reset() {
+    setEmpty(null); setPerson(null); setInsta(''); setName(''); setDesc(''); setCats([]); setStep(null); setNewId(null); setError(null);
+  }
+
+  const input = [type.body, st.input, { borderColor: c.line, backgroundColor: c.surface, color: c.ink }];
+
+  if (newId) {
+    return (
+      <SafeAreaView edges={['top']} style={[st.center, { backgroundColor: c.paper }]}>
+        <Ionicons name="checkmark-circle" size={56} color={c.ink} />
+        <T variant="title" accessibilityRole="header">Dein Spot ist online</T>
+        <T color="asphalt" style={{ textAlign: 'center' }}>Alle sehen ihn jetzt im Feed und auf der Karte.</T>
+        <Button label="Spot ansehen" onPress={() => router.push(`/spot/${newId}`)} />
+        <Button label="Noch einen hochladen" variant="ghost" onPress={reset} />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: c.paper }}>
       <ScrollView contentContainerStyle={st.page} keyboardShouldPersistTaps="handled">
         <View style={{ gap: space.xs }}>
           <T variant="title" accessibilityRole="header">Spot hochladen</T>
-          <T color="asphalt">Foto, Name, Kategorie. fitspot prüft den Spot danach automatisch.</T>
+          <T color="asphalt">Ein Foto vom leeren Spot, optional eins mit Person oder dein Instagram-Post.</T>
         </View>
 
-        <View style={[st.photo, { backgroundColor: c.fill }]}>
-          {uri ? (
-            <Image source={{ uri }} style={StyleSheet.absoluteFill} contentFit="cover" accessibilityLabel="Dein gewähltes Foto" />
-          ) : (
-            <View style={{ alignItems: 'center', gap: space.sm }}>
-              <Ionicons name="image-outline" size={36} color={c.asphalt} />
-              <T color="asphalt">Hochformat wirkt am besten</T>
-            </View>
-          )}
-        </View>
-        <View style={st.row}>
-          <Button label="Kamera" icon="camera-outline" variant="secondary" style={{ flex: 1 }} onPress={() => pick(true)} />
-          <Button label="Galerie" icon="images-outline" variant="secondary" style={{ flex: 1 }} onPress={() => pick(false)} />
+        <View style={st.photos}>
+          <PhotoSlot label="Der Spot" hint="Pflicht" photo={empty} onCamera={() => pick(setEmpty, true)} onLibrary={() => pick(setEmpty, false)} />
+          <PhotoSlot label="Mit Person" hint="Optional" photo={person} onCamera={() => pick(setPerson, true)} onLibrary={() => pick(setPerson, false)} />
         </View>
 
         <View style={{ gap: space.sm }}>
-          <T variant="label" nativeID="nameLabel">Name des Spots</T>
-          <TextInput
-            value={name}
-            onChangeText={setName}
-            maxLength={48}
-            placeholder="z. B. Grüne Tür in der Weststraße"
-            placeholderTextColor={c.asphalt}
-            accessibilityLabelledBy="nameLabel"
-            accessibilityLabel="Name des Spots"
-            style={[type.body, st.input, { borderColor: c.line, backgroundColor: c.surface, color: c.ink }]}
-          />
+          <T variant="label">Instagram-Post (optional)</T>
+          <TextInput value={insta} onChangeText={setInsta} autoCapitalize="none" autoCorrect={false} keyboardType="url"
+            placeholder="https://www.instagram.com/p/…" placeholderTextColor={c.asphalt}
+            accessibilityLabel="Link zu deinem Instagram-Post" style={input} />
+          <T variant="small" color={instaInvalid ? 'danger' : 'asphalt'}>
+            {instaInvalid ? 'Bitte einen Link zu einem Beitrag oder Reel einfügen (instagram.com/p/… oder /reel/…).' : 'Hast du hier schon gepostet? Dann zeigen wir deinen Post direkt beim Spot.'}
+          </T>
+        </View>
+
+        <View style={{ gap: space.sm }}>
+          <T variant="label">Name des Spots</T>
+          <TextInput value={name} onChangeText={setName} maxLength={60} placeholder="z. B. Grüne Tür in der Weststraße"
+            placeholderTextColor={c.asphalt} accessibilityLabel="Name des Spots" style={input} />
+        </View>
+
+        <View style={{ gap: space.sm }}>
+          <T variant="label">Was macht den Spot aus? (optional)</T>
+          <TextInput value={desc} onChangeText={setDesc} maxLength={200} multiline placeholder="z. B. Sonne ab 15 Uhr, wenig los am Vormittag"
+            placeholderTextColor={c.asphalt} accessibilityLabel="Beschreibung" style={[input, { minHeight: 72, textAlignVertical: 'top' }]} />
         </View>
 
         <View style={{ gap: space.sm }}>
@@ -98,32 +135,29 @@ export default function Upload() {
           </View>
         </View>
 
-        <T variant="small" color="asphalt">
-          Der Spot landet an der Stelle, die gerade in der Mitte der Karte ist. Später liest fitspot den Ort direkt aus dem Foto.
-        </T>
-
-        <View style={{ gap: space.sm }}>
-          <Button label="Spot prüfen und veröffentlichen" disabled={!ready} onPress={publish} />
-          {missing && !steps ? <T variant="small" color="asphalt">{missing}</T> : null}
+        <View style={[st.where, { backgroundColor: c.surface, borderColor: c.line }]}>
+          <Ionicons name="location-outline" size={20} color={c.ink} />
+          <T variant="small" style={{ flex: 1 }}>
+            {where.source === 'foto' ? 'Ort aus dem Foto übernommen.'
+              : where.source === 'standort' ? 'Kein Ort im Foto. Wir nehmen deinen aktuellen Standort.'
+              : 'Kein Ort im Foto. Wir nehmen die Mitte der Karte. Schieb sie vorher an die richtige Stelle.'}
+          </T>
         </View>
 
-        {steps ? (
+        <View style={{ gap: space.sm }}>
+          <Button label="Spot veröffentlichen" disabled={!ready} loading={busy} onPress={publish} />
+          {missing && !busy ? <T variant="small" color="asphalt">{missing}</T> : null}
+          {error ? <T color="danger" accessibilityLiveRegion="polite">{error}</T> : null}
+        </View>
+
+        {step !== null ? (
           <View style={{ gap: space.sm }} accessibilityLiveRegion="polite">
-            {steps.map((x) => (
-              <View key={x.label} style={[st.step, { borderColor: c.line, backgroundColor: c.surface, opacity: x.done ? 1 : 0.5 }]}>
-                <Ionicons name={x.done ? 'checkmark-circle' : 'ellipse-outline'} size={20} color={x.done ? c.ink : c.asphalt} />
-                <T style={{ flex: 1 }}>{x.label}</T>
-                {x.done ? <T variant="small" color="asphalt">{x.result}</T> : null}
+            {STEPS.map((label, i) => (
+              <View key={label} style={[st.step, { borderColor: c.line, backgroundColor: c.surface, opacity: i <= step ? 1 : 0.5 }]}>
+                <Ionicons name={i < step ? 'checkmark-circle' : 'ellipse-outline'} size={20} color={i < step ? c.ink : c.asphalt} />
+                <T style={{ flex: 1 }}>{label}</T>
               </View>
             ))}
-          </View>
-        ) : null}
-
-        {newId ? (
-          <View style={{ gap: space.sm }}>
-            <T variant="name">Dein Spot ist online.</T>
-            <Button label="Spot ansehen" onPress={() => router.push(`/spot/${newId}`)} />
-            <Button label="Noch einen hochladen" variant="ghost" onPress={reset} />
           </View>
         ) : null}
       </ScrollView>
@@ -131,10 +165,34 @@ export default function Upload() {
   );
 }
 
+function PhotoSlot({ label, hint, photo, onCamera, onLibrary }: {
+  label: string; hint: string; photo: Photo | null; onCamera: () => void; onLibrary: () => void;
+}) {
+  const c = useColors();
+  return (
+    <View style={{ flex: 1, gap: space.sm }}>
+      <Pressable onPress={onLibrary} accessibilityRole="button" accessibilityLabel={`${label}: Foto aus der Galerie wählen`}
+        style={[st.slot, { backgroundColor: c.fill }]}>
+        {photo ? <Image source={{ uri: photo.uri }} style={StyleSheet.absoluteFill} contentFit="cover" /> : (
+          <View style={{ alignItems: 'center', gap: space.xs }}>
+            <Ionicons name="image-outline" size={28} color={c.asphalt} />
+            <T variant="label">{label}</T>
+            <T variant="small" color="asphalt">{hint}</T>
+          </View>
+        )}
+      </Pressable>
+      <Button label="Kamera" icon="camera-outline" variant="secondary" onPress={onCamera} />
+    </View>
+  );
+}
+
 const st = StyleSheet.create({
   page: { padding: space.lg, gap: space.xl, paddingBottom: space.xxl },
-  photo: { aspectRatio: 4 / 5, width: '100%', borderRadius: radius.card, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: space.lg, padding: space.xl },
+  photos: { flexDirection: 'row', gap: space.md },
+  slot: { aspectRatio: 4 / 5, borderRadius: radius.card, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
   input: { borderWidth: 1, borderRadius: radius.thumb, paddingHorizontal: space.md + 2, paddingVertical: space.md },
+  where: { flexDirection: 'row', alignItems: 'center', gap: space.sm, padding: space.md, borderRadius: radius.thumb + 2, borderWidth: StyleSheet.hairlineWidth },
   step: { flexDirection: 'row', alignItems: 'center', gap: space.sm + 2, padding: space.md, borderRadius: radius.thumb, borderWidth: StyleSheet.hairlineWidth },
 });

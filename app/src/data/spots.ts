@@ -51,6 +51,10 @@ export type Spot = {
   likes: number;
   images: SpotImage[];
   user?: boolean;
+  /** Benutzername, wer den Spot entdeckt hat (leer = Start-Spot vom fitspot-Team) */
+  creator?: string | null;
+  creatorAvatar?: string | null;
+  instagramUrl?: string | null;
 };
 
 /** Simulierter Standort (Jahnplatz). Echter Standort kommt mit expo-location. */

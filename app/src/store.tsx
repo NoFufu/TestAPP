@@ -70,7 +70,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           id: r.id, name: r.name, desc: r.description, area: r.area, lat: r.lat, lon: r.lon, likes: r.likes_count,
           cats: r.categories.filter((c): c is Cat => valid.has(c as Cat)),
           // Titelbild aus dem Speicher; die 30 Start-Spots nutzen vorerst die mitgelieferten Platzhalter.
-          images: r.cover_path ? [{ uri: photoUrl(r.cover_path) }] : SPOT_IMAGES[r.id] ?? [],
+          images: [
+            r.cover_path ? { uri: photoUrl(r.cover_path) } : SPOT_IMAGES[r.id]?.[0],
+            r.person_path ? { uri: photoUrl(r.person_path) } : SPOT_IMAGES[r.id]?.[1],
+          ].filter((x): x is NonNullable<typeof x> => x != null),
+          creator: r.creator, creatorAvatar: r.creator_avatar, instagramUrl: r.instagram_url,
         })).filter((s) => s.cats.length && s.images.length));
         setSource('cloud');
       })

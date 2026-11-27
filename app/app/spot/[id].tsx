@@ -7,7 +7,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import SunCalc from 'suncalc';
 import { catInfo, fmtDist, TIPS } from '../../src/data/spots';
 import { useStore } from '../../src/store';
-import { Button, Chip, IconButton, PhotoGrid, SpotSign, T, radius, space, useColors } from '../../src/ui';
+import { WebView } from 'react-native-webview';
+import { Button, Chip, IconButton, SpotSign, T, radius, space, useColors } from '../../src/ui';
 
 const hhmm = (d: Date) => (isNaN(d.getTime()) ? '–' : d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }));
 
@@ -19,6 +20,7 @@ export default function SpotDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { spots, saved, toggleSave } = useStore();
   const [page, setPage] = useState(0);
+  const [showInsta, setShowInsta] = useState(false);
   const s = spots.find((x) => String(x.id) === id);
 
   const light = useMemo(() => {
@@ -39,7 +41,7 @@ export default function SpotDetail() {
 
   const tip = TIPS[s.cats[0]];
   const isSaved = saved.has(s.id);
-  const captions = s.user ? ['Dein Upload'] : ['Der Spot', 'Outfit-Beispiel'];
+  const captions = s.user ? ['Dein Upload'] : ['Der Spot', 'Mit Person'];
 
   return (
     <View style={{ flex: 1, backgroundColor: c.paper }}>
@@ -54,7 +56,7 @@ export default function SpotDetail() {
                 style={{ width, height: width * 1.25, backgroundColor: c.fill }} contentFit="cover" />
             ))}
           </ScrollView>
-          <SpotSign name={s.area} distance={fmtDist(s.dist)} style={st.sign} />
+          <SpotSign name={s.area || 'Bielefeld'} distance={fmtDist(s.dist)} style={st.sign} />
           {s.images.length > 1 ? (
             <View style={st.dots} accessibilityLabel={`Foto ${page + 1} von ${s.images.length}`}>
               {s.images.map((_, i) => (
@@ -68,7 +70,7 @@ export default function SpotDetail() {
 
         <View style={st.body}>
           <T variant="display" accessibilityRole="header">{s.name}</T>
-          <T variant="small" color="asphalt">{captions[page]}. {s.likes.toLocaleString('de-DE')} Likes</T>
+          <T variant="small" color="asphalt">Entdeckt von {s.creator ?? 'fitspot'}. {s.likes.toLocaleString('de-DE')} Likes</T>
           <View style={st.row}>
             {s.cats.map((k) => <Chip key={k} label={catInfo(k).label} dot={catInfo(k).color} />)}
           </View>
@@ -102,13 +104,22 @@ export default function SpotDetail() {
           </View>
         </View>
 
-        {!s.user && s.images[1] ? (
-          <View style={{ gap: space.sm }}>
-            <T variant="name" style={{ paddingHorizontal: space.lg }}>Outfits an diesem Spot</T>
-            <PhotoGrid items={[{ key: 'o1', photo: s.images[1], label: 'Outfit-Beispiel', onPress: () => setPage(1) }]} />
-            <T variant="small" color="asphalt" style={{ paddingHorizontal: space.lg }}>
-              Hier erscheinen bald die Outfit-Fotos aus der Community.
-            </T>
+        {s.instagramUrl ? (
+          <View style={st.insta}>
+            <T variant="name">Auf Instagram</T>
+            {showInsta ? (
+              <WebView
+                source={{ uri: `${s.instagramUrl}embed/` }}
+                style={{ height: Math.round(width * 1.45), backgroundColor: c.surface }}
+                scrollEnabled={false}
+                accessibilityLabel="Eingebetteter Instagram-Post"
+              />
+            ) : (
+              <View style={[st.instaTile, { backgroundColor: c.surface, borderColor: c.line }]}>
+                <T color="asphalt">Beim Laden werden Daten an Instagram (Meta) übertragen.</T>
+                <Button label="Instagram-Post laden" icon="logo-instagram" variant="secondary" onPress={() => setShowInsta(true)} />
+              </View>
+            )}
           </View>
         ) : null}
       </ScrollView>
@@ -125,5 +136,7 @@ const st = StyleSheet.create({
   body: { padding: space.lg, gap: space.md },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
   tile: { flex: 1, minWidth: 140, gap: 2, padding: space.md, borderRadius: radius.thumb + 2, borderWidth: StyleSheet.hairlineWidth },
+  insta: { gap: space.sm, paddingHorizontal: space.lg },
+  instaTile: { gap: space.md, padding: space.md, borderRadius: radius.thumb + 2, borderWidth: StyleSheet.hairlineWidth },
   tipBox: { gap: space.xs, padding: space.md, borderRadius: radius.thumb + 2, borderWidth: StyleSheet.hairlineWidth },
 });

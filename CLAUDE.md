@@ -18,6 +18,10 @@
 - Keine Datenbank-Daten löschen, keine Rechte (RLS/Grants) lockern.
 - Tokens und Schlüssel nie in den Chat, in Code oder Commits. Neue Schlüssel nur über das Formular (Netzwerk-Secrets der Umgebung „fitspot"). Ausnahme: der öffentliche Supabase-Key in `app/.env`.
 
+## Testphase (vor öffentlichem Test zurückdrehen, siehe docs/PRODUKT-PLAN.md Kap. 9)
+- Uploads sofort sichtbar (Trigger `testphase_autolive`). Login ohne Bestätigungs-Mail (`mailer_autoconfirm`).
+- Fokus der App: **Locations**. Keine Klamotten-/Markenangaben.
+
 ## Technik
 - **Design-System:** `app/src/ui/` (Tokens + Bausteine), Doku `docs/design/SYSTEM.md`. In Screens keine Hex-Farben, Pixelwerte oder Schriftgrößen direkt, immer Tokens/Bausteine. Fehlt etwas, im System ergänzen.
 - App: Expo (SDK 58) + Expo Router + TypeScript in `app/`. Tabs kommen aus `expo-router/js-tabs`. Icons: `@expo/vector-icons` (Ionicons).

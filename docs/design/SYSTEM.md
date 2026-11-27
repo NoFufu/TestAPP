@@ -73,7 +73,7 @@ Weitere: `motion` (fast 120 ms, base 220 ms, pop-Feder fürs Herz), `hit` = 44 (
 
 | Muster | Aufbau |
 |---|---|
-| `PostCard` | Kopf (Avatar, Name, Zeit) → Foto 4:5 randlos mit `SpotSign` → Herz / Teilen / … / Merken → „N Likes" → Name + Bildtext. Doppeltipp = Like |
+| `SpotCard` | Kopf (Entdecker-Avatar, Spot-Name, Ort und Entfernung) → Fotos zum Wischen (leer ↔ mit Person) mit Schild unten links → Herz / Instagram / … / Merken → „N Likes" → Beschreibung → „Entdeckt von …". Doppeltipp = Like, Einzeltipp = Spot öffnen |
 | `PhotoGrid` | `square`: 3 Spalten, 2 px Abstand (Profil) · `mosaic`: Dreiergruppen 1 groß + 2 klein, abwechselnd (Entdecken) |
 
 ---

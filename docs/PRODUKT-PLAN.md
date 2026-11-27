@@ -105,7 +105,7 @@ Bevor Bildschirme umgebaut werden, entsteht ein kleines Design-System in `app/sr
 - **Farben**: hell/dunkel, eine Akzentfarbe, Kategorie-Farben gedämpfter als heute.
 - **Abstände und Radien**: z. B. 4/8/12/16/24.
 - **Schriftgrößen**: z. B. 12/14/16/20/28.
-- **Grundbausteine**: `Avatar` (mit Ring für Stories), `PostCard`, `PhotoGrid`, `IconButton`, `Chip`, `Sheet`, `Skeleton`.
+- **Grundbausteine**: `Avatar` (mit Ring für Stories), `SpotCard`, `PhotoGrid`, `IconButton`, `Chip`, `Sheet`, `Skeleton`.
 
 So sehen alle Bildschirme einheitlich aus, und neue Bildschirme sind schneller gebaut.
 
@@ -155,33 +155,32 @@ Beim Hochladen wählt man: **eigenes Foto** *oder* **Instagram-Link einfügen**.
 - Private oder gelöschte Posts: Kachel „Post nicht mehr verfügbar", Spot bleibt erhalten.
 - Später möglich: Vorschaubild über Metas offizielle oEmbed-Schnittstelle (braucht Meta-Entwicklerkonto und App-Prüfung).
 
-### Outfit-Teile angeben
-Zu jedem Outfit-Post bis zu 8 Teile: **Was** (z. B. „Trenchcoat"), **Marke** (z. B. „Arket"), optional **Link** zum Shop.
-- Im Feed: kleines „Outfit"-Symbol auf dem Foto, Tippen zeigt die Liste.
-- Marken werden durchsuchbar („Alle Outfits mit Carhartt").
-- Shop-Links sind Werbung im rechtlichen Sinne, wenn es Affiliate-Links sind: dann Kennzeichnung „Anzeige" nötig. Vorerst nur normale Links.
+### ~~Outfit-Teile angeben~~ (gestrichen 27.11.2026)
+Fokus liegt auf **Locations**. Fotos mit Personen bleiben als Beispiel, wie der Spot wirkt, aber ohne Klamotten- oder Markenangaben.
 
-### Datenmodell-Ergänzung
-```
-posts        id · spot_id → spots · author → profiles · photo_path (leer bei Instagram)
-             · instagram_url (leer bei eigenem Foto) · caption · status · likes_count · created_at
-post_items   id · post_id → posts · item · brand · link
-```
-`spot_photos` mit `kind = outfit` geht in `posts` auf.
+### Datenmodell (umgesetzt, Migration 0003)
+`spot_photos` hat jetzt `instagram_url` (eigenes Foto **oder** Instagram-Link), `kind = spot` (leer) / `outfit` (mit Person). `spots_nearby` liefert Titelbild, Foto mit Person, Instagram-Link und Entdecker.
 
 ### Karte
 Pins kleiner, unten eine wischbare Spot-Leiste wie bei Apple Karten ✅ (27.11.).
 
 ### Einordnung in die Etappen
-- **A · Login & Upload** bekommt: Upload-Wahl Foto **oder** Instagram-Link, Outfit-Teile mit Marke.
-- **H · Social** bekommt: Marken-Suche.
+- **A · Login & Upload** ✅ 27.11.: E-Mail + Passwort, Benutzername, Profilbild; Upload mit Foto vom Spot, optional Foto mit Person und Instagram-Link; Ort aus dem Foto-GPS.
+- **Home zeigt Spots** statt Outfit-Beiträgen ✅.
 
 ## 8. Entscheidungen (27.11.2026)
 
 | Frage | Antwort |
 |---|---|
-| Fokus | **Outfits**: Home startet mit Outfit-Fotos an Spots |
+| Fokus | **Locations** (geändert 27.11.): Home zeigt Spots, Fotos mit Personen nur als Beispiel |
 | Echte Fotos | Ja, später. Bis dahin sucht Claude echte Bielefelder Spots (Orte, keine fremden Fotos) als Basis heraus |
 | Kommentare | Vorerst **nur Likes** |
 | Name | „fitspot" ist nur ein **Platzhalter** |
 | Karte | Dringend: **richtige Apple-Maps-Karte** im Stil der Karten-App (randlos, Standort, Foto-Pins) → vorgezogen als Etappe **D0** |
+
+## 9. Testphase-Einstellungen (vor dem öffentlichen Test zurückdrehen!)
+| Einstellung | Jetzt | Vor öffentlichem Test |
+|---|---|---|
+| Uploads | sofort sichtbar (`testphase_autolive` setzt `live`) | neue Migration: `pending`, Prüfung (Etappe F) |
+| Login | E-Mail + Passwort, **ohne Bestätigungs-Mail** (`mailer_autoconfirm = true`) | eigener Mail-Dienst (SMTP), Bestätigung wieder an, Code-Login möglich |
+| Mails | Supabase-Standard, max. 2 pro Stunde | eigener Mail-Dienst |
