@@ -105,7 +105,9 @@ export default function SpotDetail() {
             <IconButton icon="camera-outline" label="Eigenes Foto hinzufügen"
               onPress={() => session ? router.push({ pathname: '/add-photo', params: { spot: String(s.id) } }) : router.push('/login')} />
           ) : null}
-          <View style={{ flex: 1 }} />
+          <View style={{ flex: 1, alignItems: 'center' }}>
+            {light ? <SunArc sunrise={light.sunrise} sunset={light.sunset} golden={light.golden} now={light.now} /> : null}
+          </View>
           <Button label={isSaved ? 'Gemerkt' : 'Merken'} icon={isSaved ? 'bookmark' : 'bookmark-outline'}
             variant={isSaved ? 'secondary' : 'primary'} onPress={() => toggleSave(s.id)} />
         </View>
@@ -114,9 +116,6 @@ export default function SpotDetail() {
           <T variant="title" accessibilityRole="header">{s.name}</T>
           <T variant="small" color="asphalt">{s.area || 'Bielefeld'} · {fmtDist(s.dist)} · {s.cats.map((k) => catInfo(k).label).join(', ')}</T>
           {s.desc ? <T numberOfLines={2}>{s.desc}</T> : null}
-          {light ? (
-            <SunArc sunrise={light.sunrise} sunset={light.sunset} golden={light.golden} now={light.now} />
-          ) : null}
         </View>
 
         {morePins.length ? (

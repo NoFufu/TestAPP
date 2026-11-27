@@ -4,7 +4,7 @@ import type { ComponentProps } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { haptic } from './components';
 import { useColors } from './theme';
-import { dock } from './tokens';
+import { dock, space } from './tokens';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 export type DockItem = { name: string; label: string; on: IconName; off: IconName };
@@ -13,7 +13,7 @@ export type DockItem = { name: string; label: string; on: IconName; off: IconNam
 export function Dock({ state, navigateToTab, insets, items }: BottomTabBarProps & { items: DockItem[] }) {
   const c = useColors();
   return (
-    <View pointerEvents="box-none" style={[st.wrap, { bottom: insets.bottom + dock.bottom }]}>
+    <View pointerEvents="box-none" style={[st.wrap, { bottom: Math.max(insets.bottom + dock.bottom, space.sm) }]}>
       {items.map((it) => {
         const route = state.routes.find((r) => r.name === it.name);
         if (!route) return null;
