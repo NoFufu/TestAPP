@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { moodTint } from '../../src/data/moods';
 import { catInfo, fmtDist } from '../../src/data/spots';
 import { useAuth } from '../../src/lib/auth';
 import { loadLists, type ShootList } from '../../src/lib/lists';
@@ -42,7 +41,7 @@ export default function Shoots() {
   const mapKey = onMap.map((s) => s.id).join(',');
   useEffect(() => { frame(true); }, [mapKey]); // eslint-disable-line react-hooks/exhaustive-deps
   const pins: Pin[] = list.map((s) => ({
-    key: String(s.id), photo: s.images[0], ratio: pinRatio(s.id * 3), title: s.name, tint: moodTint(s),
+    key: String(s.id), photo: s.images[0], ratio: pinRatio(s.id * 3), title: s.name,
     label: `${s.name}, ${fmtDist(s.dist)}. Öffnen`, saved: true,
     onPress: () => router.push(`/spot/${s.id}`), onSave: () => toggleSave(s.id),
   }));

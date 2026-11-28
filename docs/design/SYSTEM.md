@@ -128,10 +128,10 @@ Token `mapZoom`: `single` (ein Spot, fester Ausschnitt statt Maximal-Zoom) und `
 Jede Kategorie hat in `CATS` ein `icon` aus **MaterialCommunityIcons** (zweite Icon-Familie, nur hierfür; hat Tür, Burg, Treppe, Strand …). `PhotoPin` zeigt es als kleines farbiges Rund-Schild unten rechts.
 
 ## GlowPress
-`<GlowPress rounded tint?>`: Pressable für Kacheln und Posts. Ganz feiner **heller** Leuchtrand (`glow`/`glowSoft`, kein Gold mehr), beim Antippen etwas stärker und leichtes Einsinken (0.98). Mit `tint` bekommt der Ruherand einen Hauch Mood-Farbe (`moodColors`, Deckkraft `moodRim`). Nur Rand, keine Fläche. In `Masonry` (über `Pin.tint`) und `PhotoGrid` eingebaut.
+`<GlowPress rounded>`: Pressable für Kacheln und Posts. **Kein Glow, kein Rand** (28.11. entfernt), nur leichtes Einsinken (0.98) beim Antippen. Der Name ist geblieben, damit nichts umbenannt werden muss.
 
-## Mood-Farben (`moodColors`)
-Gedämpfte Farbe je Mood (Urban Lehm, Ruhig Graublau, Natürlich Salbei, Verspielt Sandgelb, Romantisch Altrosa, Dunkel Staubviolett, Modern Stahlgrau). Nur als Hauch: Ring der Mood-Kreise, Rand der Foto-Kacheln (`moodTint(spot)`), Rand der aktiven Kachel auf der Karte. Nie als Fläche, die App bleibt ruhig mit wenig Farbe. Rand 1 px, Deckkraft `moodRim` 0.75; wer mehr Farbe will, erhöht Rand oder Sättigung hier.
+## Mood-Farben (`moodRing`)
+Kräftiger Farbverlauf je Mood (Urban Orange, Ruhig Blau, Natürlich Grün, Verspielt Gelb-Orange, Romantisch Rosa, Dunkel Violett, Modern Stahl). Nur an zwei Stellen: **Story-Ringe** der Mood-Kreise (4 px, Verlauf, Leuchten in der Mood-Farbe, gewählter Kreis größer und heller leuchtend, die anderen blasser) und Rand der aktiven Kachel auf der Karte (`moodTint`). Sonst bleibt die App ruhig.
 ## Swatch (Farbfilter)
 `<Swatch color label selected onPress />`: runder Farbkreis (`swatchSize`), ausgewählt mit Ring in Tinte. Farben aus `swatch` in `tokens.ts` (Daten-Farben, nur für den Filter).
 
@@ -139,7 +139,7 @@ Gedämpfte Farbe je Mood (Urban Lehm, Ruhig Graublau, Natürlich Salbei, Verspie
 Sammlungs-Karte im Home-Feed, alle 10 Kacheln eine: Foto des ersten Spots als Hintergrund mit dunklem Farbverlauf (`collectionTint` als Tönung, Weiß darauf), große Zahl „TOP n“ (Stufe `hero`), Titel, drei gefächerte Fotos der nächsten Spots. `CollectionBanner` ist dasselbe oben im Sammlungs-Screen, darunter die Rangliste (`ListSpots ranked`: Platz, Bild, Name, Viertel, Entfernung) und die Karte. Sammlungen sind Regeln in `src/data/collections.ts` (Stadt + Kategorie/Farbe/Stichwort, beliebteste zuerst, max. 10, erst ab 3 Spots). Nur ohne aktiven Filter.
 
 ## Moods (MoodStories)
-Runde Story-Kreise (`story`-Token, `Avatar` mit Ring) statt der Farbpunkte, unter den Kategorie-Reitern. Moods (`src/data/moods.ts`) werden automatisch aus Kategorie, Farben und Stichworten gebildet (kein DB-Feld): Urban Aesthetic, Ruhig, Natürlich, Verspielt, Romantisch, Dunkel & Moody, Modern & Clean. Foto im Kreis = beliebtester Spot der Stadt mit diesem Mood. Ausgewählt = Ring in Tinte. Farben sind jetzt nur noch in der Suche.
+Runde Story-Kreise (`story`-Token, eigener SVG-Ring) statt der Farbpunkte, unter den Kategorie-Reitern. Moods (`src/data/moods.ts`) werden automatisch aus Kategorie, Farben und Stichworten gebildet (kein DB-Feld): Urban Aesthetic, Ruhig, Natürlich, Verspielt, Romantisch, Dunkel & Moody, Modern & Clean. Foto im Kreis = beliebtester Spot der Stadt mit diesem Mood. Ausgewählt = größer und stärker leuchtend, die anderen treten zurück. Farben sind jetzt nur noch in der Suche.
 
 ## CountryCode (Landesfarben)
 `<CountryCode country="GER|SP" />` in `CityButton`: der Ländercode selbst trägt die Landesfarben als Streifen in den Buchstaben (SVG-Text mit hartem Verlauf, Farben aus `flags`). Schwarz (GER) wird im Dunkelmodus zu `asphalt`.

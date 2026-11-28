@@ -1,4 +1,4 @@
-import { moodColors } from '../ui/tokens';
+import { moodRing } from '../ui/tokens';
 import type { Cat, Spot } from './spots';
 
 /**
@@ -38,5 +38,5 @@ export const moodsOf = (s: Spot) => MOODS.filter((m) => m.match(s)).map((m) => m
 /** Gedämpfte Mood-Farbe eines Spots (erster passender Mood), für feine Ränder. */
 export const moodTint = (s: Spot): string | undefined => {
   const m = MOODS.find((x) => x.match(s));
-  return m ? moodColors[m.key] : undefined;
+  return m ? moodRing[m.key][0] : undefined;
 };

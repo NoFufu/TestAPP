@@ -16,8 +16,6 @@ export type Pin = {
   subtitle?: string;
   label: string; // Screenreader
   saved?: boolean;
-  /** Mood-Farbe für den feinen Rand */
-  tint?: string;
   onPress: () => void;
   onSave?: () => void;
   /** Kleines Fähnchen unter der Kachel: Foto melden */
@@ -54,7 +52,7 @@ function PinTile({ pin, width }: { pin: Pin; width: number }) {
   const foot = pin.title || pin.onSave || pin.onReport;
   return (
     <View style={{ marginBottom: foot ? 0 : grid.gap }}>
-      <GlowPress rounded={grid.radius} tint={pin.tint} onPress={pin.onPress} accessibilityRole="button" accessibilityLabel={pin.label}>
+      <GlowPress rounded={grid.radius} onPress={pin.onPress} accessibilityRole="button" accessibilityLabel={pin.label}>
         <Image source={pin.photo} style={{ width, height: width * pin.ratio, borderRadius: grid.radius, backgroundColor: c.fill }}
           contentFit="cover" transition={150} />
       </GlowPress>

@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { useColors } from './theme';
 import Svg, { Defs, LinearGradient as SvgGradient, Stop, Text as SvgText } from 'react-native-svg';
-import { countryCode, flags, moodRim, hit, motion, palette, radius, space, swatchSize, type, type Colors, type TypeVariant } from './tokens';
+import { countryCode, flags, hit, motion, palette, radius, space, swatchSize, type, type Colors, type TypeVariant } from './tokens';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -269,32 +269,16 @@ export function StatusBadge({ status }: { status: 'pending' | 'live' | 'rejected
   );
 }
 
-/** Hex-Farbe mit Deckkraft (0–1) als rgba. */
-export function withAlpha(hex: string, a: number) {
-  const n = parseInt(hex.slice(1), 16);
-  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
-}
-
 /* ---------- GlowPress ---------- */
-/** Pressable für Kacheln und Posts: ganz feiner heller Leuchtrand, beim Antippen etwas stärker. Mit `tint` (Mood-Farbe) bekommt der Ruherand einen Hauch Farbe. */
-export function GlowPress({ rounded = 16, tint, style, children, ...rest }: ComponentProps<typeof Pressable> & { rounded?: number; tint?: string; children: ReactNode }) {
-  const c = useColors();
+/** Pressable für Kacheln und Posts: kein Leuchten, nur ein leichtes Einsinken beim Antippen (Name bleibt aus Gewohnheit). */
+export function GlowPress({ rounded = 16, style, children, ...rest }: ComponentProps<typeof Pressable> & { rounded?: number; children: ReactNode }) {
   return (
     <Pressable {...rest} style={(state) => [
-      { borderRadius: rounded, shadowColor: c.glow, shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: state.pressed ? 0.35 : 0.1, shadowRadius: state.pressed ? 10 : 5 },
+      { borderRadius: rounded },
       state.pressed && { transform: [{ scale: 0.98 }] },
       typeof style === 'function' ? style(state) : style,
     ]}>
-      {(state) => (
-        <>
-          {children}
-          <View pointerEvents="none" style={[StyleSheet.absoluteFill, {
-            borderRadius: rounded, borderWidth: state.pressed ? 1.5 : tint ? 1 : StyleSheet.hairlineWidth,
-            borderColor: state.pressed ? c.glow : tint ? withAlpha(tint, moodRim) : c.glowSoft,
-          }]} />
-        </>
-      )}
+      {children}
     </Pressable>
   );
 }
