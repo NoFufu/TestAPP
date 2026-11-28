@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { CollectionBanner } from '../../src/components/CollectionCard';
 import { ListSpots } from '../../src/components/ListView';
 import { COLLECTIONS, collectionSpots } from '../../src/data/collections';
 import { useStore } from '../../src/store';
@@ -17,11 +18,12 @@ export default function CollectionScreen() {
     <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: c.paper }}>
       <View style={st.top}>
         <IconButton icon="chevron-down" label="Schließen" onPress={() => router.back()} />
-        <T variant="title" accessibilityRole="header" numberOfLines={1} style={{ flex: 1 }}>{col?.title(city) ?? 'Sammlung'}</T>
+        <T variant="name" color="asphalt" accessibilityRole="header" numberOfLines={1} style={{ flex: 1 }}>{col?.title(city) ?? 'Sammlung'}</T>
       </View>
       <ScrollView contentContainerStyle={{ gap: space.lg, paddingBottom: space.xxl }}>
-        {col ? <T color="asphalt" style={st.pad}>{col.subtitle}. Die beliebtesten zuerst.</T> : null}
-        <ListSpots spots={items} />
+        {col && items.length ? <View style={st.pad}><CollectionBanner col={col} items={items} city={city} compact /></View> : null}
+        <T color="asphalt" style={st.pad}>Die beliebtesten zuerst.</T>
+        <ListSpots spots={items} ranked />
       </ScrollView>
     </SafeAreaView>
   );

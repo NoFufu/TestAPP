@@ -3,10 +3,12 @@ import { useRef } from 'react';
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { catInfo, fmtDist, type Spot } from '../data/spots';
-import { PhotoGrid, PhotoPin, T, radius, space, useIsDark } from '../ui';
+import { Image } from 'expo-image';
+import { GlowPress, PhotoGrid, PhotoPin, T, radius, space, thumbSize, useColors, useIsDark } from '../ui';
 
 /** Spots einer Liste: Raster + Karte. Gemeinsam für eigene und geteilte Listen. */
-export function ListSpots({ spots }: { spots: (Spot & { dist: number })[] }) {
+export function ListSpots({ spots, ranked }: { spots: (Spot & { dist: number })[]; ranked?: boolean }) {
+  const c = useColors();
   const dark = useIsDark();
   const { width } = useWindowDimensions();
   const map = useRef<MapView>(null);
@@ -15,10 +17,27 @@ export function ListSpots({ spots }: { spots: (Spot & { dist: number })[] }) {
   const onMap = spots.filter((s) => (s.city ?? 'Bielefeld') === city);
   return (
     <View style={{ gap: space.lg }}>
-      <PhotoGrid items={spots.map((s) => ({
-        key: String(s.id), photo: s.images[0], label: `${s.name}, ${fmtDist(s.dist)}`,
-        onPress: () => router.push(`/spot/${s.id}`),
-      }))} />
+      {ranked ? (
+        // Rangliste: große Nummer, Vorschaubild, Name, Viertel und Entfernung
+        <View style={[st.pad, { gap: space.sm }]}>
+          {spots.map((s, i) => (
+            <GlowPress key={s.id} rounded={radius.card} onPress={() => router.push(`/spot/${s.id}`)} accessibilityRole="button"
+              accessibilityLabel={`Platz ${i + 1}: ${s.name}, ${fmtDist(s.dist)}. Öffnen`} style={[st.rank, { backgroundColor: c.surface }]}>
+              <T variant="stat" color="asphalt" style={st.rankNo}>{i + 1}</T>
+              <Image source={s.images[0]} contentFit="cover" style={{ width: thumbSize, height: thumbSize, borderRadius: radius.thumb, backgroundColor: c.fill }} />
+              <View style={{ flex: 1 }}>
+                <T variant="name" numberOfLines={1}>{s.name}</T>
+                <T variant="small" color="asphalt" numberOfLines={1}>{s.area || s.city || 'Bielefeld'} · {fmtDist(s.dist)}</T>
+              </View>
+            </GlowPress>
+          ))}
+        </View>
+      ) : (
+        <PhotoGrid items={spots.map((s) => ({
+          key: String(s.id), photo: s.images[0], label: `${s.name}, ${fmtDist(s.dist)}`,
+          onPress: () => router.push(`/spot/${s.id}`),
+        }))} />
+      )}
       <View style={st.pad}>
         <MapView ref={map}
           style={{ width: width - space.lg * 2, height: (width - space.lg * 2) * 0.8, borderRadius: radius.card }}
@@ -39,4 +58,8 @@ export function ListSpots({ spots }: { spots: (Spot & { dist: number })[] }) {
   );
 }
 
-const st = StyleSheet.create({ pad: { paddingHorizontal: space.lg } });
+const st = StyleSheet.create({
+  pad: { paddingHorizontal: space.lg },
+  rank: { flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.sm },
+  rankNo: { width: space.xl + space.xs, textAlign: 'center' },
+});

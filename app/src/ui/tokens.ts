@@ -107,6 +107,7 @@ export const type = {
   stat: { fontFamily: fonts.sign600, fontSize: 22, lineHeight: 24 },
   name: { fontSize: 15, lineHeight: 20, fontWeight: '600' as const },
   body: { fontSize: 15, lineHeight: 21, fontWeight: '400' as const },
+  hero: { fontFamily: fonts.sign700, fontSize: 96, lineHeight: 92 },
   label: { fontSize: 13, lineHeight: 18, fontWeight: '500' as const },
   small: { fontSize: 12, lineHeight: 16, fontWeight: '400' as const },
 } as const;
@@ -131,3 +132,20 @@ export const swatch = {
   pink: '#E58AAE', braun: '#8A5A3B', beige: '#D9C6A5', schwarz: '#1B1B1B', weiss: '#F4F4F1', grau: '#9A9C9F',
 } as const;
 export const swatchSize = 28;
+
+/** Mood-Kreise (wie Instagram-Stories) */
+export const story = { size: 76, gap: 14, badge: 24 } as const;
+
+/** Landesfarben (Daten-Farben fürs Länder-Zeichen): Streifen von oben nach unten, Höhenanteile. */
+export const flags = {
+  GER: { stripes: ['#000000', '#DD0000', '#FFCE00'], weights: [1, 1, 1] },
+  SP: { stripes: ['#AA151B', '#F1BF00', '#AA151B'], weights: [1, 2, 1] },
+} as const;
+export const flagSize = { w: 28, h: 20, radius: 4 } as const;
+
+/** Sammlungen: Flächenfarbe je Sammlung (Weiß darauf ≥ 5.5:1). Nur für Sammlungs-Karte und -Kopf. */
+export const collectionTint = {
+  urban: '#B4441A', skate: '#1F6F78', architektur: '#3F4A8A', bunt: '#A02D72',
+  treppen: '#2F6B4F', altstadt: '#8A5A2B', natur: '#2E6B3A',
+} as const;
+export const collectionCard = { height: 200, photoW: 84, photoH: 112, tilt: 7 } as const;

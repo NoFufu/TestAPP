@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { SPOT_IMAGES } from './data/images';
 import { COLORS, CATS, CITIES, CITY_NAMES, ME, SAMPLE_SPOTS, distanceKm, type Cat, type City, type Spot } from './data/spots';
 import { useAuth } from './lib/auth';
+import { MOODS, type MoodKey } from './data/moods';
 import type { SpotColor } from './lib/colors';
 import { track } from './lib/events';
 import { photoUrl, supabase, type NearbyRow } from './lib/supabase';
@@ -24,9 +25,9 @@ type Store = {
   /** Stadt, die Karte und Feed gerade zeigen. */
   city: City;
   setCity: (c: City) => void;
-  /** Farbfilter (leer = alle Farben). */
-  colorFilter: SpotColor | null;
-  setColorFilter: (c: SpotColor | null) => void;
+  /** Mood-Filter (null = alle Moods). Farben filtert die Suche. */
+  moodFilter: MoodKey | null;
+  setMoodFilter: (m: MoodKey | null) => void;
   filters: Set<Cat>;
   toggleFilter: (c: Cat) => void;
   clearFilters: () => void;
@@ -51,7 +52,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [mapCenter, setMapCenter] = useState({ lat: 52.0215, lon: 8.531 });
   const [remote, setRemote] = useState<Spot[] | null>(null);
   const [city, setCity] = useState<City>('Bielefeld');
-  const [colorFilter, setColorFilter] = useState<SpotColor | null>(null);
+  const [moodFilter, setMoodFilter] = useState<MoodKey | null>(null);
   const [source, setSource] = useState<Store['source']>('loading');
   const [me, setMe] = useState(ME);
   const [realLocation, setRealLocation] = useState(false);
@@ -182,12 +183,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const visible = useMemo(
     () => spots.filter((s) => (s.city ?? 'Bielefeld') === city && (!filters.size || s.cats.some((c) => filters.has(c)))
-      && (!colorFilter || !!s.colors?.includes(colorFilter))),
-    [spots, filters, city, colorFilter],
+      && (!moodFilter || MOODS.find((m) => m.key === moodFilter)!.match(s))),
+    [spots, filters, city, moodFilter],
   );
 
   const value: Store = {
-    source, reload, city, setCity, colorFilter, setColorFilter, me, realLocation, locate, spots, visible, filters, toggleFilter, clearFilters: () => setFilters(new Set()),
+    source, reload, city, setCity, moodFilter, setMoodFilter, me, realLocation, locate, spots, visible, filters, toggleFilter, clearFilters: () => setFilters(new Set()),
     saved, toggleSave, addSpot, likedPosts, toggleLikePost, mapCenter, setMapCenter,
   };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

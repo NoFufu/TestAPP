@@ -15,9 +15,9 @@ const CHUNK = 10;
 /** Home: Raster mit allen Fotos der Spots (leer und mit Person). Tippen öffnet den Spot groß. */
 export default function Home() {
   const c = useColors();
-  const { visible, spots, city, filters, colorFilter, source, reload, saved, toggleSave } = useStore();
+  const { visible, spots, city, filters, moodFilter, source, reload, saved, toggleSave } = useStore();
   // Sammlungen nur ohne Filter, sonst passt die Karte nicht zum Feed.
-  const cols = useMemo(() => (filters.size || colorFilter ? [] : collectionsFor(spots, city)), [spots, city, filters, colorFilter]);
+  const cols = useMemo(() => (filters.size || moodFilter ? [] : collectionsFor(spots, city)), [spots, city, filters, moodFilter]);
 
   const pins = useMemo<Pin[]>(() => {
     const score = (s: (typeof visible)[number]) => (s.creator ? 2 : 0) + (PHOTO_SPOT_IDS.has(s.id) || AI_SPOT_IDS.has(s.id) ? 1 : 0);
@@ -49,6 +49,7 @@ export default function Home() {
           <T variant="title" accessibilityRole="header">fitspot</T>
           <CityButton />
           <View style={{ flex: 1 }} />
+          <IconButton icon="search" size={26} label="Suchen und filtern" onPress={() => router.push('/search')} />
           <IconButton icon="add" size={30} label="Neuen Spot hochladen" onPress={() => router.push('/upload')} />
         </View>
         <View style={{ backgroundColor: c.paper }}>

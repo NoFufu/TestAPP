@@ -131,5 +131,14 @@ Jede Kategorie hat in `CATS` ein `icon` aus **MaterialCommunityIcons** (zweite I
 ## Swatch (Farbfilter)
 `<Swatch color label selected onPress />`: runder Farbkreis (`swatchSize`), ausgewählt mit Ring in Tinte. Farben aus `swatch` in `tokens.ts` (Daten-Farben, nur für den Filter).
 
-## CollectionCard
-Breite Sammlungs-Karte im Home-Feed (1 großes + 2 kleine Bilder, Titel darunter), alle 10 Kacheln eine. Sammlungen sind Regeln in `src/data/collections.ts` (Stadt + Kategorie/Farbe/Stichwort, beliebteste zuerst, max. 10, erst ab 3 Spots). Nur ohne aktiven Filter.
+## CollectionCard / CollectionBanner
+Sammlungs-Karte im Home-Feed, alle 10 Kacheln eine: Farbfläche mit Verlauf (`collectionTint`, Weiß darauf ≥ 5.5:1), große Zahl „TOP n“ (Stufe `hero`), Titel, drei gefächerte Fotos. `CollectionBanner` ist dasselbe oben im Sammlungs-Screen, darunter die Rangliste (`ListSpots ranked`: Platz, Bild, Name, Viertel, Entfernung) und die Karte. Sammlungen sind Regeln in `src/data/collections.ts` (Stadt + Kategorie/Farbe/Stichwort, beliebteste zuerst, max. 10, erst ab 3 Spots). Nur ohne aktiven Filter.
+
+## Moods (MoodStories)
+Runde Story-Kreise (`story`-Token, `Avatar` mit Ring) statt der Farbpunkte, unter den Kategorie-Reitern. Moods (`src/data/moods.ts`) werden automatisch aus Kategorie, Farben und Stichworten gebildet (kein DB-Feld): Urban Aesthetic, Ruhig, Natürlich, Verspielt, Romantisch, Dunkel & Moody, Modern & Clean. Foto im Kreis = beliebtester Spot der Stadt mit diesem Mood. Ausgewählt = Ring in Tinte. Farben sind jetzt nur noch in der Suche.
+
+## Flag (Landesfarben)
+`<Flag country="GER|SP" />` neben dem Ländercode in `CityButton`: kleine Streifen-Fläche aus `flags` (Daten-Farben).
+
+## Suche (`app/search.tsx`)
+Textsuche (Name, Viertel, Beschreibung, Kategorie, Mood; ohne Akzente) + ausklappbare Filter: Stadt, Kategorie, Mood, Farbe, Entfernung, „nur mit echten Fotos von Nutzern“. Ergebnis als `Masonry`. Einstieg: Lupe oben auf Home.

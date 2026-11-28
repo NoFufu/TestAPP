@@ -7,7 +7,7 @@ import {
   type PressableProps, type StyleProp, type TextProps, type ViewStyle,
 } from 'react-native';
 import { useColors } from './theme';
-import { hit, motion, radius, space, swatchSize, type, type Colors, type TypeVariant } from './tokens';
+import { flags, flagSize, hit, motion, radius, space, swatchSize, type, type Colors, type TypeVariant } from './tokens';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -302,5 +302,18 @@ export function Swatch({ color, label, selected, onPress }: { color: string; lab
       style={[s.swRing, { borderColor: selected ? c.ink : 'transparent' }]}>
       <View style={[s.sw, { backgroundColor: color, borderColor: c.line }]} />
     </Pressable>
+  );
+}
+
+/* ---------- Flag (Landesfarben) ---------- */
+/** Kleines Länder-Zeichen aus den Landesfarben (Streifen), neben dem Ländercode. */
+export function Flag({ country }: { country: string }) {
+  const f = flags[country as keyof typeof flags];
+  if (!f) return null;
+  return (
+    <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants"
+      style={{ width: flagSize.w, height: flagSize.h, borderRadius: flagSize.radius, overflow: 'hidden' }}>
+      {f.stripes.map((col, i) => <View key={i} style={{ flex: f.weights[i], backgroundColor: col }} />)}
+    </View>
   );
 }

@@ -20,6 +20,7 @@ export default function RootLayout() {
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.paper } }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="spot/[id]" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="search" options={{ presentation: 'modal' }} />
         <Stack.Screen name="login" options={{ presentation: 'modal' }} />
         <Stack.Screen name="add-photo" options={{ presentation: 'modal' }} />
         <Stack.Screen name="mine" options={{ presentation: "modal" }} />
