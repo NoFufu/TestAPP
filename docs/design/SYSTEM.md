@@ -131,7 +131,7 @@ Jede Kategorie hat in `CATS` ein `icon` aus **MaterialCommunityIcons** (zweite I
 `<GlowPress rounded tint?>`: Pressable für Kacheln und Posts. Ganz feiner **heller** Leuchtrand (`glow`/`glowSoft`, kein Gold mehr), beim Antippen etwas stärker und leichtes Einsinken (0.98). Mit `tint` bekommt der Ruherand einen Hauch Mood-Farbe (`moodColors`, Deckkraft `moodRim`). Nur Rand, keine Fläche. In `Masonry` (über `Pin.tint`) und `PhotoGrid` eingebaut.
 
 ## Mood-Farben (`moodColors`)
-Gedämpfte Farbe je Mood (Urban Lehm, Ruhig Graublau, Natürlich Salbei, Verspielt Sandgelb, Romantisch Altrosa, Dunkel Staubviolett, Modern Stahlgrau). Nur als Hauch: Ring der Mood-Kreise, Rand der Foto-Kacheln (`moodTint(spot)`), Rand der aktiven Kachel auf der Karte. Nie als Fläche. Wenig Farbe in der App ist Absicht.
+Gedämpfte Farbe je Mood (Urban Lehm, Ruhig Graublau, Natürlich Salbei, Verspielt Sandgelb, Romantisch Altrosa, Dunkel Staubviolett, Modern Stahlgrau). Nur als Hauch: Ring der Mood-Kreise, Rand der Foto-Kacheln (`moodTint(spot)`), Rand der aktiven Kachel auf der Karte. Nie als Fläche, die App bleibt ruhig mit wenig Farbe. Rand 1 px, Deckkraft `moodRim` 0.75; wer mehr Farbe will, erhöht Rand oder Sättigung hier.
 ## Swatch (Farbfilter)
 `<Swatch color label selected onPress />`: runder Farbkreis (`swatchSize`), ausgewählt mit Ring in Tinte. Farben aus `swatch` in `tokens.ts` (Daten-Farben, nur für den Filter).
 

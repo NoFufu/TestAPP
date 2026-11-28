@@ -290,7 +290,7 @@ export function GlowPress({ rounded = 16, tint, style, children, ...rest }: Comp
         <>
           {children}
           <View pointerEvents="none" style={[StyleSheet.absoluteFill, {
-            borderRadius: rounded, borderWidth: state.pressed ? 1.5 : StyleSheet.hairlineWidth,
+            borderRadius: rounded, borderWidth: state.pressed ? 1.5 : tint ? 1 : StyleSheet.hairlineWidth,
             borderColor: state.pressed ? c.glow : tint ? withAlpha(tint, moodRim) : c.glowSoft,
           }]} />
         </>

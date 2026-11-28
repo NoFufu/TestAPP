@@ -161,4 +161,4 @@ export const moodColors = {
   romantisch: '#D69AB8', dunkel: '#8C84C4', modern: '#9AA5B1',
 } as const;
 /** Deckkraft von Mood-Farbe als Rand um Kacheln */
-export const moodRim = 0.45;
+export const moodRim = 0.75;
