@@ -2,8 +2,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { SPOT_IMAGES } from './data/images';
-import { CATS, CITIES, CITY_NAMES, ME, SAMPLE_SPOTS, distanceKm, type Cat, type City, type Spot } from './data/spots';
+import { COLORS, CATS, CITIES, CITY_NAMES, ME, SAMPLE_SPOTS, distanceKm, type Cat, type City, type Spot } from './data/spots';
 import { useAuth } from './lib/auth';
+import type { SpotColor } from './lib/colors';
 import { photoUrl, supabase, type NearbyRow } from './lib/supabase';
 
 type UserSpot = Omit<Spot, 'images'> & { uri: string };
@@ -22,6 +23,9 @@ type Store = {
   /** Stadt, die Karte und Feed gerade zeigen. */
   city: City;
   setCity: (c: City) => void;
+  /** Farbfilter (leer = alle Farben). */
+  colorFilter: SpotColor | null;
+  setColorFilter: (c: SpotColor | null) => void;
   filters: Set<Cat>;
   toggleFilter: (c: Cat) => void;
   clearFilters: () => void;
@@ -46,6 +50,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [mapCenter, setMapCenter] = useState({ lat: 52.0215, lon: 8.531 });
   const [remote, setRemote] = useState<Spot[] | null>(null);
   const [city, setCity] = useState<City>('Bielefeld');
+  const [colorFilter, setColorFilter] = useState<SpotColor | null>(null);
   const [source, setSource] = useState<Store['source']>('loading');
   const [me, setMe] = useState(ME);
   const [realLocation, setRealLocation] = useState(false);
@@ -74,6 +79,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       })))
       .then((lists) => {
         const valid = new Set(CATS.map((c) => c.key));
+        const validColors = new Set(COLORS.map((c) => c.key));
         setRemote(lists.flat().map(({ r, city }) => ({
           id: r.id, name: r.name, desc: r.description, area: r.area, lat: r.lat, lon: r.lon, likes: r.likes_count, city,
           cats: r.categories.filter((c): c is Cat => valid.has(c as Cat)),
@@ -84,6 +90,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             ...(SPOT_IMAGES[r.id]?.slice(2) ?? []),
           ].filter((x): x is NonNullable<typeof x> => x != null),
           creator: r.creator, creatorAvatar: r.creator_avatar, instagramUrl: r.instagram_url,
+          colors: (r.colors ?? []).filter((x): x is SpotColor => validColors.has(x as SpotColor)),
         })).filter((s) => s.cats.length && s.images.length));
         setSource('cloud');
       })
@@ -170,12 +177,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [userSpots, remote, me]);
 
   const visible = useMemo(
-    () => spots.filter((s) => (s.city ?? 'Bielefeld') === city && (!filters.size || s.cats.some((c) => filters.has(c)))),
-    [spots, filters, city],
+    () => spots.filter((s) => (s.city ?? 'Bielefeld') === city && (!filters.size || s.cats.some((c) => filters.has(c)))
+      && (!colorFilter || !!s.colors?.includes(colorFilter))),
+    [spots, filters, city, colorFilter],
   );
 
   const value: Store = {
-    source, reload, city, setCity, me, realLocation, locate, spots, visible, filters, toggleFilter, clearFilters: () => setFilters(new Set()),
+    source, reload, city, setCity, colorFilter, setColorFilter, me, realLocation, locate, spots, visible, filters, toggleFilter, clearFilters: () => setFilters(new Set()),
     saved, toggleSave, addSpot, likedPosts, toggleLikePost, mapCenter, setMapCenter,
   };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

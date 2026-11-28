@@ -121,3 +121,10 @@ export const hit = 44;
 
 /** Kleine Vorschaubilder in Listen */
 export const thumbSize = 64;
+
+/** Farbfilter: Kreis-Farben je Farbgruppe (Daten-Farben, nicht fürs Layout). */
+export const swatch = {
+  rot: '#C8352E', orange: '#E07B2E', gelb: '#E9C23A', gruen: '#4E9A55', blau: '#3B6FC4', lila: '#7D55B8',
+  pink: '#E58AAE', braun: '#8A5A3B', beige: '#D9C6A5', schwarz: '#1B1B1B', weiss: '#F4F4F1', grau: '#9A9C9F',
+} as const;
+export const swatchSize = 28;

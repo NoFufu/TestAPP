@@ -1,4 +1,5 @@
-import { catColors } from '../ui/tokens';
+import type { SpotColor } from '../lib/colors';
+import { catColors, swatch } from '../ui/tokens';
 import { SPOT_IMAGES } from './images';
 
 export type Cat =
@@ -68,6 +69,7 @@ export type Spot = {
   creatorAvatar?: string | null;
   instagramUrl?: string | null;
   city?: City;
+  colors?: SpotColor[];
 };
 
 /** Simulierter Standort (Jahnplatz). Echter Standort kommt mit expo-location. */
@@ -128,3 +130,13 @@ export function distanceKm(a: { lat: number; lon: number }, b: { lat: number; lo
 }
 export const fmtDist = (km: number) =>
   km < 1 ? `${Math.round((km * 1000) / 10) * 10} m` : `${km.toFixed(1).replace('.', ',')} km`;
+
+/** Farbfilter-Liste (Reihenfolge wie im Farbkreis). */
+export const COLORS: { key: SpotColor; label: string; hex: string }[] = [
+  { key: 'rot', label: 'Rot', hex: swatch.rot }, { key: 'orange', label: 'Orange', hex: swatch.orange },
+  { key: 'gelb', label: 'Gelb', hex: swatch.gelb }, { key: 'gruen', label: 'Grün', hex: swatch.gruen },
+  { key: 'blau', label: 'Blau', hex: swatch.blau }, { key: 'lila', label: 'Lila', hex: swatch.lila },
+  { key: 'pink', label: 'Pink', hex: swatch.pink }, { key: 'braun', label: 'Braun', hex: swatch.braun },
+  { key: 'beige', label: 'Beige', hex: swatch.beige }, { key: 'schwarz', label: 'Schwarz', hex: swatch.schwarz },
+  { key: 'weiss', label: 'Weiß', hex: swatch.weiss }, { key: 'grau', label: 'Grau', hex: swatch.grau },
+];

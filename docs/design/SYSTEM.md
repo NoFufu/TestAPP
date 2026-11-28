@@ -123,3 +123,6 @@ Jede Kategorie hat in `CATS` ein `icon` aus **MaterialCommunityIcons** (zweite I
 
 ## GlowPress
 `<GlowPress rounded>`: Pressable für Kacheln und Posts. Immer ein feiner warmer Leuchtrand (`glowSoft`), beim Antippen stärker (`glow`) und leichtes Einsinken (0.98). Nur Rand, keine Fläche. In `Masonry` und `PhotoGrid` schon eingebaut.
+
+## Swatch (Farbfilter)
+`<Swatch color label selected onPress />`: runder Farbkreis (`swatchSize`), ausgewählt mit Ring in Tinte. Farben aus `swatch` in `tokens.ts` (Daten-Farben, nur für den Filter).

@@ -1,6 +1,7 @@
 import * as Crypto from 'expo-crypto';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import type { Cat } from '../data/spots';
+import { photoColors } from './colors';
 import { photoUrl, supabase } from './supabase';
 
 /** Verkleinert ein Foto (lange Seite max. `max` px) und speichert es als JPEG. Gibt die neue Datei-URI zurück. */
@@ -63,7 +64,9 @@ export type NewSpot = {
 /** Legt einen Spot mit Fotos an. Meldet Fortschritt über `step`. Gibt die neue Spot-ID zurück. */
 export async function createSpot(uid: string, s: NewSpot, step: (i: number) => void): Promise<number> {
   step(0);
-  const [emptyHash, personHash] = await Promise.all([fileSha256(s.emptyUri), s.personUri ? fileSha256(s.personUri) : null]);
+  const [emptyHash, personHash, colors] = await Promise.all([
+    fileSha256(s.emptyUri), s.personUri ? fileSha256(s.personUri) : null, photoColors(s.emptyUri),
+  ]);
   const empty = await prepareImage(s.emptyUri);
   const person = s.personUri ? await prepareImage(s.personUri) : null;
 
@@ -83,6 +86,7 @@ export async function createSpot(uid: string, s: NewSpot, step: (i: number) => v
       categories: s.cats,
       location: `SRID=4326;POINT(${s.lon} ${s.lat})`,
       area: '',
+      colors,
       created_by: uid,
     })
     .select('id')

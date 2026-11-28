@@ -24,6 +24,7 @@ export type NearbyRow = {
   instagram_url: string | null;
   creator: string | null;
   creator_avatar: string | null;
+  colors: string[] | null;
   created_at: string;
 };
 

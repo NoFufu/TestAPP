@@ -7,7 +7,7 @@ import {
   type PressableProps, type StyleProp, type TextProps, type ViewStyle,
 } from 'react-native';
 import { useColors } from './theme';
-import { hit, motion, radius, space, type, type Colors, type TypeVariant } from './tokens';
+import { hit, motion, radius, space, swatchSize, type, type Colors, type TypeVariant } from './tokens';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -241,6 +241,8 @@ export const haptic = {
 };
 
 const s = StyleSheet.create({
+  swRing: { borderWidth: 2, borderRadius: radius.pill, padding: 2 },
+  sw: { width: swatchSize, height: swatchSize, borderRadius: radius.pill, borderWidth: StyleSheet.hairlineWidth },
   badge: { borderWidth: 1, borderRadius: radius.pill, paddingHorizontal: space.sm, paddingVertical: 2, alignSelf: 'flex-start' },
   tab: { minHeight: hit, justifyContent: 'center', gap: space.xs, paddingTop: space.xs },
   tabLine: { height: 2, borderRadius: radius.pill },
@@ -286,6 +288,19 @@ export function GlowPress({ rounded = 16, style, children, ...rest }: ComponentP
           }]} />
         </>
       )}
+    </Pressable>
+  );
+}
+
+/* ---------- Swatch ---------- */
+/** Runder Farbkreis für den Farbfilter. Ausgewählt = Ring in Tinte. */
+export function Swatch({ color, label, selected, onPress }: { color: string; label: string; selected?: boolean; onPress: () => void }) {
+  const c = useColors();
+  return (
+    <Pressable onPress={() => { haptic.select(); onPress(); }} hitSlop={4} accessibilityRole="button" accessibilityLabel={`Farbe ${label}`}
+      accessibilityState={{ selected: !!selected }}
+      style={[s.swRing, { borderColor: selected ? c.ink : 'transparent' }]}>
+      <View style={[s.sw, { backgroundColor: color, borderColor: c.line }]} />
     </Pressable>
   );
 }
