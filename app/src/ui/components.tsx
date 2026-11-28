@@ -267,19 +267,25 @@ export function StatusBadge({ status }: { status: 'pending' | 'live' | 'rejected
 }
 
 /* ---------- GlowPress ---------- */
-/** Pressable für Kacheln und Posts: solange der Finger drauf ist, leuchtet ein warmer Glow dahinter und die Kachel sinkt leicht ein. */
+/** Pressable für Kacheln und Posts: feiner warmer Leuchtrand um das Bild, immer sichtbar, beim Antippen etwas stärker. */
 export function GlowPress({ rounded = 16, style, children, ...rest }: ComponentProps<typeof Pressable> & { rounded?: number; children: ReactNode }) {
   const c = useColors();
   return (
     <Pressable {...rest} style={(state) => [
-      { borderRadius: rounded },
-      state.pressed && {
-        backgroundColor: c.glow, shadowColor: c.glow, shadowOpacity: 0.85, shadowRadius: 16, shadowOffset: { width: 0, height: 0 },
-        elevation: 14, transform: [{ scale: 0.97 }],
-      },
+      { borderRadius: rounded, shadowColor: c.glow, shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: state.pressed ? 0.55 : 0.22, shadowRadius: state.pressed ? 10 : 5 },
+      state.pressed && { transform: [{ scale: 0.98 }] },
       typeof style === 'function' ? style(state) : style,
     ]}>
-      {children}
+      {(state) => (
+        <>
+          {children}
+          <View pointerEvents="none" style={[StyleSheet.absoluteFill, {
+            borderRadius: rounded, borderWidth: state.pressed ? 1.5 : StyleSheet.hairlineWidth,
+            borderColor: state.pressed ? c.glow : c.glowSoft,
+          }]} />
+        </>
+      )}
     </Pressable>
   );
 }

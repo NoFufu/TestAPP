@@ -122,4 +122,4 @@ Token `grid` (Rand 4, Spaltenabstand 6, Ecken 16, Fußzeile 28). Kacheln: nur Bi
 Jede Kategorie hat in `CATS` ein `icon` aus **MaterialCommunityIcons** (zweite Icon-Familie, nur hierfür; hat Tür, Burg, Treppe, Strand …). `PhotoPin` zeigt es als kleines farbiges Rund-Schild unten rechts.
 
 ## GlowPress
-`<GlowPress rounded>`: Pressable für Kacheln und Posts. Beim Antippen warmer Glow (`glow`-Farbe) hinter der Kachel und leichtes Einsinken (0.97). In `Masonry` und `PhotoGrid` schon eingebaut.
+`<GlowPress rounded>`: Pressable für Kacheln und Posts. Immer ein feiner warmer Leuchtrand (`glowSoft`), beim Antippen stärker (`glow`) und leichtes Einsinken (0.98). Nur Rand, keine Fläche. In `Masonry` und `PhotoGrid` schon eingebaut.

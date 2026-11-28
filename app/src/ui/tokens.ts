@@ -22,7 +22,8 @@ export const palette = {
     shadow: '#000000',
     sun: '#E39A2D',       // Sonnenbogen, Golden Hour
     sunTrack: '#E2E3DF',
-    glow: '#FFB347',      // Leuchten beim Antippen von Kacheln
+    glow: '#FFB347',      // Leuchtrand um Kacheln (beim Antippen)
+    glowSoft: 'rgba(255,179,71,0.45)', // feiner Leuchtrand im Ruhezustand
     dock: 'rgba(255,255,255,0.94)', // schwebende Tab-Leiste
     onDock: '#16181B',
   },
@@ -45,6 +46,7 @@ export const palette = {
     sun: '#F2B04A',
     sunTrack: '#2C2E31',
     glow: '#FFC46B',
+    glowSoft: 'rgba(255,196,107,0.40)',
     dock: 'rgba(44,46,49,0.94)',
     onDock: '#F2F2EF',
   },

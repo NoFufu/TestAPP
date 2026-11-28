@@ -21,7 +21,7 @@ export default function Explore() {
   const dark = useIsDark();
   const insets = useSafeAreaInsets();
   const map = useRef<MapView>(null);
-  const { visible, setMapCenter, me, realLocation, locate } = useStore();
+  const { visible, setMapCenter, city, me, realLocation, locate } = useStore();
   const [mode, setMode] = useState<Mode>('map');
   const [selId, setSelId] = useState<number | null>(null);
   const [livePins, setLivePins] = useState(true);
@@ -47,6 +47,14 @@ export default function Explore() {
     return () => clearTimeout(id);
   }, [visible, selId, mode]);
 
+  // Stadt gewechselt (hier oder auf Home): Karte fliegt hin.
+  const shownCity = useRef(city);
+  useEffect(() => {
+    if (shownCity.current === city) return;
+    shownCity.current = city;
+    map.current?.animateToRegion(CITIES[city].region, 700);
+  }, [city, mode]);
+
   const centered = useRef(false);
   useEffect(() => {
     if (realLocation && !centered.current && distanceKm(me, { lat: BIELEFELD.latitude, lon: BIELEFELD.longitude }) < 30) {
@@ -67,7 +75,7 @@ export default function Explore() {
         <MapView
           ref={map}
           style={StyleSheet.absoluteFill}
-          initialRegion={BIELEFELD}
+          initialRegion={CITIES[city].region}
           showsUserLocation
           showsMyLocationButton={false}
           showsCompass={false}
@@ -127,7 +135,7 @@ export default function Explore() {
       >
         <View style={st.top}>
           <T variant="title" accessibilityRole="header">fitspot</T>
-          <CityButton onSwitch={(next) => { setSelId(null); map.current?.animateToRegion(CITIES[next].region, 700); }} />
+          <CityButton onSwitch={() => setSelId(null)} />
           <View style={{ flex: 1 }} />
           <View style={[st.seg, { backgroundColor: c.fill }]} accessibilityRole="tablist">
             {(['map', 'grid'] as const).map((m) => (
