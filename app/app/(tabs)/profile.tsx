@@ -67,8 +67,13 @@ export default function Profile() {
           <Button label="Spot hochladen" icon="add" style={{ flex: 1 }} onPress={() => router.navigate('/upload')} />
           <Button label="Meine Inhalte" icon="create-outline" variant="secondary" style={{ flex: 1 }} onPress={() => router.push('/mine')} />
         </View>
+        {admin ? (
+          <View style={[st.actions, { paddingTop: 0 }]}>
+            <Button label="Start-Fotos" icon="camera-outline" variant="secondary" style={{ flex: 1 }} onPress={() => router.push('/start-photos')} />
+            <Button label="Prüfen" icon="shield-checkmark-outline" variant="secondary" style={{ flex: 1 }} onPress={() => router.push('/review')} />
+          </View>
+        ) : null}
         <View style={[st.actions, { paddingTop: 0 }]}>
-          {admin ? <Button label="Prüfen" icon="shield-checkmark-outline" variant="secondary" style={{ flex: 1 }} onPress={() => router.push('/review')} /> : null}
           <Button label="Abmelden" variant="secondary" style={{ flex: 1 }} onPress={signOut} />
         </View>
         {mine.length ? (

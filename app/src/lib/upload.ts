@@ -174,3 +174,21 @@ export async function sendReport(uid: string, target: { spotId?: number; photoId
   });
   if (error && error.code !== '23505') throw error;
 }
+
+/** Admin: echtes Start-Foto für einen Spot (ersetzt den Platzhalter, weil es als Spot-Foto gilt). */
+export async function addStartPhoto(uid: string, spotId: number, uri: string, gpsDistanceM: number | null) {
+  const hash = await fileSha256(uri);
+  const small = await prepareImage(uri);
+  const path = `${uid}/${Date.now()}-start-${spotId}.jpg`;
+  await uploadFile('spot-photos', path, small);
+  const { error } = await supabase.from('spot_photos').insert({
+    spot_id: spotId, storage_path: path, kind: 'spot', uploaded_by: uid, gps_distance_m: gpsDistanceM, sha256: hash,
+  });
+  if (error) throw error;
+}
+
+/** Admin: Spot an die Foto-Position verschieben. */
+export async function adminSetLocation(spotId: number, lat: number, lon: number) {
+  const { error } = await supabase.rpc('admin_set_location', { target_id: spotId, lat, lon });
+  if (error) throw error;
+}

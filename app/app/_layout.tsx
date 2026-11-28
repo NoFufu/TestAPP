@@ -30,6 +30,7 @@ export default function RootLayout() {
         <Stack.Screen name="list/[id]" options={{ presentation: "modal" }} />
         <Stack.Screen name="shared/[token]" options={{ presentation: "modal" }} />
         <Stack.Screen name="collection/[key]" options={{ presentation: "modal" }} />
+        <Stack.Screen name="start-photos" options={{ presentation: "modal" }} />
       </Stack>
     </StoreProvider>
     </AuthProvider>
