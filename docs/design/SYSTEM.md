@@ -23,6 +23,8 @@ Kein reines Schwarz/Weiß: hell = leichtes Lila-Weiß, dunkel = Blaugrau (Stand 
 | `sign` / `onSign` | #1B1A22 / #FBFAFE | #E8ECF2 / #161B22 | Spot-Schild |
 | `danger` | #B3261E | #FF8A80 | Fehler |
 
+Neu 28.11.: `accent` (Lila: hell #6A55B8, dunkel #8F7FE0) für Story-Ringe und Hervorhebung auf der Karte, `dockActive` (aktiver Knopf der Tab-Leiste: hell #E2DCF5, dunkel #4A4468). Kirsche bleibt nur für Like/Merken.
+
 Kategorie-Farben (`catColors`) sind gedämpft und erscheinen nur als kleine Punkte (Chip, Pin).
 
 ### Schrift (`type`, Baustein `<T variant>`)
@@ -132,7 +134,7 @@ Jede Kategorie hat in `CATS` ein `icon` aus **MaterialCommunityIcons** (zweite I
 `<Swatch color label selected onPress />`: runder Farbkreis (`swatchSize`), ausgewählt mit Ring in Tinte. Farben aus `swatch` in `tokens.ts` (Daten-Farben, nur für den Filter).
 
 ## CollectionCard / CollectionBanner
-Sammlungs-Karte im Home-Feed, alle 10 Kacheln eine: Farbfläche mit Verlauf (`collectionTint`, Weiß darauf ≥ 5.5:1), große Zahl „TOP n“ (Stufe `hero`), Titel, drei gefächerte Fotos. `CollectionBanner` ist dasselbe oben im Sammlungs-Screen, darunter die Rangliste (`ListSpots ranked`: Platz, Bild, Name, Viertel, Entfernung) und die Karte. Sammlungen sind Regeln in `src/data/collections.ts` (Stadt + Kategorie/Farbe/Stichwort, beliebteste zuerst, max. 10, erst ab 3 Spots). Nur ohne aktiven Filter.
+Sammlungs-Karte im Home-Feed, alle 10 Kacheln eine: Foto des ersten Spots als Hintergrund mit dunklem Farbverlauf (`collectionTint` als Tönung, Weiß darauf), große Zahl „TOP n“ (Stufe `hero`), Titel, drei gefächerte Fotos der nächsten Spots. `CollectionBanner` ist dasselbe oben im Sammlungs-Screen, darunter die Rangliste (`ListSpots ranked`: Platz, Bild, Name, Viertel, Entfernung) und die Karte. Sammlungen sind Regeln in `src/data/collections.ts` (Stadt + Kategorie/Farbe/Stichwort, beliebteste zuerst, max. 10, erst ab 3 Spots). Nur ohne aktiven Filter.
 
 ## Moods (MoodStories)
 Runde Story-Kreise (`story`-Token, `Avatar` mit Ring) statt der Farbpunkte, unter den Kategorie-Reitern. Moods (`src/data/moods.ts`) werden automatisch aus Kategorie, Farben und Stichworten gebildet (kein DB-Feld): Urban Aesthetic, Ruhig, Natürlich, Verspielt, Romantisch, Dunkel & Moody, Modern & Clean. Foto im Kreis = beliebtester Spot der Stadt mit diesem Mood. Ausgewählt = Ring in Tinte. Farben sind jetzt nur noch in der Suche.
@@ -142,3 +144,6 @@ Runde Story-Kreise (`story`-Token, `Avatar` mit Ring) statt der Farbpunkte, unte
 
 ## Suche (`app/search.tsx`)
 Textsuche (Name, Viertel, Beschreibung, Kategorie, Mood; ohne Akzente) + ausklappbare Filter: Stadt, Kategorie, Mood, Farbe, Entfernung, „nur mit echten Fotos von Nutzern“. Ergebnis als `Masonry`. Einstieg: Lupe oben auf Home.
+
+## MapSearch (Entdecken)
+Auf der Karte oben nur die Textzeile (Wortmarke, Stadt, Lupe, Karte/Raster). Die Lupe klappt `MapSearch` aus (`src/components/MapSearch.tsx`): Suchfeld + Kategorie- und Mood-Chips + Link zur großen Suche. Punkt (`accent`) an der Lupe, solange Suche/Filter aktiv sind. Die Spot-Leiste unten holt immer die vorderste Kachel: Karte schwenkt (und zoomt bei weitem Ausschnitt heran), Kachel bekommt `accent`-Rand.

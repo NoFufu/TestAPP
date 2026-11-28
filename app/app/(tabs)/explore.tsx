@@ -2,11 +2,13 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { CityButton, FilterBar } from '../../src/components/ui';
+import { CityButton } from '../../src/components/ui';
+import { MapSearch } from '../../src/components/MapSearch';
+import { MOODS } from '../../src/data/moods';
 import { BIELEFELD, CITIES, catInfo, distanceKm, fmtDist } from '../../src/data/spots';
 import { useStore } from '../../src/store';
 import { PhotoGrid, PhotoPin, T, hit, radius, space, useColors, useIsDark, dock } from '../../src/ui';
@@ -21,25 +23,44 @@ export default function Explore() {
   const dark = useIsDark();
   const insets = useSafeAreaInsets();
   const map = useRef<MapView>(null);
-  const { visible, setMapCenter, city, me, realLocation, locate } = useStore();
+  const { visible: storeVisible, setMapCenter, city, me, realLocation, locate, filters, moodFilter } = useStore();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [q, setQ] = useState('');
+  // Suchtext zusätzlich zu den Filtern (ohne Akzente, jedes Wort muss vorkommen)
+  const visible = useMemo(() => {
+    const norm = (t: string) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    const words = norm(q).split(/\s+/).filter(Boolean);
+    if (!words.length) return storeVisible;
+    return storeVisible.filter((s) => { const hay = norm(`${s.name} ${s.area} ${s.desc} ${s.cats.join(' ')} ${MOODS.filter((m) => m.match(s)).map((m) => m.label).join(' ')}`); return words.every((w) => hay.includes(w)); });
+  }, [storeVisible, q]);
+  const activeCount = filters.size + (moodFilter ? 1 : 0) + (q.trim() ? 1 : 0);
   const [mode, setMode] = useState<Mode>('map');
   const [selId, setSelId] = useState<number | null>(null);
   const [livePins, setLivePins] = useState(true);
-  const [headerH, setHeaderH] = useState(120);
+  const [headerH, setHeaderH] = useState(100);
   const dockTop = Math.max(insets.bottom + dock.bottom, space.sm) + dock.size + space.sm;
   const sorted = [...visible].sort((a, b) => a.dist - b.dist);
   const list = useRef<FlatList<(typeof sorted)[number]>>(null);
   const fromCarousel = useRef(false);
 
+  // Die Karte folgt dem Spot, der in der Leiste vorne liegt: schwenken, bei weitem Ausschnitt auch heranzoomen.
+  const zoom = useRef(CITIES[city].region.latitudeDelta);
+  const lastIdx = useRef(-1);
   function focus(s: (typeof sorted)[number]) {
     setSelId(s.id);
-    map.current?.animateCamera({ center: { latitude: s.lat - 0.0012, longitude: s.lon } }, { duration: 350 });
+    if (zoom.current > 0.03) {
+      map.current?.animateToRegion({ latitude: s.lat - 0.0006, longitude: s.lon, latitudeDelta: 0.02, longitudeDelta: 0.02 }, 450);
+    } else {
+      map.current?.animateCamera({ center: { latitude: s.lat - zoom.current * 0.05, longitude: s.lon } }, { duration: 350 });
+    }
   }
-  // Wischen in der Leiste wählt den Spot und schwenkt die Karte
-  const onViewable = useRef(({ viewableItems }: { viewableItems: { item: (typeof sorted)[number] }[] }) => {
-    const first = viewableItems[0]?.item;
-    if (first && fromCarousel.current) focus(first);
-  }).current;
+  const step = CARD_W + space.sm;
+  // Beim Wischen zählt immer die vorderste Kachel, nicht erst, wenn sie zu 60 % sichtbar ist.
+  function onCarouselScroll(x: number) {
+    if (!fromCarousel.current) return;
+    const i = Math.max(0, Math.min(sorted.length - 1, Math.round(x / step)));
+    if (i !== lastIdx.current && sorted[i]) { lastIdx.current = i; focus(sorted[i]); }
+  }
 
   useEffect(() => {
     setLivePins(true);
@@ -81,7 +102,7 @@ export default function Explore() {
           showsCompass={false}
           showsPointsOfInterests={false}
           userInterfaceStyle={dark ? 'dark' : 'light'}
-          onRegionChangeComplete={(r) => setMapCenter({ lat: r.latitude, lon: r.longitude })}
+          onRegionChangeComplete={(r) => { zoom.current = r.latitudeDelta; setMapCenter({ lat: r.latitude, lon: r.longitude }); }}
           onPress={() => setSelId(null)}
           mapPadding={{ top: headerH, bottom: CARD_H + dockTop + space.sm, left: 0, right: 0 }}
         >
@@ -96,6 +117,7 @@ export default function Explore() {
                   focus(s);
                   const i = sorted.findIndex((x) => x.id === s.id);
                   fromCarousel.current = false;
+                  lastIdx.current = i;
                   if (i >= 0) list.current?.scrollToIndex({ index: i, animated: true });
                 }}
                 tracksViewChanges={livePins}
@@ -130,13 +152,18 @@ export default function Explore() {
       <BlurView
         intensity={mode === 'map' ? 70 : 90}
         tint={dark ? 'dark' : 'light'}
-        style={[st.header, { paddingTop: insets.top + space.xs }]}
+        style={[st.header, { paddingTop: insets.top + space.xs, paddingBottom: space.sm }]}
         onLayout={(e) => setHeaderH(e.nativeEvent.layout.height)}
       >
         <View style={st.top}>
           <T variant="title" accessibilityRole="header">fitspot</T>
           <CityButton onSwitch={() => setSelId(null)} />
           <View style={{ flex: 1 }} />
+          <Pressable onPress={() => setSearchOpen(!searchOpen)} hitSlop={space.sm} accessibilityRole="button" accessibilityState={{ expanded: searchOpen }}
+            accessibilityLabel={activeCount ? `Suche und Filter, ${activeCount} aktiv` : 'Suche und Filter'} style={st.searchBtn}>
+            <Ionicons name={searchOpen ? 'close' : 'search'} size={24} color={c.ink} />
+            {activeCount && !searchOpen ? <View style={[st.dot, { backgroundColor: c.accent, borderColor: c.paper }]} /> : null}
+          </Pressable>
           <View style={[st.seg, { backgroundColor: c.fill }]} accessibilityRole="tablist">
             {(['map', 'grid'] as const).map((m) => (
               <Pressable
@@ -153,8 +180,9 @@ export default function Explore() {
             ))}
           </View>
         </View>
-        <FilterBar />
       </BlurView>
+
+      {searchOpen ? <MapSearch top={headerH} q={q} setQ={setQ} /> : null}
 
       {mode === 'map' ? (
         <BlurView intensity={70} tint={dark ? 'dark' : 'light'} style={[st.fab, { top: headerH + space.md }]}>
@@ -177,8 +205,8 @@ export default function Explore() {
           decelerationRate="fast"
           getItemLayout={(_, i) => ({ length: CARD_W + space.sm, offset: (CARD_W + space.sm) * i, index: i })}
           onScrollBeginDrag={() => { fromCarousel.current = true; }}
-          onViewableItemsChanged={onViewable}
-          viewabilityConfig={{ itemVisiblePercentThreshold: 60 }}
+          onScroll={(e) => onCarouselScroll(e.nativeEvent.contentOffset.x)}
+          scrollEventThrottle={32}
           renderItem={({ item: s }) => {
             const active = s.id === selId;
             return (
@@ -186,7 +214,7 @@ export default function Explore() {
                 onPress={() => router.push(`/spot/${s.id}`)}
                 accessibilityRole="button"
                 accessibilityLabel={`${s.name}, ${fmtDist(s.dist)} entfernt. Öffnen`}
-                style={[st.card, { backgroundColor: c.surface, borderColor: active ? c.ink : c.line }]}
+                style={[st.card, { backgroundColor: c.surface, borderColor: active ? c.accent : c.line }, active && st.cardActive]}
               >
                 <Image source={s.images[0]} style={st.cardImg} contentFit="cover" />
                 <View style={st.cardText}>
@@ -205,6 +233,8 @@ export default function Explore() {
 const st = StyleSheet.create({
   header: { position: 'absolute', top: 0, left: 0, right: 0, overflow: 'hidden' },
   top: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingHorizontal: space.lg },
+  searchBtn: { width: hit, height: hit, alignItems: 'center', justifyContent: 'center' },
+  dot: { position: 'absolute', top: 8, right: 8, width: 12, height: 12, borderRadius: 6, borderWidth: 2 },
   seg: { flexDirection: 'row', padding: 3, borderRadius: radius.pill },
   segBtn: { width: hit, height: 34, alignItems: 'center', justifyContent: 'center', borderRadius: radius.pill },
   fab: { position: 'absolute', right: space.md + 2, width: hit, height: hit, borderRadius: radius.thumb, overflow: 'hidden' },
@@ -212,6 +242,7 @@ const st = StyleSheet.create({
   empty: { padding: space.xl, gap: space.sm },
   carousel: { position: 'absolute', left: 0, right: 0, bottom: space.md },
   card: { width: CARD_W, borderRadius: radius.thumb + 2, borderWidth: 1.5, overflow: 'hidden' },
+  cardActive: { transform: [{ scale: 1.03 }] },
   cardImg: { width: '100%', height: CARD_H - 52 },
   cardText: { paddingHorizontal: space.sm + 2, paddingVertical: space.sm - 2 },
 });

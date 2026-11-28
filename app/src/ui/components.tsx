@@ -139,15 +139,15 @@ export function SpotSign({ name, distance, onPress, style }: SpotSignProps) {
 }
 
 /* ---------- Avatar ---------- */
-type AvatarProps = { source?: ImageSource | number; size?: number; ring?: 'new' | 'seen' | 'none'; label?: string; initials?: string };
-/** Rundes Profil- oder Story-Bild. ring=new: Tintenring (neu), seen: grauer Ring. */
+type AvatarProps = { source?: ImageSource | number; size?: number; ring?: 'new' | 'seen' | 'accent' | 'none'; label?: string; initials?: string };
+/** Rundes Profil- oder Story-Bild. ring=new: Tintenring (ausgewählt), accent: Lila-Ring (Story), seen: grauer Ring. */
 export function Avatar({ source, size = 32, ring = 'none', label, initials }: AvatarProps) {
   const c = useColors();
   const pad = ring === 'none' ? 0 : 2.5;
   return (
     <View
       accessibilityLabel={label}
-      style={{ width: size, height: size, borderRadius: size / 2, padding: pad, backgroundColor: ring === 'new' ? c.ink : ring === 'seen' ? c.line : 'transparent' }}
+      style={{ width: size, height: size, borderRadius: size / 2, padding: pad, backgroundColor: ring === 'new' ? c.ink : ring === 'accent' ? c.accent : ring === 'seen' ? c.line : 'transparent' }}
     >
       {source ? (
         <Image

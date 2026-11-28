@@ -26,7 +26,7 @@ export function MoodStories() {
             accessibilityLabel={`${m.label}, ${count} ${count === 1 ? 'Spot' : 'Spots'}`}
             onPress={() => { haptic.select(); setMoodFilter(on ? null : m.key); }} style={st.item}>
             <View>
-              <Avatar source={photo} size={story.size} ring={on ? 'new' : 'seen'} />
+              <Avatar source={photo} size={story.size} ring={on ? 'new' : 'accent'} />
               <View style={[st.badge, { backgroundColor: c.ink, borderColor: c.paper }]}>
                 <Ionicons name={m.icon} size={13} color={c.onInk} />
               </View>

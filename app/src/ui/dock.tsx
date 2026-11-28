@@ -38,7 +38,7 @@ export function Dock({ state, navigateToTab, insets, items }: BottomTabBarProps 
         return (
           <Pressable key={it.name} accessibilityRole="tab" accessibilityLabel={it.label} accessibilityState={{ selected: focused }}
             onPress={() => { haptic.select(); navigateToTab(route.key); }}
-            style={[st.btn, { backgroundColor: c.dock, shadowColor: c.shadow }]}>
+            style={[st.btn, { backgroundColor: focused ? c.dockActive : c.dock, shadowColor: c.shadow }]}>
             <Ionicons name={focused ? it.on : it.off} size={26} color={c.onDock} />
           </Pressable>
         );

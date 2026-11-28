@@ -26,6 +26,8 @@ export const palette = {
     glowSoft: 'rgba(255,179,71,0.45)', // feiner Leuchtrand im Ruhezustand
     dock: 'rgba(251,250,254,0.94)', // schwebende Tab-Leiste
     onDock: '#1B1A22',
+    accent: '#6A55B8',    // Story-Ringe, aktiver Tab
+    dockActive: '#E2DCF5', // aktiver Knopf in der Tab-Leiste
   },
   dark: {
     paper: '#161B22',     // Hintergrund: Blaugrau
@@ -49,6 +51,8 @@ export const palette = {
     glowSoft: 'rgba(255,196,107,0.40)',
     dock: 'rgba(50,60,74,0.94)',
     onDock: '#E8ECF2',
+    accent: '#8F7FE0',
+    dockActive: '#4A4468',
   },
 } as const;
 
