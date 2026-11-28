@@ -22,8 +22,8 @@ export const palette = {
     shadow: '#000000',
     sun: '#E39A2D',       // Sonnenbogen, Golden Hour
     sunTrack: '#E1DEEA',
-    glow: '#FFB347',      // Leuchtrand um Kacheln (beim Antippen)
-    glowSoft: 'rgba(255,179,71,0.45)', // feiner Leuchtrand im Ruhezustand
+    glow: '#FFFFFF',      // heller Leuchtrand um Kacheln (beim Antippen)
+    glowSoft: 'rgba(255,255,255,0.85)', // ganz feiner Rand im Ruhezustand
     dock: 'rgba(251,250,254,0.94)', // schwebende Tab-Leiste
     onDock: '#1B1A22',
     accent: '#6A55B8',    // Story-Ringe, aktiver Tab
@@ -47,8 +47,8 @@ export const palette = {
     shadow: '#000000',
     sun: '#F2B04A',
     sunTrack: '#333D49',
-    glow: '#FFC46B',
-    glowSoft: 'rgba(255,196,107,0.40)',
+    glow: '#FFFFFF',
+    glowSoft: 'rgba(255,255,255,0.14)',
     dock: 'rgba(50,60,74,0.94)',
     onDock: '#E8ECF2',
     accent: '#8F7FE0',
@@ -154,3 +154,11 @@ export const collectionTint = {
   treppen: '#2F6B4F', altstadt: '#8A5A2B', natur: '#2E6B3A',
 } as const;
 export const collectionCard = { height: 200, photoW: 84, photoH: 112, tilt: 7 } as const;
+
+/** Mood-Farben: bewusst gedämpft, nur als feiner Rand, Ring oder Hauch. Kommen zu den Moods in `data/moods.ts`. */
+export const moodColors = {
+  urban: '#C98A5E', ruhig: '#8FA9C4', natuerlich: '#8DB596', verspielt: '#E0B35C',
+  romantisch: '#D69AB8', dunkel: '#8C84C4', modern: '#9AA5B1',
+} as const;
+/** Deckkraft von Mood-Farbe als Rand um Kacheln */
+export const moodRim = 0.45;

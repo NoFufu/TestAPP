@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { useColors } from './theme';
 import Svg, { Defs, LinearGradient as SvgGradient, Stop, Text as SvgText } from 'react-native-svg';
-import { countryCode, flags, hit, motion, palette, radius, space, swatchSize, type, type Colors, type TypeVariant } from './tokens';
+import { countryCode, flags, moodRim, hit, motion, palette, radius, space, swatchSize, type, type Colors, type TypeVariant } from './tokens';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -139,15 +139,15 @@ export function SpotSign({ name, distance, onPress, style }: SpotSignProps) {
 }
 
 /* ---------- Avatar ---------- */
-type AvatarProps = { source?: ImageSource | number; size?: number; ring?: 'new' | 'seen' | 'accent' | 'none'; label?: string; initials?: string };
+type AvatarProps = { source?: ImageSource | number; size?: number; ring?: 'new' | 'seen' | 'accent' | 'none'; ringColor?: string; label?: string; initials?: string };
 /** Rundes Profil- oder Story-Bild. ring=new: Tintenring (ausgewählt), accent: Lila-Ring (Story), seen: grauer Ring. */
-export function Avatar({ source, size = 32, ring = 'none', label, initials }: AvatarProps) {
+export function Avatar({ source, size = 32, ring = 'none', ringColor, label, initials }: AvatarProps) {
   const c = useColors();
   const pad = ring === 'none' ? 0 : 2.5;
   return (
     <View
       accessibilityLabel={label}
-      style={{ width: size, height: size, borderRadius: size / 2, padding: pad, backgroundColor: ring === 'new' ? c.ink : ring === 'accent' ? c.accent : ring === 'seen' ? c.line : 'transparent' }}
+      style={{ width: size, height: size, borderRadius: size / 2, padding: pad, backgroundColor: ring === 'new' ? c.ink : ring === 'accent' ? (ringColor ?? c.accent) : ring === 'seen' ? c.line : 'transparent' }}
     >
       {source ? (
         <Image
@@ -269,14 +269,20 @@ export function StatusBadge({ status }: { status: 'pending' | 'live' | 'rejected
   );
 }
 
+/** Hex-Farbe mit Deckkraft (0–1) als rgba. */
+export function withAlpha(hex: string, a: number) {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+}
+
 /* ---------- GlowPress ---------- */
-/** Pressable für Kacheln und Posts: feiner warmer Leuchtrand um das Bild, immer sichtbar, beim Antippen etwas stärker. */
-export function GlowPress({ rounded = 16, style, children, ...rest }: ComponentProps<typeof Pressable> & { rounded?: number; children: ReactNode }) {
+/** Pressable für Kacheln und Posts: ganz feiner heller Leuchtrand, beim Antippen etwas stärker. Mit `tint` (Mood-Farbe) bekommt der Ruherand einen Hauch Farbe. */
+export function GlowPress({ rounded = 16, tint, style, children, ...rest }: ComponentProps<typeof Pressable> & { rounded?: number; tint?: string; children: ReactNode }) {
   const c = useColors();
   return (
     <Pressable {...rest} style={(state) => [
       { borderRadius: rounded, shadowColor: c.glow, shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: state.pressed ? 0.55 : 0.22, shadowRadius: state.pressed ? 10 : 5 },
+        shadowOpacity: state.pressed ? 0.35 : 0.1, shadowRadius: state.pressed ? 10 : 5 },
       state.pressed && { transform: [{ scale: 0.98 }] },
       typeof style === 'function' ? style(state) : style,
     ]}>
@@ -285,7 +291,7 @@ export function GlowPress({ rounded = 16, style, children, ...rest }: ComponentP
           {children}
           <View pointerEvents="none" style={[StyleSheet.absoluteFill, {
             borderRadius: rounded, borderWidth: state.pressed ? 1.5 : StyleSheet.hairlineWidth,
-            borderColor: state.pressed ? c.glow : c.glowSoft,
+            borderColor: state.pressed ? c.glow : tint ? withAlpha(tint, moodRim) : c.glowSoft,
           }]} />
         </>
       )}

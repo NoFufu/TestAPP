@@ -4,7 +4,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { MOODS, type Mood } from '../data/moods';
 import { AI_SPOT_IDS, PHOTO_SPOT_IDS } from '../data/images';
 import { useStore } from '../store';
-import { Avatar, T, haptic, space, story, useColors } from '../ui';
+import { Avatar, T, haptic, moodColors, space, story, useColors } from '../ui';
 
 /** Moods als runde Kreise wie Instagram-Stories. Tippen filtert, nochmal tippen hebt auf. */
 export function MoodStories() {
@@ -26,7 +26,7 @@ export function MoodStories() {
             accessibilityLabel={`${m.label}, ${count} ${count === 1 ? 'Spot' : 'Spots'}`}
             onPress={() => { haptic.select(); setMoodFilter(on ? null : m.key); }} style={st.item}>
             <View>
-              <Avatar source={photo} size={story.size} ring={on ? 'new' : 'accent'} />
+              <Avatar source={photo} size={story.size} ring={on ? 'new' : 'accent'} ringColor={moodColors[m.key]} />
               <View style={[st.badge, { backgroundColor: c.ink, borderColor: c.paper }]}>
                 <Ionicons name={m.icon} size={13} color={c.onInk} />
               </View>

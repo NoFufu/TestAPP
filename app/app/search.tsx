@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MOODS, type MoodKey } from '../src/data/moods';
+import { MOODS, moodTint, type MoodKey } from '../src/data/moods';
 import { CATS, CITY_NAMES, COLORS, fmtDist, type Cat, type City } from '../src/data/spots';
 import type { SpotColor } from '../src/lib/colors';
 import { useStore } from '../src/store';
@@ -54,7 +54,7 @@ export default function Search() {
   }, [spots, q, cityF, cats, moods, colors, dist, real]);
 
   const pins: Pin[] = results.map((s) => ({
-    key: String(s.id), photo: s.images[0], ratio: pinRatio(s.id * 3), title: s.name,
+    key: String(s.id), photo: s.images[0], ratio: pinRatio(s.id * 3), title: s.name, tint: moodTint(s),
     label: `${s.name}, ${fmtDist(s.dist)}. Öffnen`, saved: saved.has(s.id),
     onPress: () => router.push(`/spot/${s.id}`), onSave: () => toggleSave(s.id),
   }));

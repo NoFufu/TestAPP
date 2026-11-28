@@ -8,7 +8,7 @@ import MapView, { Marker } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CityButton } from '../../src/components/ui';
 import { MapSearch } from '../../src/components/MapSearch';
-import { MOODS } from '../../src/data/moods';
+import { MOODS, moodTint } from '../../src/data/moods';
 import { BIELEFELD, CITIES, catInfo, distanceKm, fmtDist } from '../../src/data/spots';
 import { useStore } from '../../src/store';
 import { PhotoGrid, PhotoPin, T, hit, radius, space, useColors, useIsDark, dock } from '../../src/ui';
@@ -214,7 +214,7 @@ export default function Explore() {
                 onPress={() => router.push(`/spot/${s.id}`)}
                 accessibilityRole="button"
                 accessibilityLabel={`${s.name}, ${fmtDist(s.dist)} entfernt. Öffnen`}
-                style={[st.card, { backgroundColor: c.surface, borderColor: active ? c.accent : c.line }, active && st.cardActive]}
+                style={[st.card, { backgroundColor: c.surface, borderColor: active ? (moodTint(s) ?? c.accent) : c.line }, active && st.cardActive]}
               >
                 <Image source={s.images[0]} style={st.cardImg} contentFit="cover" />
                 <View style={st.cardText}>

@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 import SunCalc from 'suncalc';
 import { track } from '../../src/lib/events';
+import { moodTint } from '../../src/data/moods';
 import { AI_SPOT_IDS } from '../../src/data/images';
 import { catInfo, distanceKm, fmtDist, type SpotImage } from '../../src/data/spots';
 import { useAuth } from '../../src/lib/auth';
@@ -83,7 +84,7 @@ export default function SpotDetail() {
     onReport: x.photoId ? () => reportPhoto(x.photoId!) : undefined,
   }));
   const similarPins: Pin[] = similar.map(({ x, d }) => ({
-    key: `sim-${x.id}`, photo: x.images[0], ratio: pinRatio(x.id), title: x.name, subtitle: `${fmtDist(d)} von hier`,
+    key: `sim-${x.id}`, photo: x.images[0], ratio: pinRatio(x.id), tint: moodTint(x), title: x.name, subtitle: `${fmtDist(d)} von hier`,
     label: `${x.name}, ${fmtDist(d)} von hier. Öffnen`, saved: saved.has(x.id),
     onPress: () => router.push({ pathname: '/spot/[id]', params: { id: String(x.id) } }),
     onSave: () => toggleSave(x.id),

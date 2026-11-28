@@ -4,6 +4,7 @@ import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CollectionCard } from '../../src/components/CollectionCard';
 import { CityButton, FilterBar } from '../../src/components/ui';
+import { moodTint } from '../../src/data/moods';
 import { collectionsFor } from '../../src/data/collections';
 import { AI_SPOT_IDS, PHOTO_SPOT_IDS } from '../../src/data/images';
 import { fmtDist } from '../../src/data/spots';
@@ -29,6 +30,7 @@ export default function Home() {
         key: `${s.id}-${k}`,
         photo: img,
         ratio: pinRatio(s.id * 3 + k),
+        tint: moodTint(s),
         title: s.name,
         subtitle: `${s.area || s.city || 'Bielefeld'}, ${fmtDist(s.dist)}`,
         label: `${s.name}, ${s.city === 'Barcelona' ? `Ansicht ${k + 1}` : k ? 'mit Person' : 'der Spot'}, ${fmtDist(s.dist)} entfernt. Öffnen`,
