@@ -3,6 +3,7 @@ import * as Location from 'expo-location';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { SPOT_IMAGES } from './data/images';
 import { CATS, CITIES, CITY_NAMES, ME, SAMPLE_SPOTS, distanceKm, type Cat, type City, type Spot } from './data/spots';
+import { useAuth } from './lib/auth';
 import { photoUrl, supabase, type NearbyRow } from './lib/supabase';
 
 type UserSpot = Omit<Spot, 'images'> & { uri: string };
@@ -98,14 +99,45 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }).catch(() => {});
   }, []);
 
+  // Merkliste: lokal gespeichert und, wenn angemeldet, im Konto (Tabelle saves).
+  const { session } = useAuth();
+  const uid = session?.user.id ?? null;
+  const persistSaved = (next: Set<number>) => AsyncStorage.setItem(K_SAVED, JSON.stringify([...next])).catch(() => {});
+
+  useEffect(() => {
+    if (!uid) return;
+    let cancelled = false;
+    (async () => {
+      const local = JSON.parse((await AsyncStorage.getItem(K_SAVED).catch(() => null)) ?? '[]') as number[];
+      // Lokal gemerkte Spots ins Konto übernehmen (doppelte ignoriert).
+      if (local.length) {
+        await supabase.from('saves').upsert(local.map((spot_id) => ({ user_id: uid, spot_id })),
+          { onConflict: 'user_id,spot_id', ignoreDuplicates: true });
+      }
+      const { data, error } = await supabase.from('saves').select('spot_id').eq('user_id', uid);
+      if (cancelled || error || !data) return;
+      const next = new Set<number>([...local, ...data.map((r) => r.spot_id as number)]);
+      setSaved(next);
+      persistSaved(next);
+    })();
+    return () => { cancelled = true; };
+  }, [uid]);
+
   const toggleSave = useCallback((id: number) => {
     setSaved((prev) => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      AsyncStorage.setItem(K_SAVED, JSON.stringify([...next])).catch(() => {});
+      const add = !next.has(id);
+      add ? next.add(id) : next.delete(id);
+      persistSaved(next);
+      if (uid) {
+        (add
+          ? supabase.from('saves').upsert({ user_id: uid, spot_id: id }, { onConflict: 'user_id,spot_id', ignoreDuplicates: true })
+          : supabase.from('saves').delete().eq('user_id', uid).eq('spot_id', id)
+        ).then(({ error }) => { if (error) console.warn('Merkliste nicht synchronisiert', error.message); });
+      }
       return next;
     });
-  }, []);
+  }, [uid]);
 
   const toggleLikePost = useCallback((id: string) => {
     setLikedPosts((prev) => {

@@ -125,7 +125,7 @@ Jede Etappe ist ein eigenes Sitzungs-Thema und endet mit einem Update auf **prev
 | **E · Echte Fotos** | Du fotografierst 50–100 Spots, ich baue einen einfachen Admin-Upload für Startfotos | M (vor allem deine Zeit) |
 | **F · Prüfung** (Phase 1c) | GPS-Check, Metadaten entfernen, Duplikat-Check, KI-Check, Melde-Button | M |
 | **G · Shoot-Listen + Farb-Filter** | Listen, Route, Teilen-Link; Hauptfarben je Foto, Farbfilter | M |
-| **H · Social & Credits** | Fitpics an Spots ✅, Merkliste in der Cloud, Credits für Spots und Fotos, Rangliste Bielefeld (Likes vorerst gestrichen) | M |
+| **H · Social & Credits** | Fitpics an Spots ✅, Merkliste in der Cloud ✅ 28.11., Credits für Spots und Fotos, Rangliste Bielefeld (Likes vorerst gestrichen) | M |
 | **I · Testphase** (Phase 2) | TestFlight/Play-Test mit 30–100 Leuten, Feedback einbauen | – |
 | **J · Abo** (Phase 3) | RevenueCat, Plus-Funktionen | M |
 | **K · Eigene Inhalte verwalten** ✅ 27.11. | Profil → „Meine Inhalte": eigene Spots mit Status, bearbeiten (Name, Beschreibung, Kategorien), löschen; eigene Fotos löschen. Spots mit fremden Fotos sind nicht löschbar (Migration 0004) | S |
