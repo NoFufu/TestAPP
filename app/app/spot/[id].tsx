@@ -114,6 +114,10 @@ export default function SpotDetail() {
               : `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lon}&travelmode=walking`);
           }} />
           {!s.user ? (
+            <IconButton icon="paper-plane-outline" label="Spot an einen Freund schicken"
+              onPress={() => session ? router.push({ pathname: '/send-spot', params: { spotId: String(s.id) } }) : router.push('/login')} />
+          ) : null}
+          {!s.user ? (
             <IconButton icon="camera-outline" label="Eigenes Foto hinzufügen"
               onPress={() => session ? router.push({ pathname: '/add-photo', params: { spot: String(s.id) } }) : router.push('/login')} />
           ) : null}

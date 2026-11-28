@@ -160,3 +160,6 @@ export const moodRing = {
 
 /** Pin in der Orts-Auswahl (Höhe in Pixeln) */
 export const locationPin = { size: 44 } as const;
+
+/** Chat: Spot-Karte in der Nachricht, Abzeichen für Ungelesenes */
+export const chat = { spotW: 200, spotH: 120, badge: 18 } as const;

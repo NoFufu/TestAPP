@@ -152,3 +152,6 @@ Auf der Karte oben nur die Textzeile (Wortmarke, Stadt, Lupe, Karte/Raster). Die
 
 ## LocationPicker (Ort beim Hochladen wählen)
 `src/components/LocationPicker.tsx` (Modal): Vollbild-Karte, Pin bleibt in der Mitte, die Karte wird darunter geschoben. Suchfeld (Adresse/Ort, `expo-location` geocodeAsync), „Mein Standort“, darunter Adresse (reverseGeocode) oder Koordinaten und „Diesen Ort wählen“. In `upload.tsx`: Vorrang gewählter Ort > Foto-GPS > Standort > Kartenmitte; kleine Vorschau-Karte mit Marker. Ort außerhalb 20 km um Bielefeld/Barcelona blockiert das Veröffentlichen (die App lädt Spots je Stadt im Umkreis 20 km).
+
+## Freunde und Chat
+Tab „Freunde“ (`people`) in der Tab-Leiste mit Abzeichen (Kirsche, Zahl ungelesen; `chat`-Token). `app/(tabs)/friends.tsx`: Anfragen an dich, Freunde mit letzter Nachricht, Angefragt, Alle Mitglieder (Liste aller mit Benutzername, nie E-Mail). `app/chat/[uid].tsx`: Blasen (eigene in `ink`, fremde in `surface`), Spot als Karte in der Nachricht (tippen öffnet ihn), Spot anhängen mit Suche, Schnell-Texte („Treffen wir uns hier?“). `app/send-spot.tsx`: Spot direkt an einen Freund (Knopf auf der Spot-Seite und nach dem Upload). Code: `src/lib/social.ts`. Aktualisiert beim Öffnen und alle 4 s im offenen Chat bzw. alle 30 s fürs Abzeichen, kein Push (braucht eigenen Build).

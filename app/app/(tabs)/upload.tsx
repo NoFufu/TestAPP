@@ -95,6 +95,7 @@ export default function Upload() {
         <T variant="title" accessibilityRole="header">Dein Spot ist online</T>
         <T color="asphalt" style={{ textAlign: 'center' }}>Alle sehen ihn jetzt im Feed und auf der Karte.</T>
         <Button label="Spot ansehen" onPress={() => router.push(`/spot/${newId}`)} />
+        <Button label="An einen Freund schicken" icon="paper-plane-outline" variant="secondary" onPress={() => router.push({ pathname: '/send-spot', params: { spotId: String(newId) } })} />
         <Button label="Noch einen hochladen" variant="ghost" onPress={reset} />
       </SafeAreaView>
     );

@@ -204,3 +204,7 @@ Reihenfolge = Vorschlag. Je Punkt eine Sitzung.
 6. **Hot Zones auf der Karte**: Bereiche, wo viele Fotos gemacht werden, als farbiger Kreis (aus der Anzahl Fotos/Spots in der Nähe).
 
 Außerdem offen aus der Testphase-Vorbereitung (docs/TESTPHASE.md): Konto löschen, Einwilligungs-Häkchen beim Upload, Datenschutz/Impressum-Links – wartet auf Zustimmung.
+
+## 11. Freunde und Chat (28.11.2026)
+✅ Migration 0014 (`friendships`, `messages`), Rechte per Test bewiesen: Nachrichten nur zwischen angenommenen Freunden, nur Absender und Empfänger lesen, Annehmen nur durch die angefragte Seite, Gelesen nur durch den Empfänger, nichts für `anon`. App: Tab Freunde, Chat, Spot schicken.
+Offen vor dem öffentlichen Test: Blockieren und Melden im Chat; Konto löschen entfernt Nachrichten (Fremdschlüssel löschen schon mit); Mitgliederliste (alle sichtbar) auf Suche per Benutzername umstellen; Push-Nachrichten (braucht eigenen Build, nur mit Zustimmung); Meldung „neuer Spot hochgeladen“ an Freunde als Feed-Eintrag.

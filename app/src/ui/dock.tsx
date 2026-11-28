@@ -3,9 +3,10 @@ import type { BottomTabBarProps } from 'expo-router/js-tabs';
 import type { ComponentProps } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
-import { haptic } from './components';
+import { useUnread } from '../lib/social';
+import { T, haptic } from './components';
 import { useColors } from './theme';
-import { dock, space } from './tokens';
+import { chat, dock, space } from './tokens';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 export type DockItem = { name: string; label: string; on: IconName; off: IconName };
@@ -13,6 +14,7 @@ export type DockItem = { name: string; label: string; on: IconName; off: IconNam
 /** Tab-Leiste wie bei Pinterest: schwebt unten in der Mitte, jedes Symbol in einem eigenen runden Quadrat. */
 export function Dock({ state, navigateToTab, insets, items }: BottomTabBarProps & { items: DockItem[] }) {
   const c = useColors();
+  const unread = useUnread();
   // Auf der Karte (Entdecken) kein Verlauf, die Karte läuft randlos bis unten.
   const onMap = state.routes[state.index]?.name === 'explore';
   return (
@@ -40,6 +42,11 @@ export function Dock({ state, navigateToTab, insets, items }: BottomTabBarProps 
             onPress={() => { haptic.select(); navigateToTab(route.key); }}
             style={[st.btn, { backgroundColor: focused ? c.dockActive : c.dock, shadowColor: c.shadow }]}>
             <Ionicons name={focused ? it.on : it.off} size={26} color={c.onDock} />
+            {it.name === 'friends' && unread > 0 ? (
+              <View style={[st.badge, { backgroundColor: c.cherry, borderColor: c.paper }]} accessibilityLabel={`${unread} ungelesen`}>
+                <T variant="small" color="onPhoto" style={st.badgeText}>{unread > 9 ? '9+' : unread}</T>
+              </View>
+            ) : null}
           </Pressable>
         );
       })}
@@ -49,6 +56,8 @@ export function Dock({ state, navigateToTab, insets, items }: BottomTabBarProps 
 }
 
 const st = StyleSheet.create({
+  badge: { position: 'absolute', top: -4, right: -4, minWidth: chat.badge, height: chat.badge, borderRadius: chat.badge / 2, borderWidth: 2, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3 },
+  badgeText: { fontWeight: '700', lineHeight: chat.badge - 4 },
   fade: { position: 'absolute', left: 0, right: 0, bottom: 0 },
   wrap: { position: 'absolute', left: 0, right: 0, flexDirection: 'row', justifyContent: 'center', gap: dock.gap },
   btn: {
