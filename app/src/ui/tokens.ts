@@ -141,7 +141,8 @@ export const flags = {
   GER: { stripes: ['#000000', '#DD0000', '#FFCE00'], weights: [1, 1, 1] },
   SP: { stripes: ['#AA151B', '#F1BF00', '#AA151B'], weights: [1, 2, 1] },
 } as const;
-export const flagSize = { w: 28, h: 20, radius: 4 } as const;
+/** Maße des Ländercodes aus Titel-Schrift (Breite je Buchstabe, Oberkante der Großbuchstaben, Grundlinie) */
+export const countryCode = { charW: 14, pad: 2, capTop: 5, baseline: 23 } as const;
 
 /** Sammlungen: Flächenfarbe je Sammlung (Weiß darauf ≥ 5.5:1). Nur für Sammlungs-Karte und -Kopf. */
 export const collectionTint = {

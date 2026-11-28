@@ -7,7 +7,8 @@ import {
   type PressableProps, type StyleProp, type TextProps, type ViewStyle,
 } from 'react-native';
 import { useColors } from './theme';
-import { flags, flagSize, hit, motion, radius, space, swatchSize, type, type Colors, type TypeVariant } from './tokens';
+import Svg, { Defs, LinearGradient as SvgGradient, Stop, Text as SvgText } from 'react-native-svg';
+import { countryCode, flags, hit, motion, palette, radius, space, swatchSize, type, type Colors, type TypeVariant } from './tokens';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -305,15 +306,33 @@ export function Swatch({ color, label, selected, onPress }: { color: string; lab
   );
 }
 
-/* ---------- Flag (Landesfarben) ---------- */
-/** Kleines Länder-Zeichen aus den Landesfarben (Streifen), neben dem Ländercode. */
-export function Flag({ country }: { country: string }) {
+/* ---------- CountryCode (Landesfarben) ---------- */
+/** Ländercode (z. B. SP) mit den Landesfarben als Streifen in den Buchstaben. */
+export function CountryCode({ country }: { country: string }) {
+  const c = useColors();
   const f = flags[country as keyof typeof flags];
-  if (!f) return null;
+  const total = f ? f.weights.reduce((a, b) => a + b, 0) : 1;
+  const w = country.length * countryCode.charW + countryCode.pad;
+  if (!f) return <T variant="title" color="asphalt">{country}</T>;
+  // Harte Farbkanten: jeder Streifen von seinem Anteil bis zum nächsten.
+  let acc = 0;
+  const stops = f.stripes.flatMap((col, i) => {
+    const from = acc / total, to = (acc + f.weights[i]) / total;
+    acc += f.weights[i];
+    // Schwarz verschwindet auf dunklem Grund, dort die Nebentext-Farbe nehmen.
+    const fill = col === '#000000' && c.paper !== palette.light.paper ? c.asphalt : col;
+    return [{ o: from, col: fill }, { o: to, col: fill }];
+  });
   return (
-    <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants"
-      style={{ width: flagSize.w, height: flagSize.h, borderRadius: flagSize.radius, overflow: 'hidden' }}>
-      {f.stripes.map((col, i) => <View key={i} style={{ flex: f.weights[i], backgroundColor: col }} />)}
+    <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      <Svg width={w} height={type.title.lineHeight}>
+        <Defs>
+          <SvgGradient id={`cc-${country}`} gradientUnits="userSpaceOnUse" x1="0" y1={countryCode.capTop} x2="0" y2={countryCode.baseline}>
+            {stops.map((st, i) => <Stop key={i} offset={st.o} stopColor={st.col} />)}
+          </SvgGradient>
+        </Defs>
+        <SvgText x="0" y={countryCode.baseline} fontFamily={type.title.fontFamily} fontSize={type.title.fontSize} fill={`url(#cc-${country})`}>{country}</SvgText>
+      </Svg>
     </View>
   );
 }

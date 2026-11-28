@@ -137,8 +137,8 @@ Sammlungs-Karte im Home-Feed, alle 10 Kacheln eine: Farbfläche mit Verlauf (`co
 ## Moods (MoodStories)
 Runde Story-Kreise (`story`-Token, `Avatar` mit Ring) statt der Farbpunkte, unter den Kategorie-Reitern. Moods (`src/data/moods.ts`) werden automatisch aus Kategorie, Farben und Stichworten gebildet (kein DB-Feld): Urban Aesthetic, Ruhig, Natürlich, Verspielt, Romantisch, Dunkel & Moody, Modern & Clean. Foto im Kreis = beliebtester Spot der Stadt mit diesem Mood. Ausgewählt = Ring in Tinte. Farben sind jetzt nur noch in der Suche.
 
-## Flag (Landesfarben)
-`<Flag country="GER|SP" />` neben dem Ländercode in `CityButton`: kleine Streifen-Fläche aus `flags` (Daten-Farben).
+## CountryCode (Landesfarben)
+`<CountryCode country="GER|SP" />` in `CityButton`: der Ländercode selbst trägt die Landesfarben als Streifen in den Buchstaben (SVG-Text mit hartem Verlauf, Farben aus `flags`). Schwarz (GER) wird im Dunkelmodus zu `asphalt`.
 
 ## Suche (`app/search.tsx`)
 Textsuche (Name, Viertel, Beschreibung, Kategorie, Mood; ohne Akzente) + ausklappbare Filter: Stadt, Kategorie, Mood, Farbe, Entfernung, „nur mit echten Fotos von Nutzern“. Ergebnis als `Masonry`. Einstieg: Lupe oben auf Home.

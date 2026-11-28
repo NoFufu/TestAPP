@@ -3,7 +3,7 @@ import { Pressable, ScrollView, StyleSheet } from 'react-native';
 import { CATS, CITIES, CITY_NAMES, type City } from '../data/spots';
 import { MoodStories } from './MoodStories';
 import { useStore } from '../store';
-import { Flag, T, Tab, haptic, space, useColors } from '../ui';
+import { CountryCode, T, Tab, haptic, space, useColors } from '../ui';
 
 /** Filterleiste: „Alle“ + Kategorien (mehrere wählbar) und darunter die Mood-Kreise. Gilt für Karte und Raster. */
 export function FilterBar() {
@@ -34,8 +34,7 @@ export function CityButton({ onSwitch }: { onSwitch?: (c: City) => void }) {
   return (
     <Pressable hitSlop={space.sm} accessibilityRole="button" accessibilityLabel={`Stadt: ${city}. Tippen für ${next}`}
       onPress={() => { haptic.select(); setCity(next); onSwitch?.(next); }} style={s.city}>
-      <Flag country={CITIES[city].country} />
-      <T variant="title" color="asphalt">{CITIES[city].country}</T>
+      <CountryCode country={CITIES[city].country} />
       <T variant="title">{city}</T>
       <Ionicons name="chevron-down" size={18} color={c.asphalt} />
     </Pressable>
