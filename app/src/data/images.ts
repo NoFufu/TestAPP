@@ -37,19 +37,28 @@ export const SPOT_IMAGES: Record<number, SpotImage[]> = {
   30: [require('../../assets/spots/30a.jpg'), require('../../assets/spots/30b.jpg')],
 };
 
-/** Barcelona: gezeichnete Platzhalter, echte Fotos folgen. */
-SPOT_IMAGES[9001] = [require('../../assets/spots/barcelona/9001a.jpg')];
+
+/** Barcelona: KI-generierte Beispielbilder (barcelona-fitspot.zip), mehrere Ansichten je Ort. 9002–9005 noch Platzhalter. */
 SPOT_IMAGES[9002] = [require('../../assets/spots/barcelona/9002a.jpg')];
 SPOT_IMAGES[9003] = [require('../../assets/spots/barcelona/9003a.jpg')];
 SPOT_IMAGES[9004] = [require('../../assets/spots/barcelona/9004a.jpg')];
 SPOT_IMAGES[9005] = [require('../../assets/spots/barcelona/9005a.jpg')];
-SPOT_IMAGES[9006] = [require('../../assets/spots/barcelona/9006a.jpg')];
-SPOT_IMAGES[9007] = [require('../../assets/spots/barcelona/9007a.jpg')];
-SPOT_IMAGES[9008] = [require('../../assets/spots/barcelona/9008a.jpg')];
-SPOT_IMAGES[9009] = [require('../../assets/spots/barcelona/9009a.jpg')];
-SPOT_IMAGES[9010] = [require('../../assets/spots/barcelona/9010a.jpg')];
-SPOT_IMAGES[9011] = [require('../../assets/spots/barcelona/9011a.jpg')];
-SPOT_IMAGES[9012] = [require('../../assets/spots/barcelona/9012a.jpg')];
-SPOT_IMAGES[9013] = [require('../../assets/spots/barcelona/9013a.jpg')];
-SPOT_IMAGES[9014] = [require('../../assets/spots/barcelona/9014a.jpg')];
-SPOT_IMAGES[9015] = [require('../../assets/spots/barcelona/9015a.jpg')];
+SPOT_IMAGES[9001] = [require('../../assets/spots/barcelona/macba.jpg')];
+SPOT_IMAGES[9006] = [require('../../assets/spots/barcelona/pont-del-bisbe.jpg')];
+SPOT_IMAGES[9007] = [require('../../assets/spots/barcelona/placa-reial.jpg')];
+SPOT_IMAGES[9008] = [require('../../assets/spots/barcelona/arc-de-triomf.jpg')];
+SPOT_IMAGES[9009] = [require('../../assets/spots/barcelona/casa-batllo.jpg'), require('../../assets/spots/barcelona/casa-batllo-evening.jpg')];
+SPOT_IMAGES[9010] = [require('../../assets/spots/barcelona/palau-musica.jpg')];
+SPOT_IMAGES[9011] = [require('../../assets/spots/barcelona/barceloneta-day.jpg'), require('../../assets/spots/barcelona/barceloneta-sunset.jpg')];
+SPOT_IMAGES[9012] = [require('../../assets/spots/barcelona/bunkers-del-carmel.jpg')];
+SPOT_IMAGES[9013] = [require('../../assets/spots/barcelona/ciutadella.jpg')];
+SPOT_IMAGES[9014] = [require('../../assets/spots/barcelona/park-guell.jpg'), require('../../assets/spots/barcelona/park-guell-morning.jpg')];
+SPOT_IMAGES[9015] = [require('../../assets/spots/barcelona/montjuic-mnac.jpg')];
+SPOT_IMAGES[9016] = [require('../../assets/spots/barcelona/sagrada-day.jpg'), require('../../assets/spots/barcelona/sagrada-sunset.jpg')];
+SPOT_IMAGES[9017] = [require('../../assets/spots/barcelona/la-rambla.jpg')];
+SPOT_IMAGES[9018] = [require('../../assets/spots/barcelona/casa-mila.jpg')];
+SPOT_IMAGES[9019] = [require('../../assets/spots/barcelona/tibidabo.jpg')];
+SPOT_IMAGES[9020] = [require('../../assets/spots/barcelona/port-vell.jpg')];
+
+/** Spots mit KI-Bildern, die als solche gekennzeichnet werden. */
+export const AI_SPOT_IDS = new Set([9001, 9006, 9007, 9008, 9009, 9010, 9011, 9012, 9013, 9014, 9015, 9016, 9017, 9018, 9019, 9020]);

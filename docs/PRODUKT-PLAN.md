@@ -189,4 +189,4 @@ Pins kleiner, unten eine wischbare Spot-Leiste wie bei Apple Karten ✅ (27.11.)
 | Mails | Supabase-Standard, max. 2 pro Stunde | eigener Mail-Dienst |
 
 ## Barcelona (27.11.2026)
-15 Spots (IDs 9001–9015, Migration 0006), Koordinaten ungefähr, Platzhalterbilder in `app/assets/spots/barcelona/`. Offen: echte Fotos mit Lizenz (Wikimedia/Openverse waren aus der Cloud gesperrt), Koordinaten und Öffnungszeiten prüfen. Liste und Quellen: Übergabe-Datei fitspot-barcelona.
+20 Spots (IDs 9001–9020, Migrationen 0006 + 0007), KI-Beispielbilder für 16 Orte, 4 noch Platzhalter. Koordinaten: bekannte Lage, nicht vor Ort geprüft. Offen: echte Fotos mit Lizenz (Wikimedia/Openverse waren aus der Cloud gesperrt), Koordinaten und Öffnungszeiten prüfen. Liste und Quellen: Übergabe-Datei fitspot-barcelona.

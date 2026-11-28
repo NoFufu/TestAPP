@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CityButton, FilterBar } from '../../src/components/ui';
-import { PHOTO_SPOT_IDS } from '../../src/data/images';
+import { AI_SPOT_IDS, PHOTO_SPOT_IDS } from '../../src/data/images';
 import { fmtDist } from '../../src/data/spots';
 import { useStore } from '../../src/store';
 import { IconButton, Masonry, Skeleton, T, pinRatio, space, useColors, type Pin, dock } from '../../src/ui';
@@ -14,7 +14,7 @@ export default function Home() {
   const { visible, source, reload, saved, toggleSave } = useStore();
 
   const pins = useMemo<Pin[]>(() => {
-    const score = (s: (typeof visible)[number]) => (s.creator ? 2 : 0) + (PHOTO_SPOT_IDS.has(s.id) ? 1 : 0);
+    const score = (s: (typeof visible)[number]) => (s.creator ? 2 : 0) + (PHOTO_SPOT_IDS.has(s.id) || AI_SPOT_IDS.has(s.id) ? 1 : 0);
     const ordered = [...visible].sort((a, b) => score(b) - score(a) || a.dist - b.dist);
     return ordered
       .flatMap((s, i) => s.images.map((img, k) => ({ s, img, k, order: i + k * 5 })))
@@ -25,7 +25,7 @@ export default function Home() {
         ratio: pinRatio(s.id * 3 + k),
         title: s.name,
         subtitle: `${s.area || s.city || 'Bielefeld'}, ${fmtDist(s.dist)}`,
-        label: `${s.name}, ${k ? 'mit Person' : 'der Spot'}, ${fmtDist(s.dist)} entfernt. Öffnen`,
+        label: `${s.name}, ${s.city === 'Barcelona' ? `Ansicht ${k + 1}` : k ? 'mit Person' : 'der Spot'}, ${fmtDist(s.dist)} entfernt. Öffnen`,
         saved: saved.has(s.id),
         onPress: () => router.push({ pathname: '/spot/[id]', params: { id: String(s.id), photo: String(k) } }),
         onSave: () => toggleSave(s.id),

@@ -5,6 +5,7 @@ import { Linking, Platform, ScrollView, StyleSheet, View, useWindowDimensions } 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 import SunCalc from 'suncalc';
+import { AI_SPOT_IDS } from '../../src/data/images';
 import { catInfo, distanceKm, fmtDist, type SpotImage } from '../../src/data/spots';
 import { useAuth } from '../../src/lib/auth';
 import { loadSpotPhotos, type SpotPhoto } from '../../src/lib/upload';
@@ -41,7 +42,7 @@ export default function SpotDetail() {
 
   const shots = useMemo<Shot[]>(() => {
     if (!s) return [];
-    const own = s.images.map((src, k) => ({ key: `own-${k}`, src, label: k ? 'Mit Person' : 'Der Spot' }));
+    const own = s.images.map((src, k) => ({ key: `own-${k}`, src, label: s.city === 'Barcelona' ? `Ansicht ${k + 1}` : k ? 'Mit Person' : 'Der Spot' }));
     const ownUrls = new Set(own.map((o) => (typeof o.src === 'number' ? '' : o.src.uri)));
     const extra = remote
       .filter((r) => r.url && !ownUrls.has(r.url))
@@ -112,6 +113,7 @@ export default function SpotDetail() {
           <T variant="title" accessibilityRole="header">{s.name}</T>
           <T variant="small" color="asphalt">{s.area || s.city || 'Bielefeld'} · {fmtDist(s.dist)} · {s.cats.map((k) => catInfo(k).label).join(', ')}</T>
           {s.desc ? <T numberOfLines={3}>{s.desc}</T> : null}
+          {AI_SPOT_IDS.has(s.id) ? <T variant="small" color="asphalt">KI-generiertes Beispielbild, echte Fotos folgen.</T> : null}
           {light ? <SunArc sunrise={light.sunrise} sunset={light.sunset} golden={light.golden} now={light.now} /> : null}
         </View>
 
