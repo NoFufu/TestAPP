@@ -114,6 +114,10 @@ export default function SpotDetail() {
               onPress={() => session ? router.push({ pathname: '/add-photo', params: { spot: String(s.id) } }) : router.push('/login')} />
           ) : null}
           {!s.user ? (
+            <IconButton icon="albums-outline" label="Zu einer Shoot-Liste hinzufügen"
+              onPress={() => router.push({ pathname: '/add-to-list', params: { spot: String(s.id), name: s.name } })} />
+          ) : null}
+          {!s.user ? (
             <IconButton icon="flag-outline" label="Spot melden"
               onPress={() => router.push({ pathname: '/report', params: { spot: String(s.id), name: s.name } })} />
           ) : null}

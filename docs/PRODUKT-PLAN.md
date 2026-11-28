@@ -124,7 +124,7 @@ Jede Etappe ist ein eigenes Sitzungs-Thema und endet mit einem Update auf **prev
 | **D · Echter Standort + Licht** | `expo-location`, Radius-Filter, Sonnenstand und Golden Hour pro Spot, Wand-Himmelsrichtung beim Upload | M |
 | **E · Echte Fotos** | Du fotografierst 50–100 Spots, ich baue einen einfachen Admin-Upload für Startfotos | M (vor allem deine Zeit) |
 | **F · Prüfung** (Phase 1c) | Teil 1 ✅ 28.11.: Melde-Knopf (Spot), automatisch ausblenden ab 3 Meldungen, GPS-Abstand beim Foto (Hinweis + `gps_distance_m`), Metadaten geprüft (kein GPS in Uploads). Teil 2 ✅ 28.11.: Admin-Rolle (Tabelle `admins`, Konto levitest), Prüf-Bildschirm im Profil (Freigeben/Ablehnen über `admin_queue`/`moderate`), Duplikat-Check per SHA-256 (nur exakt gleiche Fotos). Foto einzeln melden ✅. Offen: KI-Check (braucht externen Dienst + Server-Funktion) | M |
-| **G · Shoot-Listen + Farb-Filter** | Listen, Route, Teilen-Link; Hauptfarben je Foto, Farbfilter | M |
+| **G · Shoot-Listen + Farb-Filter** | Teil 1 ✅ 28.11.: Shoot-Listen (Migration 0010), Route zu Fuß (Google Maps, max. 10 Spots, nächster-Nachbar-Reihenfolge), Teilen (Text + Routenlink + App-Link, Öffnen nur angemeldet), Liste übernehmen. Teil 2 offen: Hauptfarben je Foto, Farbfilter | M |
 | **H · Social & Credits** | Fitpics an Spots ✅, Merkliste in der Cloud ✅ 28.11., Credits für Spots und Fotos, Rangliste Bielefeld (Likes vorerst gestrichen) | M |
 | **I · Testphase** (Phase 2) | TestFlight/Play-Test mit 30–100 Leuten, Feedback einbauen | – |
 | **J · Abo** (Phase 3) | RevenueCat, Plus-Funktionen | M |
