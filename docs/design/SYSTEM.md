@@ -9,17 +9,18 @@ Code: `app/src/ui/` (Import: `import { … } from '../src/ui'`) · Richtung: [`r
 ## Tokens (`tokens.ts`)
 
 ### Farben (`useColors()`)
+Kein reines Schwarz/Weiß: hell = leichtes Lila-Weiß, dunkel = Blaugrau (Stand 28.11.2026). Nur `onPhoto` bleibt Weiß (liegt auf Fotos).
 | Token | Hell | Dunkel | Wofür |
 |---|---|---|---|
-| `paper` | #F6F6F3 | #000000 | Hintergrund |
-| `surface` | #FFFFFF | #141517 | Karten, Sheets, Felder |
-| `ink` | #16181B | #F2F2EF | Text, Hauptknöpfe, Story-Ring |
-| `asphalt` | #62676D | #9EA3A9 | Nebentext |
-| `line` | #E2E3DF | #26282B | Rahmen, Trennlinien |
-| `fill` | #ECEDE9 | #1E2023 | Platzhalter, Skeleton |
+| `paper` | #F3F1F8 | #161B22 | Hintergrund (hell: Lila-Weiß, dunkel: Blaugrau) |
+| `surface` | #FBFAFE | #1F2630 | Karten, Sheets, Felder |
+| `ink` | #1B1A22 | #E8ECF2 | Text, Hauptknöpfe, Story-Ring |
+| `asphalt` | #625E70 | #A1ABB8 | Nebentext |
+| `line` | #E1DEEA | #2E3743 | Rahmen, Trennlinien |
+| `fill` | #ECE9F3 | #252D38 | Platzhalter, Skeleton |
 | `cherry` | #C4153A | #FF4D6D | **nur** Like und Merken |
-| `onInk` | #F6F6F3 | #000000 | Text auf Tinte |
-| `sign` / `onSign` | #16181B / #FFF | #F2F2EF / #16181B | Spot-Schild |
+| `onInk` | #F3F1F8 | #161B22 | Text auf Tinte |
+| `sign` / `onSign` | #1B1A22 / #FBFAFE | #E8ECF2 / #161B22 | Spot-Schild |
 | `danger` | #B3261E | #FF8A80 | Fehler |
 
 Kategorie-Farben (`catColors`) sind gedämpft und erscheinen nur als kleine Punkte (Chip, Pin).
@@ -92,7 +93,7 @@ Weitere: `motion` (fast 120 ms, base 220 ms, pop-Feder fürs Herz), `hit` = 44 (
 ## Barrierefreiheit (Mindestanforderungen)
 - Tippflächen ≥ 44 × 44 (`hit`).
 - Jeder `IconButton` hat ein `label`, Fotos haben eine Beschreibung.
-- Kontrast: Text ≥ 4.5:1 (geprüft: `asphalt` auf `paper` 5.3:1, `cherry` auf `paper` 5.5:1, dunkel `asphalt` auf Schwarz 8.3:1).
+- Kontrast: Text ≥ 4.5:1 (geprüft 28.11.: hell `asphalt` auf `paper` 5.6:1, `cherry` auf `paper` 5.3:1; dunkel `asphalt` auf `paper` 7.4:1, `cherry` auf `surface` 4.7:1).
 - Dynamische Schriftgröße nicht blockieren (kein `allowFontScaling={false}`).
 
 ## Prüfstand 27.11.2026 (am Code, nicht am Gerät)

@@ -5,50 +5,50 @@
 
 export const palette = {
   light: {
-    paper: '#F6F6F3',     // Hintergrund
-    surface: '#FFFFFF',   // Karten, Sheets, Eingabefelder
-    ink: '#16181B',       // Text, Knöpfe, Story-Ringe
-    asphalt: '#62676D',   // Nebentext (5.3:1 auf Papier)
-    line: '#E2E3DF',      // Trennlinien, Rahmen
-    fill: '#ECEDE9',      // Platzhalter, Skeleton, gedrückte Fläche
+    paper: '#F3F1F8',     // Hintergrund: leichtes Lila-Weiß
+    surface: '#FBFAFE',   // Karten, Sheets, Eingabefelder
+    ink: '#1B1A22',       // Text, Knöpfe, Story-Ringe
+    asphalt: '#625E70',   // Nebentext (5.6:1 auf Papier)
+    line: '#E1DEEA',      // Trennlinien, Rahmen
+    fill: '#ECE9F3',      // Platzhalter, Skeleton, gedrückte Fläche
     cherry: '#C4153A',    // Like, Merken (einzige Signalfarbe)
-    onInk: '#F6F6F3',     // Text auf Tinte
-    sign: '#16181B',      // Spot-Schild Hintergrund
-    onSign: '#FFFFFF',
+    onInk: '#F3F1F8',     // Text auf Tinte
+    sign: '#1B1A22',      // Spot-Schild Hintergrund
+    onSign: '#FBFAFE',
     danger: '#B3261E',
     scrim: 'rgba(0,0,0,0.45)',
     onPhoto: '#FFFFFF',      // Icons/Text direkt auf Fotos
     photoScrim: 'rgba(0,0,0,0.45)', // Fläche hinter Icons auf Fotos
     shadow: '#000000',
     sun: '#E39A2D',       // Sonnenbogen, Golden Hour
-    sunTrack: '#E2E3DF',
+    sunTrack: '#E1DEEA',
     glow: '#FFB347',      // Leuchtrand um Kacheln (beim Antippen)
     glowSoft: 'rgba(255,179,71,0.45)', // feiner Leuchtrand im Ruhezustand
-    dock: 'rgba(255,255,255,0.94)', // schwebende Tab-Leiste
-    onDock: '#16181B',
+    dock: 'rgba(251,250,254,0.94)', // schwebende Tab-Leiste
+    onDock: '#1B1A22',
   },
   dark: {
-    paper: '#000000',
-    surface: '#141517',
-    ink: '#F2F2EF',
-    asphalt: '#9EA3A9',
-    line: '#26282B',
-    fill: '#1E2023',
+    paper: '#161B22',     // Hintergrund: Blaugrau
+    surface: '#1F2630',
+    ink: '#E8ECF2',
+    asphalt: '#A1ABB8',   // 7.4:1 auf Papier
+    line: '#2E3743',
+    fill: '#252D38',
     cherry: '#FF4D6D',
-    onInk: '#000000',
-    sign: '#F2F2EF',
-    onSign: '#16181B',
+    onInk: '#161B22',
+    sign: '#E8ECF2',
+    onSign: '#161B22',
     danger: '#FF8A80',
     scrim: 'rgba(0,0,0,0.6)',
     onPhoto: '#FFFFFF',
     photoScrim: 'rgba(0,0,0,0.45)',
     shadow: '#000000',
     sun: '#F2B04A',
-    sunTrack: '#2C2E31',
+    sunTrack: '#333D49',
     glow: '#FFC46B',
     glowSoft: 'rgba(255,196,107,0.40)',
-    dock: 'rgba(44,46,49,0.94)',
-    onDock: '#F2F2EF',
+    dock: 'rgba(50,60,74,0.94)',
+    onDock: '#E8ECF2',
   },
 } as const;
 

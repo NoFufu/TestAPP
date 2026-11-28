@@ -195,7 +195,7 @@ Pins kleiner, unten eine wischbare Spot-Leiste wie bei Apple Karten ✅ (27.11.)
 ## 10. Neue Ideen (28.11.2026, aus dem Test) – nächste Sitzungen
 Reihenfolge = Vorschlag. Je Punkt eine Sitzung.
 
-1. **Farben / Hell + Dunkel neu** – kein reines Schwarz/Weiß. Hell: leichtes Lila-Weiß. Dunkel: Blaugrau. Beide Modi sauber über die Tokens in `app/src/ui/tokens.ts` (palette.light/dark), Doku `docs/design/SYSTEM.md`.
+1. ✅ 28.11. **Farben / Hell + Dunkel neu** – kein reines Schwarz/Weiß. Hell: leichtes Lila-Weiß. Dunkel: Blaugrau. Beide Modi sauber über die Tokens in `app/src/ui/tokens.ts` (palette.light/dark), Doku `docs/design/SYSTEM.md`.
 2. **Shoots-Seite aufräumen** (Screenshot 28.11.): Raster „Gemerkt" sieht hart aus (eckige Kacheln ohne Abstand). Einheitlich: gleiche Abstände, abgerundete Ecken, wie das Home-Raster. Karte bei nur 1 Spot zu weit reingezoomt (fitToCoordinates bei einem Punkt → festen Ausschnitt nehmen).
 3. **Top-10-Sammlungen deutlich anders** als normale Kacheln: eigener Look (z. B. farbige Fläche/Verlauf, große Nummer „Top 10", Titel auf dem Bild), damit sie sich klar vom Feed abheben.
 4. **Moods statt Farben** in der Leiste oben (neben Land/Stadt): z. B. ruhig, modern, urban, verspielt, romantisch, düster – jeweils mit kleinem Bild. Farben wandern in die Suche.
