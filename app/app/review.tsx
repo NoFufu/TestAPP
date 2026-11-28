@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { SPOT_IMAGES } from '../src/data/images';
 import { photoUrl } from '../src/lib/supabase';
 import { REPORT_REASONS, loadQueue, moderate, type QueueItem } from '../src/lib/upload';
+import { loadFeedback, loadStats, type TestStats } from '../src/lib/events';
 import { useStore } from '../src/store';
 import { Button, IconButton, StatusBadge, T, radius, space, thumbSize, useColors } from '../src/ui';
 
@@ -18,6 +19,9 @@ export default function Review() {
   const [items, setItems] = useState<QueueItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const [stats, setStats] = useState<TestStats | null>(null);
+  const [fb, setFb] = useState<Awaited<ReturnType<typeof loadFeedback>>>([]);
+  useFocusEffect(useCallback(() => { loadStats().then(setStats); loadFeedback().then(setFb); }, []));
 
   const load = useCallback(() => {
     loadQueue().then((x) => { setItems(x); setError(null); }, () => setError('Konnte die Liste nicht laden.'));
@@ -46,6 +50,32 @@ export default function Review() {
         <T variant="title" accessibilityRole="header">Prüfen</T>
       </View>
       <ScrollView contentContainerStyle={st.body}>
+        {stats ? (
+          <View style={[st.card, { borderColor: c.line }]}>
+            <T variant="name" accessibilityRole="header">Testphase</T>
+            <T variant="small">{stats.testers} Tester · {stats.feedback_count} Feedbacks</T>
+            {[
+              ['Spot gemerkt', stats.saved_pct, 60], ['Route geöffnet', stats.route_pct, 30],
+              ['Selbst hochgeladen', stats.upload_pct, 15], ['Nach 1 Woche wieder da', stats.returned_pct, 25],
+            ].map(([l, v, goal]) => (
+              <T key={l as string} variant="small" color={(v as number) >= (goal as number) ? 'ink' : 'asphalt'}>
+                {(v as number) >= (goal as number) ? '✓' : '·'} {l}: {v} % (Ziel {goal} %)
+              </T>
+            ))}
+          </View>
+        ) : null}
+        {fb.length ? (
+          <View style={[st.card, { borderColor: c.line }]}>
+            <T variant="name" accessibilityRole="header">Feedback</T>
+            {fb.slice(0, 30).map((f, i) => (
+              <View key={i} style={{ gap: 2 }}>
+                <T variant="small" color="asphalt">{f.username ?? 'unbekannt'} · {new Date(f.created_at).toLocaleDateString('de-DE')} · v{f.app_version}</T>
+                <T>{f.message}</T>
+              </View>
+            ))}
+          </View>
+        ) : null}
+        <T variant="name" accessibilityRole="header">Zu prüfen</T>
         {error ? <T color="danger">{error}</T> : null}
         {items?.length === 0 ? <T color="asphalt">Nichts zu prüfen. Alles sauber.</T> : null}
         {items?.map((it) => {

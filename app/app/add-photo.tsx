@@ -8,6 +8,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAuth } from '../src/lib/auth';
 import { distanceKm } from '../src/data/spots';
 import { addPhotoToSpot, cleanInstagramUrl, gpsFromExif } from '../src/lib/upload';
+import { track } from '../src/lib/events';
 import { useStore } from '../src/store';
 import { Button, IconButton, T, haptic, radius, space, type, useColors } from '../src/ui';
 
@@ -47,6 +48,7 @@ export default function AddPhoto() {
     try {
       await addPhotoToSpot(session.user.id, s.id, uri, instaClean, setStep, distM);
       haptic.like();
+      track('upload_done');
       reload();
       router.back();
     } catch {

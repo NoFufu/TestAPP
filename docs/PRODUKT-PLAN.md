@@ -126,7 +126,7 @@ Jede Etappe ist ein eigenes Sitzungs-Thema und endet mit einem Update auf **prev
 | **F · Prüfung** (Phase 1c) | Teil 1 ✅ 28.11.: Melde-Knopf (Spot), automatisch ausblenden ab 3 Meldungen, GPS-Abstand beim Foto (Hinweis + `gps_distance_m`), Metadaten geprüft (kein GPS in Uploads). Teil 2 ✅ 28.11.: Admin-Rolle (Tabelle `admins`, Konto levitest), Prüf-Bildschirm im Profil (Freigeben/Ablehnen über `admin_queue`/`moderate`), Duplikat-Check per SHA-256 (nur exakt gleiche Fotos). Foto einzeln melden ✅. Offen: KI-Check (braucht externen Dienst + Server-Funktion) | M |
 | **G · Shoot-Listen + Farb-Filter** | Teil 1 ✅ 28.11.: Shoot-Listen (Migration 0010), Route zu Fuß (Google Maps, max. 10 Spots, nächster-Nachbar-Reihenfolge), Teilen (Text + Routenlink + App-Link, Öffnen nur angemeldet), Liste übernehmen. Teil 2 ✅ 28.11.: Hauptfarben je Spot (`spots.colors`, Migration 0011; mitgelieferte Bilder per `scripts/spot-colors.py`, Uploads auf dem Handy per `src/lib/colors.ts`), Farbkreise unter den Kategorien | M |
 | **H · Social & Credits** | Fitpics an Spots ✅, Merkliste in der Cloud ✅ 28.11., Credits für Spots und Fotos, Rangliste Bielefeld (Likes vorerst gestrichen) | M |
-| **I · Testphase** (Phase 2) | TestFlight/Play-Test mit 30–100 Leuten, Feedback einbauen | – |
+| **I · Testphase** (Phase 2) | Vorbereitung 🔶 28.11.: Feedback, Messpunkte, Build-Profile, Checkliste `docs/TESTPHASE.md`. Offen: Store-Konten, Datenschutz, Konto löschen, Builds | – |
 | **J · Abo** (Phase 3) | RevenueCat, Plus-Funktionen | M |
 | **K · Eigene Inhalte verwalten** ✅ 27.11. | Profil → „Meine Inhalte": eigene Spots mit Status, bearbeiten (Name, Beschreibung, Kategorien), löschen; eigene Fotos löschen. Spots mit fremden Fotos sind nicht löschbar (Migration 0004) | S |
 

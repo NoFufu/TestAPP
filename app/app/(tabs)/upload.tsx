@@ -7,6 +7,7 @@ import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CATS, type Cat } from '../../src/data/spots';
 import { useAuth } from '../../src/lib/auth';
+import { track } from '../../src/lib/events';
 import { cleanInstagramUrl, createSpot, gpsFromExif } from '../../src/lib/upload';
 import { useStore } from '../../src/store';
 import { Button, Chip, T, haptic, radius, space, type, useColors, dock } from '../../src/ui';
@@ -64,6 +65,7 @@ export default function Upload() {
         emptyUri: empty.uri, personUri: person?.uri, instagramUrl: instaClean,
       }, setStep);
       haptic.like();
+      track('upload_done');
       setNewId(id);
       reload();
     } catch {

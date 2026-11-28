@@ -7,8 +7,11 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.nofufu.fitspot"
+      "supportsTablet": false,
+      "bundleIdentifier": "com.nofufu.fitspot",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -38,7 +41,7 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "fitspot zeigt dir Foto-Spots in deiner N\u00e4he."
+          "locationWhenInUsePermission": "fitspot zeigt dir Foto-Spots in deiner Nähe."
         }
       ]
     ],

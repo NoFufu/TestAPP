@@ -4,6 +4,7 @@ import { Alert, Linking, ScrollView, Share, StyleSheet, TextInput, View } from '
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ListSpots } from '../../src/components/ListView';
 import { MAX_ROUTE_STOPS, deleteList, loadLists, removeFromList, renameList, routeUrl, shareUrl, type ShootList } from '../../src/lib/lists';
+import { track } from '../../src/lib/events';
 import { useStore } from '../../src/store';
 import { Button, IconButton, T, radius, space, type, useColors } from '../../src/ui';
 
@@ -39,6 +40,7 @@ export default function ListScreen() {
       route ? `\nRoute zu Fuß: ${route}` : '',
       `\nIn fitspot öffnen: ${shareUrl(list.share_token)}`,
     ];
+    track('list_shared');
     await Share.share({ message: lines.filter(Boolean).join('\n') });
   }
 
@@ -78,7 +80,7 @@ export default function ListScreen() {
       {missing ? <T color="asphalt" style={st.pad}>Diese Liste gibt es nicht mehr.</T> : !list ? null : (
         <ScrollView contentContainerStyle={{ gap: space.lg, paddingBottom: space.xxl }}>
           <View style={[st.pad, st.row]}>
-            <Button label="Route" icon="navigate-outline" style={{ flex: 1 }} disabled={!route} onPress={() => route && Linking.openURL(route)} />
+            <Button label="Route" icon="navigate-outline" style={{ flex: 1 }} disabled={!route} onPress={() => { track('route_opened'); if (route) Linking.openURL(route); }} />
             <Button label="Teilen" icon="share-outline" variant="secondary" style={{ flex: 1 }} onPress={share} />
           </View>
           {cut && route ? (

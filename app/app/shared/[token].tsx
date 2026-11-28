@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ListSpots } from '../../src/components/ListView';
 import { useAuth } from '../../src/lib/auth';
 import { createList, addToList, loadShared, routeUrl } from '../../src/lib/lists';
+import { track } from '../../src/lib/events';
 import { useStore } from '../../src/store';
 import { Button, IconButton, T, space, useColors } from '../../src/ui';
 
@@ -55,7 +56,7 @@ export default function SharedList() {
           <View style={[st.pad, st.row]}>
             <Button label="Übernehmen" icon="copy-outline" style={{ flex: 1 }} loading={busy} disabled={busy || !items.length} onPress={copy} />
             <Button label="Route" icon="navigate-outline" variant="secondary" style={{ flex: 1 }} disabled={!route}
-              onPress={() => route && Linking.openURL(route)} />
+              onPress={() => { track('route_opened'); if (route) Linking.openURL(route); }} />
           </View>
           <ListSpots spots={items} />
         </ScrollView>

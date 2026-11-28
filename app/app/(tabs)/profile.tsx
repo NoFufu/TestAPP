@@ -74,6 +74,7 @@ export default function Profile() {
           </View>
         ) : null}
         <View style={[st.actions, { paddingTop: 0 }]}>
+          <Button label="Feedback" icon="chatbubble-ellipses-outline" variant="secondary" style={{ flex: 1 }} onPress={() => router.push('/feedback')} />
           <Button label="Abmelden" variant="secondary" style={{ flex: 1 }} onPress={signOut} />
         </View>
         {mine.length ? (

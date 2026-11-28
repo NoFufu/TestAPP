@@ -5,6 +5,7 @@ import { Linking, Platform, ScrollView, StyleSheet, View, useWindowDimensions } 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 import SunCalc from 'suncalc';
+import { track } from '../../src/lib/events';
 import { AI_SPOT_IDS } from '../../src/data/images';
 import { catInfo, distanceKm, fmtDist, type SpotImage } from '../../src/data/spots';
 import { useAuth } from '../../src/lib/auth';
@@ -106,9 +107,12 @@ export default function SpotDetail() {
         </View>
 
         <View style={st.actions}>
-          <IconButton icon="navigate-outline" label="Route zum Spot" onPress={() => Linking.openURL(Platform.OS === 'ios'
-            ? `https://maps.apple.com/?daddr=${s.lat},${s.lon}&dirflg=w`
-            : `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lon}&travelmode=walking`)} />
+          <IconButton icon="navigate-outline" label="Route zum Spot" onPress={() => {
+            track('route_opened');
+            Linking.openURL(Platform.OS === 'ios'
+              ? `https://maps.apple.com/?daddr=${s.lat},${s.lon}&dirflg=w`
+              : `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lon}&travelmode=walking`);
+          }} />
           {!s.user ? (
             <IconButton icon="camera-outline" label="Eigenes Foto hinzufügen"
               onPress={() => session ? router.push({ pathname: '/add-photo', params: { spot: String(s.id) } }) : router.push('/login')} />

@@ -5,6 +5,7 @@ import { SPOT_IMAGES } from './data/images';
 import { COLORS, CATS, CITIES, CITY_NAMES, ME, SAMPLE_SPOTS, distanceKm, type Cat, type City, type Spot } from './data/spots';
 import { useAuth } from './lib/auth';
 import type { SpotColor } from './lib/colors';
+import { track } from './lib/events';
 import { photoUrl, supabase, type NearbyRow } from './lib/supabase';
 
 type UserSpot = Omit<Spot, 'images'> & { uri: string };
@@ -111,6 +112,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const uid = session?.user.id ?? null;
   const persistSaved = (next: Set<number>) => AsyncStorage.setItem(K_SAVED, JSON.stringify([...next])).catch(() => {});
 
+  useEffect(() => { if (uid) track('app_open'); }, [uid]);
+
   useEffect(() => {
     if (!uid) return;
     let cancelled = false;
@@ -135,6 +138,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const next = new Set(prev);
       const add = !next.has(id);
       add ? next.add(id) : next.delete(id);
+      if (add) track('spot_saved');
       persistSaved(next);
       if (uid) {
         (add
