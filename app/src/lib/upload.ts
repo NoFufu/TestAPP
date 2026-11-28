@@ -1,3 +1,4 @@
+import * as Crypto from 'expo-crypto';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import type { Cat } from '../data/spots';
 import { photoUrl, supabase } from './supabase';
@@ -16,6 +17,17 @@ export async function uploadFile(bucket: 'avatars' | 'spot-photos', path: string
   const { error } = await supabase.storage.from(bucket).upload(path, body, { contentType: 'image/jpeg', upsert: false });
   if (error) throw error;
   return bucket === 'spot-photos' ? photoUrl(path) : supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+}
+
+/** SHA-256 der Originaldatei (für den Duplikat-Check). Findet nur exakt gleiche Fotos. Fehler → null. */
+export async function fileSha256(uri: string): Promise<string | null> {
+  try {
+    const buf = await (await fetch(uri)).arrayBuffer();
+    const d = await Crypto.digest(Crypto.CryptoDigestAlgorithm.SHA256, new Uint8Array(buf));
+    return [...new Uint8Array(d)].map((b) => b.toString(16).padStart(2, '0')).join('');
+  } catch {
+    return null;
+  }
 }
 
 /** Instagram-Beitrag oder -Reel, z. B. https://www.instagram.com/p/ABC123/ */
@@ -51,6 +63,7 @@ export type NewSpot = {
 /** Legt einen Spot mit Fotos an. Meldet Fortschritt über `step`. Gibt die neue Spot-ID zurück. */
 export async function createSpot(uid: string, s: NewSpot, step: (i: number) => void): Promise<number> {
   step(0);
+  const [emptyHash, personHash] = await Promise.all([fileSha256(s.emptyUri), s.personUri ? fileSha256(s.personUri) : null]);
   const empty = await prepareImage(s.emptyUri);
   const person = s.personUri ? await prepareImage(s.personUri) : null;
 
@@ -77,9 +90,9 @@ export async function createSpot(uid: string, s: NewSpot, step: (i: number) => v
   if (error || !data) throw error ?? new Error('Spot nicht gespeichert');
 
   const rows = [
-    { spot_id: data.id, storage_path: emptyPath, kind: 'spot', uploaded_by: uid, instagram_url: null as string | null },
-    ...(personPath ? [{ spot_id: data.id, storage_path: personPath, kind: 'outfit', uploaded_by: uid, instagram_url: null }] : []),
-    ...(s.instagramUrl ? [{ spot_id: data.id, storage_path: null, kind: 'outfit', uploaded_by: uid, instagram_url: s.instagramUrl }] : []),
+    { spot_id: data.id, storage_path: emptyPath, kind: 'spot', uploaded_by: uid, instagram_url: null as string | null, sha256: emptyHash },
+    ...(personPath ? [{ spot_id: data.id, storage_path: personPath, kind: 'outfit', uploaded_by: uid, instagram_url: null, sha256: personHash }] : []),
+    ...(s.instagramUrl ? [{ spot_id: data.id, storage_path: null, kind: 'outfit', uploaded_by: uid, instagram_url: s.instagramUrl, sha256: null }] : []),
   ];
   const { error: e2 } = await supabase.from('spot_photos').insert(rows);
   if (e2) throw e2;
@@ -90,16 +103,35 @@ export async function createSpot(uid: string, s: NewSpot, step: (i: number) => v
 /** Fügt einem bestehenden Spot ein Foto (mit Person) und/oder einen Instagram-Link hinzu. */
 export async function addPhotoToSpot(uid: string, spotId: number, uri: string | null, instagramUrl: string | null, step: (i: number) => void, gpsDistanceM: number | null = null) {
   step(0);
+  const hash = uri ? await fileSha256(uri) : null;
   const small = uri ? await prepareImage(uri) : null;
   step(1);
   const path = small ? `${uid}/${Date.now()}-person.jpg` : null;
   if (small && path) await uploadFile('spot-photos', path, small);
   step(2);
   const { error } = await supabase.from('spot_photos').insert({
-    spot_id: spotId, storage_path: path, kind: 'outfit', uploaded_by: uid, instagram_url: instagramUrl, gps_distance_m: gpsDistanceM,
+    spot_id: spotId, storage_path: path, kind: 'outfit', uploaded_by: uid, instagram_url: instagramUrl, gps_distance_m: gpsDistanceM, sha256: hash,
   });
   if (error) throw error;
   step(3);
+}
+
+export type QueueItem = {
+  kind: 'spot' | 'photo'; id: number; spot_id: number; name: string; status: 'pending' | 'live' | 'rejected'; storage_path: string | null;
+  open_reports: number; reasons: string[]; notes: string[]; gps_distance_m: number | null; duplicate: boolean; created_at: string;
+};
+export async function loadQueue(): Promise<QueueItem[]> {
+  const { data, error } = await supabase.rpc('admin_queue');
+  if (error) throw error;
+  return (data ?? []) as QueueItem[];
+}
+export async function moderate(kind: 'spot' | 'photo', id: number, action: 'approve' | 'reject') {
+  const { error } = await supabase.rpc('moderate', { target_kind: kind, target_id: id, action });
+  if (error) throw error;
+}
+export async function isAdmin(): Promise<boolean> {
+  const { data } = await supabase.rpc('is_admin');
+  return data === true;
 }
 
 export type SpotPhoto = { id: number; url: string | null; kind: 'spot' | 'outfit'; instagram_url: string | null; by: string | null };

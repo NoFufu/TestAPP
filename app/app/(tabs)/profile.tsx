@@ -1,10 +1,11 @@
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { fmtDist } from '../../src/data/spots';
 import { useAuth } from '../../src/lib/auth';
+import { isAdmin } from '../../src/lib/upload';
 import { useStore } from '../../src/store';
 import { Avatar, Button, PhotoGrid, T, space, useColors, dock } from '../../src/ui';
 
@@ -13,6 +14,8 @@ export default function Profile() {
   const { session, profile, signOut, saveProfile } = useAuth();
   const { spots, saved } = useStore();
   const [busy, setBusy] = useState(false);
+  const [admin, setAdmin] = useState(false);
+  useEffect(() => { if (session) isAdmin().then(setAdmin); else setAdmin(false); }, [session]);
 
   if (!session || !profile?.username) {
     return (
@@ -65,6 +68,7 @@ export default function Profile() {
           <Button label="Meine Inhalte" icon="create-outline" variant="secondary" style={{ flex: 1 }} onPress={() => router.push('/mine')} />
         </View>
         <View style={[st.actions, { paddingTop: 0 }]}>
+          {admin ? <Button label="Prüfen" icon="shield-checkmark-outline" variant="secondary" style={{ flex: 1 }} onPress={() => router.push('/review')} /> : null}
           <Button label="Abmelden" variant="secondary" style={{ flex: 1 }} onPress={signOut} />
         </View>
         {mine.length ? (
