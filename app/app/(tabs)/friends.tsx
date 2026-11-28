@@ -1,7 +1,8 @@
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState, type ComponentRef } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useScrollTopOnTab } from '../../src/lib/scrollTop';
 import { useAuth } from '../../src/lib/auth';
 import {
   acceptRequest, loadFriendships, loadMembers, loadThreads, refreshUnread, removeFriendship, sendRequest,
@@ -14,6 +15,8 @@ type Threads = Record<string, { last: Message; unread: number }>;
 /** Freunde: Anfragen, Freunde mit letzter Nachricht, alle Mitglieder. */
 export default function Friends() {
   const c = useColors();
+  const scroll = useRef<ComponentRef<typeof ScrollView>>(null);
+  useScrollTopOnTab('friends', scroll);
   const { session, profile } = useAuth();
   const me = session?.user.id ?? null;
   const [members, setMembers] = useState<Member[]>([]);
@@ -79,7 +82,7 @@ export default function Friends() {
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: c.paper }}>
-      <ScrollView contentContainerStyle={{ paddingBottom: dock.clearance }}
+      <ScrollView ref={scroll} contentContainerStyle={{ paddingBottom: dock.clearance }}
         refreshControl={<RefreshControl refreshing={refreshing} tintColor={c.asphalt}
           onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} />}>
         <View style={st.head}>

@@ -3,6 +3,7 @@ import type { BottomTabBarProps } from 'expo-router/js-tabs';
 import type { ComponentProps } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
+import { emitScrollTop } from '../lib/scrollTop';
 import { useUnread } from '../lib/social';
 import { T, haptic } from './components';
 import { useColors } from './theme';
@@ -39,7 +40,7 @@ export function Dock({ state, navigateToTab, insets, items }: BottomTabBarProps 
         const focused = state.routes[state.index]?.key === route.key;
         return (
           <Pressable key={it.name} accessibilityRole="tab" accessibilityLabel={it.label} accessibilityState={{ selected: focused }}
-            onPress={() => { haptic.select(); navigateToTab(route.key); }}
+            onPress={() => { haptic.select(); if (focused) emitScrollTop(it.name); else navigateToTab(route.key); }}
             style={[st.btn, { backgroundColor: focused ? c.dockActive : c.dock, shadowColor: c.shadow }]}>
             <Ionicons name={focused ? it.on : it.off} size={26} color={c.onDock} />
             {it.name === 'friends' && unread > 0 ? (

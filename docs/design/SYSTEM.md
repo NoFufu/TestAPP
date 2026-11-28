@@ -131,7 +131,7 @@ Jede Kategorie hat in `CATS` ein `icon` aus **MaterialCommunityIcons** (zweite I
 `<GlowPress rounded>`: Pressable für Kacheln und Posts. **Kein Glow, kein Rand** (28.11. entfernt), nur leichtes Einsinken (0.98) beim Antippen. Der Name ist geblieben, damit nichts umbenannt werden muss.
 
 ## Mood-Farben (`moodRing`)
-Kräftiger Farbverlauf je Mood (Urban Orange, Ruhig Blau, Natürlich Grün, Verspielt Gelb-Orange, Romantisch Rosa, Dunkel Violett, Modern Stahl). Nur an zwei Stellen: **Story-Ringe** der Mood-Kreise (4 px, Verlauf, Leuchten in der Mood-Farbe, gewählter Kreis größer und heller leuchtend, die anderen blasser) und Rand der aktiven Kachel auf der Karte (`moodTint`). Sonst bleibt die App ruhig.
+Dezenter Zwei-Farben-Verlauf je Mood (Urban Orange→Korall, Ruhig Blau→Mint, Natürlich Grün→Gelb, Verspielt Gelb→Rosa, Romantisch Rosa→Flieder, Dunkel Violett→Blau, Modern Stahl→Mauve). Nur an zwei Stellen: **Story-Ringe** der Mood-Kreise (3 px, Verlauf, dezentes Leuchten, gewählter Kreis größer und heller leuchtend, die anderen blasser) und Rand der aktiven Kachel auf der Karte (`moodTint`). Sonst bleibt die App ruhig.
 ## Swatch (Farbfilter)
 `<Swatch color label selected onPress />`: runder Farbkreis (`swatchSize`), ausgewählt mit Ring in Tinte. Farben aus `swatch` in `tokens.ts` (Daten-Farben, nur für den Filter).
 
@@ -161,3 +161,6 @@ Token `hotZone`: Spots innerhalb 450 m werden zusammengefasst, Gewicht = Anzahl 
 
 ## ConsentRow
 Häkchen „Ich habe die Rechte an den Fotos, abgebildete Personen sind einverstanden“. Pflicht vor „Spot veröffentlichen“ und „Teilen“ (Foto zu bestehendem Spot).
+
+## Home: Kopf und Scrollen
+Nur die Kategorie-Reiter bleiben oben haften. Die Mood-Kreise (`MoodStories`) scrollen mit dem Inhalt weg und sind nur ganz oben sichtbar. Tipp auf den schon offenen Tab springt die Seite nach oben (`src/lib/scrollTop.ts`, gilt für Home, Freunde, Shoots, Profil).

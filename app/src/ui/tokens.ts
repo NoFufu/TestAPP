@@ -134,7 +134,7 @@ export const swatch = {
 export const swatchSize = 28;
 
 /** Mood-Kreise (wie Instagram-Stories) */
-export const story = { size: 80, gap: 14, badge: 24, ring: 4, inset: 3, glow: 9 } as const;
+export const story = { size: 80, gap: 14, badge: 24, ring: 3, inset: 3, glow: 6 } as const;
 
 /** Landesfarben (Daten-Farben fürs Länder-Zeichen): Streifen von oben nach unten, Höhenanteile. */
 export const flags = {
@@ -151,11 +151,11 @@ export const collectionTint = {
 } as const;
 export const collectionCard = { height: 200, photoW: 84, photoH: 112, tilt: 7 } as const;
 
-/** Mood-Farben: kräftig, nur für Story-Ringe (mit Leuchten) und den Rand der aktiven Karten-Kachel. [Anfang, Ende] des Ring-Verlaufs. */
+/** Mood-Farben: Ring-Verlauf aus zwei Farben, die zusammenpassen (z. B. Grün → Gelb), bewusst gedeckt. Nur für Story-Ringe und den Rand der aktiven Karten-Kachel. */
 export const moodRing = {
-  urban: ['#F59A4A', '#C8481C'], ruhig: ['#7CBBEE', '#4C80C4'], natuerlich: ['#6AD187', '#2F9A5C'],
-  verspielt: ['#FFD23F', '#F28B24'], romantisch: ['#FF86B6', '#C9508F'], dunkel: ['#A689FF', '#5B45CC'],
-  modern: ['#9FB3C8', '#5E7389'],
+  urban: ['#E8925A', '#C9606A'], ruhig: ['#7FB4E0', '#8FC9B8'], natuerlich: ['#74C28A', '#D9C95A'],
+  verspielt: ['#EFC95A', '#E58AA8'], romantisch: ['#E58AB0', '#B58AD6'], dunkel: ['#8E7FD6', '#5E8FD0'],
+  modern: ['#9DB0C4', '#B9A8C9'],
 } as const;
 
 /** Pin in der Orts-Auswahl (Höhe in Pixeln) */

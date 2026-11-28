@@ -1,23 +1,19 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, ScrollView, StyleSheet } from 'react-native';
 import { CATS, CITIES, CITY_NAMES, type City } from '../data/spots';
-import { MoodStories } from './MoodStories';
 import { useStore } from '../store';
 import { CountryCode, T, Tab, haptic, space, useColors } from '../ui';
 
-/** Filterleiste: „Alle“ + Kategorien (mehrere wählbar) und darunter die Mood-Kreise. Gilt für Karte und Raster. */
+/** Reiter „Alle“ + Kategorien (mehrere wählbar). Gilt für Karte und Raster. Die Mood-Kreise stehen separat (`MoodStories`). */
 export function FilterBar() {
   const { filters, toggleFilter, clearFilters } = useStore();
   return (
-    <>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.bar}>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.bar}>
         <Tab label="Alle" selected={!filters.size} onPress={clearFilters} />
         {CATS.map((c) => (
           <Tab key={c.key} label={c.label} selected={filters.has(c.key)} onPress={() => toggleFilter(c.key)} />
         ))}
-      </ScrollView>
-      <MoodStories />
-    </>
+    </ScrollView>
   );
 }
 

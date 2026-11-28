@@ -1,10 +1,11 @@
 import { router } from 'expo-router';
 import { useFocusEffect } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type ComponentRef } from 'react';
 import { ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { catInfo, fmtDist } from '../../src/data/spots';
+import { useScrollTopOnTab } from '../../src/lib/scrollTop';
 import { useAuth } from '../../src/lib/auth';
 import { loadLists, type ShootList } from '../../src/lib/lists';
 import { useStore } from '../../src/store';
@@ -14,6 +15,8 @@ import { Button, GlowPress, Masonry, PhotoPin, T, dock, mapZoom, pinRatio, radiu
 /** Shoots: gemerkte Spots. Später: eigene Shoot-Listen mit Route (Etappe G). */
 export default function Shoots() {
   const c = useColors();
+  const scroll = useRef<ComponentRef<typeof ScrollView>>(null);
+  useScrollTopOnTab('shoots', scroll);
   const { spots, saved, city, toggleSave } = useStore();
   const { session } = useAuth();
   const [lists, setLists] = useState<ShootList[]>([]);
@@ -48,7 +51,7 @@ export default function Shoots() {
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: c.paper }}>
-      <ScrollView contentContainerStyle={{ paddingBottom: dock.clearance }}>
+      <ScrollView ref={scroll} contentContainerStyle={{ paddingBottom: dock.clearance }}>
         <View style={st.head}>
           <T variant="title" accessibilityRole="header">Shoots</T>
           <T color="asphalt">

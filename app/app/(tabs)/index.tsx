@@ -1,9 +1,11 @@
 import { router } from 'expo-router';
-import { useMemo } from 'react';
+import { useMemo, useRef, type ComponentRef } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CollectionCard } from '../../src/components/CollectionCard';
 import { CityButton, FilterBar } from '../../src/components/ui';
+import { MoodStories } from '../../src/components/MoodStories';
+import { useScrollTopOnTab } from '../../src/lib/scrollTop';
 import { collectionsFor } from '../../src/data/collections';
 import { AI_SPOT_IDS, PHOTO_SPOT_IDS } from '../../src/data/images';
 import { fmtDist } from '../../src/data/spots';
@@ -15,6 +17,8 @@ const CHUNK = 10;
 /** Home: Raster mit allen Fotos der Spots (leer und mit Person). Tippen öffnet den Spot groß. */
 export default function Home() {
   const c = useColors();
+  const scroll = useRef<ComponentRef<typeof ScrollView>>(null);
+  useScrollTopOnTab('index', scroll);
   const { visible, spots, city, filters, moodFilter, source, reload, saved, toggleSave } = useStore();
   // Sammlungen nur ohne Filter, sonst passt die Karte nicht zum Feed.
   const cols = useMemo(() => (filters.size || moodFilter ? [] : collectionsFor(spots, city)), [spots, city, filters, moodFilter]);
@@ -41,6 +45,7 @@ export default function Home() {
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: c.paper }}>
       <ScrollView
+        ref={scroll}
         stickyHeaderIndices={[1]}
         refreshControl={<RefreshControl refreshing={false} onRefresh={reload} tintColor={c.asphalt} />}
         contentContainerStyle={{ paddingBottom: dock.clearance }}
@@ -55,6 +60,8 @@ export default function Home() {
         <View style={{ backgroundColor: c.paper }}>
           <FilterBar />
         </View>
+        {/* Mood-Kreise scrollen mit weg: nur ganz oben sichtbar */}
+        <MoodStories />
         {source === 'loading' ? (
           <View style={st.loading} accessible accessibilityLabel="Spots werden geladen">
             <Skeleton style={{ flex: 1, height: 260, borderRadius: 16 }} />

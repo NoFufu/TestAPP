@@ -1,11 +1,12 @@
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { Alert, Linking } from 'react-native';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, type ComponentRef } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LEGAL } from '../../src/config';
 import { fmtDist } from '../../src/data/spots';
+import { useScrollTopOnTab } from '../../src/lib/scrollTop';
 import { useAuth } from '../../src/lib/auth';
 import { isAdmin } from '../../src/lib/upload';
 import { useStore } from '../../src/store';
@@ -13,6 +14,8 @@ import { Avatar, Button, PhotoGrid, T, space, useColors, dock } from '../../src/
 
 export default function Profile() {
   const c = useColors();
+  const scroll = useRef<ComponentRef<typeof ScrollView>>(null);
+  useScrollTopOnTab('profile', scroll);
   const { session, profile, signOut, saveProfile, deleteAccount } = useAuth();
   const { spots, saved } = useStore();
   const [busy, setBusy] = useState(false);
@@ -59,7 +62,7 @@ export default function Profile() {
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: c.paper }}>
-      <ScrollView contentContainerStyle={{ paddingBottom: dock.clearance }}>
+      <ScrollView ref={scroll} contentContainerStyle={{ paddingBottom: dock.clearance }}>
         <View style={st.head}>
           <Pressable onPress={changeAvatar} disabled={busy} accessibilityRole="button" accessibilityLabel="Profilbild ändern">
             <Avatar source={profile.avatar_url ? { uri: profile.avatar_url } : undefined} size={84} ring="new"

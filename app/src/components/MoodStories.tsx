@@ -32,7 +32,7 @@ export function MoodStories() {
             accessibilityLabel={`${m.label}, ${count} ${count === 1 ? 'Spot' : 'Spots'}`}
             onPress={() => { haptic.select(); setMoodFilter(on ? null : m.key); }} style={[st.item, { opacity: dim ? 0.5 : 1 }]}>
             {/* Leuchten in der Mood-Farbe hinter dem Ring */}
-            <View style={[st.ring, { shadowColor: from, shadowOpacity: on ? 0.95 : 0.6, shadowRadius: on ? story.glow * 1.5 : story.glow, transform: [{ scale: on ? 1.06 : 1 }] }]}>
+            <View style={[st.ring, { shadowColor: from, shadowOpacity: on ? 0.55 : 0.28, shadowRadius: on ? story.glow * 1.5 : story.glow, transform: [{ scale: on ? 1.06 : 1 }] }]}>
               <Svg width={story.size} height={story.size} style={StyleSheet.absoluteFill}>
                 <Defs>
                   <LinearGradient id={`ring-${m.key}`} x1="0" y1="0" x2="1" y2="1">
