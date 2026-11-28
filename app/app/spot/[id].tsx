@@ -12,7 +12,7 @@ import { loadSpotPhotos, type SpotPhoto } from '../../src/lib/upload';
 import { useStore } from '../../src/store';
 import { Button, IconButton, Masonry, SunArc, T, grid, pinRatio, radius, space, useColors, type Pin } from '../../src/ui';
 
-type Shot = { key: string; src: SpotImage; label: string };
+type Shot = { key: string; src: SpotImage; label: string; photoId?: number };
 
 /** Spot groß: Foto oben, Infos, darunter alle Fotos an diesem Spot und ähnliche Spots. */
 export default function SpotDetail() {
@@ -42,11 +42,13 @@ export default function SpotDetail() {
 
   const shots = useMemo<Shot[]>(() => {
     if (!s) return [];
-    const own = s.images.map((src, k) => ({ key: `own-${k}`, src, label: s.city === 'Barcelona' ? `Ansicht ${k + 1}` : k ? 'Mit Person' : 'Der Spot' }));
+    const idByUrl = new Map(remote.filter((r) => r.url).map((r) => [r.url!, r.id]));
+    const own = s.images.map((src, k) => ({ key: `own-${k}`, src, label: s.city === 'Barcelona' ? `Ansicht ${k + 1}` : k ? 'Mit Person' : 'Der Spot',
+      photoId: typeof src === 'number' ? undefined : idByUrl.get(src.uri) }));
     const ownUrls = new Set(own.map((o) => (typeof o.src === 'number' ? '' : o.src.uri)));
     const extra = remote
       .filter((r) => r.url && !ownUrls.has(r.url))
-      .map((r) => ({ key: `r-${r.id}`, src: { uri: r.url! }, label: r.by ? `Foto von ${r.by}` : 'Foto' }));
+      .map((r) => ({ key: `r-${r.id}`, src: { uri: r.url! }, label: r.by ? `Foto von ${r.by}` : 'Foto', photoId: r.id }));
     return [...own, ...extra];
   }, [s, remote]);
 
@@ -72,9 +74,12 @@ export default function SpotDetail() {
   const isSaved = saved.has(s.id);
   const instaLinks = [...new Set([s.instagramUrl, ...remote.map((r) => r.instagram_url)].filter((u): u is string => !!u))];
 
+  const reportPhoto = (photoId: number) =>
+    router.push({ pathname: '/report', params: { photo: String(photoId), name: s.name } });
   const morePins: Pin[] = shots.filter((x) => x.key !== big?.key).map((x, i) => ({
     key: x.key, photo: x.src, ratio: pinRatio(s.id + i), label: `${x.label}. Groß anzeigen`,
     onPress: () => { setBigKey(x.key); scroll.current?.scrollTo({ y: 0, animated: true }); },
+    onReport: x.photoId ? () => reportPhoto(x.photoId!) : undefined,
   }));
   const similarPins: Pin[] = similar.map(({ x, d }) => ({
     key: `sim-${x.id}`, photo: x.images[0], ratio: pinRatio(x.id), title: x.name, subtitle: `${fmtDist(d)} von hier`,
@@ -94,6 +99,10 @@ export default function SpotDetail() {
           ) : null}
           <IconButton icon="chevron-down" label="Schließen" color={c.onPhoto} size={24} onPress={() => router.back()}
             style={[st.close, { backgroundColor: c.photoScrim }]} />
+          {big?.photoId ? (
+            <IconButton icon="flag-outline" label="Dieses Foto melden" color={c.onPhoto} size={20} onPress={() => reportPhoto(big.photoId!)}
+              style={[st.flag, { backgroundColor: c.photoScrim }]} />
+          ) : null}
         </View>
 
         <View style={st.actions}>
@@ -159,6 +168,7 @@ const st = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: space.lg, padding: space.xl },
   hero: { paddingHorizontal: grid.edge, paddingTop: grid.edge },
   close: { position: 'absolute', top: space.lg, left: space.lg, borderRadius: radius.pill },
+  flag: { position: 'absolute', top: space.lg, right: space.lg, borderRadius: radius.pill },
   actions: { flexDirection: 'row', alignItems: 'center', gap: space.xs, paddingHorizontal: space.sm, paddingVertical: space.md },
   body: { paddingHorizontal: space.lg, paddingTop: space.xs, gap: space.md },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },

@@ -18,6 +18,8 @@ export type Pin = {
   saved?: boolean;
   onPress: () => void;
   onSave?: () => void;
+  /** Kleines Fähnchen unter der Kachel: Foto melden */
+  onReport?: () => void;
 };
 /** Zweispaltiges Raster mit unterschiedlich hohen Kacheln. Verteilt Kacheln immer auf die kürzere Spalte. */
 export function Masonry({ pins, header }: { pins: Pin[]; header?: React.ReactNode }) {
@@ -47,7 +49,7 @@ export function Masonry({ pins, header }: { pins: Pin[]; header?: React.ReactNod
 
 function PinTile({ pin, width }: { pin: Pin; width: number }) {
   const c = useColors();
-  const foot = pin.title || pin.onSave;
+  const foot = pin.title || pin.onSave || pin.onReport;
   return (
     <View style={{ marginBottom: foot ? 0 : grid.gap }}>
       <GlowPress rounded={grid.radius} onPress={pin.onPress} accessibilityRole="button" accessibilityLabel={pin.label}>
@@ -57,6 +59,11 @@ function PinTile({ pin, width }: { pin: Pin; width: number }) {
       {foot ? (
         <View style={st.pinText}>
           <T variant="small" color="asphalt" numberOfLines={1} style={{ flex: 1 }}>{pin.title ?? ''}</T>
+          {pin.onReport ? (
+            <Pressable hitSlop={space.md} accessibilityRole="button" accessibilityLabel="Dieses Foto melden" onPress={pin.onReport}>
+              <Ionicons name="flag-outline" size={14} color={c.asphalt} />
+            </Pressable>
+          ) : null}
           {pin.onSave ? (
             <Pressable hitSlop={space.md} accessibilityRole="button"
               accessibilityLabel={pin.saved ? `${pin.title ?? 'Spot'} aus Merkliste entfernen` : `${pin.title ?? 'Spot'} merken`}
