@@ -126,3 +126,6 @@ Jede Kategorie hat in `CATS` ein `icon` aus **MaterialCommunityIcons** (zweite I
 
 ## Swatch (Farbfilter)
 `<Swatch color label selected onPress />`: runder Farbkreis (`swatchSize`), ausgewählt mit Ring in Tinte. Farben aus `swatch` in `tokens.ts` (Daten-Farben, nur für den Filter).
+
+## CollectionCard
+Breite Sammlungs-Karte im Home-Feed (1 großes + 2 kleine Bilder, Titel darunter), alle 10 Kacheln eine. Sammlungen sind Regeln in `src/data/collections.ts` (Stadt + Kategorie/Farbe/Stichwort, beliebteste zuerst, max. 10, erst ab 3 Spots). Nur ohne aktiven Filter.
