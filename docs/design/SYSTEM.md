@@ -149,3 +149,6 @@ Textsuche (Name, Viertel, Beschreibung, Kategorie, Mood; ohne Akzente) + ausklap
 
 ## MapSearch (Entdecken)
 Auf der Karte oben nur die Textzeile (Wortmarke, Stadt, Lupe, Karte/Raster). Die Lupe klappt `MapSearch` aus (`src/components/MapSearch.tsx`): Suchfeld + Kategorie- und Mood-Chips + Link zur großen Suche. Punkt (`accent`) an der Lupe, solange Suche/Filter aktiv sind. Die Spot-Leiste unten holt immer die vorderste Kachel: Karte schwenkt (und zoomt bei weitem Ausschnitt heran), Kachel bekommt `accent`-Rand.
+
+## LocationPicker (Ort beim Hochladen wählen)
+`src/components/LocationPicker.tsx` (Modal): Vollbild-Karte, Pin bleibt in der Mitte, die Karte wird darunter geschoben. Suchfeld (Adresse/Ort, `expo-location` geocodeAsync), „Mein Standort“, darunter Adresse (reverseGeocode) oder Koordinaten und „Diesen Ort wählen“. In `upload.tsx`: Vorrang gewählter Ort > Foto-GPS > Standort > Kartenmitte; kleine Vorschau-Karte mit Marker. Ort außerhalb 20 km um Bielefeld/Barcelona blockiert das Veröffentlichen (die App lädt Spots je Stadt im Umkreis 20 km).

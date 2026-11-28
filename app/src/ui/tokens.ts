@@ -162,3 +162,6 @@ export const moodColors = {
 } as const;
 /** Deckkraft von Mood-Farbe als Rand um Kacheln */
 export const moodRim = 0.75;
+
+/** Pin in der Orts-Auswahl (Höhe in Pixeln) */
+export const locationPin = { size: 44 } as const;

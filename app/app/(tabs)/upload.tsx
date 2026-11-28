@@ -5,19 +5,22 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CATS, type Cat } from '../../src/data/spots';
+import MapView, { Marker } from 'react-native-maps';
+import { LocationPicker } from '../../src/components/LocationPicker';
+import { CATS, CITIES, CITY_NAMES, distanceKm, type Cat } from '../../src/data/spots';
 import { useAuth } from '../../src/lib/auth';
 import { track } from '../../src/lib/events';
 import { cleanInstagramUrl, createSpot, gpsFromExif } from '../../src/lib/upload';
 import { useStore } from '../../src/store';
-import { Button, Chip, T, haptic, radius, space, type, useColors, dock } from '../../src/ui';
+import { Button, Chip, T, haptic, mapZoom, radius, space, type, useColors, useIsDark, dock } from '../../src/ui';
 
 type Photo = { uri: string; gps: { lat: number; lon: number } | null };
-type Where = { lat: number; lon: number; source: 'foto' | 'standort' | 'karte' };
+type Where = { lat: number; lon: number; source: 'gewaehlt' | 'foto' | 'standort' | 'karte' };
 const STEPS = ['Fotos verkleinern', 'Fotos hochladen', 'Spot speichern'];
 
 export default function Upload() {
   const c = useColors();
+  const dark = useIsDark();
   const { session, profile } = useAuth();
   const { mapCenter, me, realLocation, reload } = useStore();
   const [empty, setEmpty] = useState<Photo | null>(null);
@@ -29,6 +32,9 @@ export default function Upload() {
   const [step, setStep] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [newId, setNewId] = useState<number | null>(null);
+  // Ort, den du selbst auf der Karte gewählt hast (hat Vorrang vor Foto-GPS und Standort)
+  const [chosen, setChosen] = useState<{ lat: number; lon: number } | null>(null);
+  const [picking, setPicking] = useState(false);
 
   if (!session || !profile?.username) {
     return (
@@ -40,14 +46,16 @@ export default function Upload() {
     );
   }
 
-  const where: Where = empty?.gps ? { ...empty.gps, source: 'foto' }
+  const where: Where = chosen ? { ...chosen, source: 'gewaehlt' } : empty?.gps ? { ...empty.gps, source: 'foto' }
     : realLocation ? { ...me, source: 'standort' } : { ...mapCenter, source: 'karte' };
+  // Die App zeigt Spots nur im Umkreis (20 km) einer Stadt. Außerhalb würde der Spot nirgends erscheinen.
+  const inCity = CITY_NAMES.some((n) => distanceKm(where, CITIES[n]) <= 20);
   const instaClean = insta.trim() ? cleanInstagramUrl(insta) : null;
   const instaInvalid = !!insta.trim() && !instaClean;
   const busy = step !== null && step < STEPS.length;
-  const ready = !!empty && name.trim().length > 1 && cats.length > 0 && !instaInvalid && !busy;
+  const ready = !!empty && name.trim().length > 1 && cats.length > 0 && !instaInvalid && inCity && !busy;
   const missing = !empty ? 'Wähle zuerst ein Foto vom Spot.' : name.trim().length < 2 ? 'Gib dem Spot einen Namen.'
-    : !cats.length ? 'Wähle mindestens eine Kategorie.' : instaInvalid ? 'Der Instagram-Link sieht nicht richtig aus.' : null;
+    : !cats.length ? 'Wähle mindestens eine Kategorie.' : instaInvalid ? 'Der Instagram-Link sieht nicht richtig aus.' : !inCity ? 'Der Ort liegt außerhalb von Bielefeld und Barcelona.' : null;
 
   async function pick(set: (p: Photo) => void, camera: boolean) {
     const opts: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], quality: 0.9, exif: true };
@@ -75,7 +83,7 @@ export default function Upload() {
   }
 
   function reset() {
-    setEmpty(null); setPerson(null); setInsta(''); setName(''); setDesc(''); setCats([]); setStep(null); setNewId(null); setError(null);
+    setEmpty(null); setPerson(null); setInsta(''); setName(''); setDesc(''); setCats([]); setStep(null); setNewId(null); setError(null); setChosen(null);
   }
 
   const input = [type.body, st.input, { borderColor: c.line, backgroundColor: c.surface, color: c.ink }];
@@ -137,14 +145,29 @@ export default function Upload() {
           </View>
         </View>
 
-        <View style={[st.where, { backgroundColor: c.surface, borderColor: c.line }]}>
-          <Ionicons name="location-outline" size={20} color={c.ink} />
-          <T variant="small" style={{ flex: 1 }}>
-            {where.source === 'foto' ? 'Ort aus dem Foto übernommen.'
-              : where.source === 'standort' ? 'Kein Ort im Foto. Wir nehmen deinen aktuellen Standort.'
-              : 'Kein Ort im Foto. Wir nehmen die Mitte der Karte. Schieb sie vorher an die richtige Stelle.'}
-          </T>
+        <View style={{ gap: space.sm }}>
+          <T variant="label">Ort des Spots</T>
+          <View style={[st.mapBox, { borderColor: c.line }]}>
+            <MapView key={`${where.lat},${where.lon}`} style={StyleSheet.absoluteFill} pointerEvents="none" scrollEnabled={false} zoomEnabled={false}
+              rotateEnabled={false} pitchEnabled={false} showsPointsOfInterests={false} userInterfaceStyle={dark ? 'dark' : 'light'}
+              initialRegion={{ latitude: where.lat, longitude: where.lon, latitudeDelta: mapZoom.single, longitudeDelta: mapZoom.single }}>
+              <Marker coordinate={{ latitude: where.lat, longitude: where.lon }} />
+            </MapView>
+          </View>
+          <View style={[st.where, { backgroundColor: c.surface, borderColor: c.line }]}>
+            <Ionicons name="location-outline" size={20} color={c.ink} />
+            <T variant="small" style={{ flex: 1 }}>
+              {where.source === 'gewaehlt' ? 'Ort von dir auf der Karte gewählt.'
+                : where.source === 'foto' ? 'Ort aus dem Foto übernommen. Stimmt er nicht, wähle ihn selbst.'
+                : where.source === 'standort' ? 'Kein Ort im Foto. Wir nehmen deinen aktuellen Standort. Stimmt er nicht, wähle ihn selbst.'
+                : 'Kein Ort im Foto. Wähle den Ort auf der Karte, sonst nehmen wir die Mitte der Karte.'}
+            </T>
+          </View>
+          {!inCity ? <T variant="small" color="danger" accessibilityLiveRegion="polite">Dieser Ort liegt mehr als 20 km von Bielefeld und Barcelona entfernt. Dort gibt es in der App noch keine Stadt, dein Spot wäre nirgends zu sehen. Wähle einen Ort in einer der beiden Städte.</T> : null}
+          <Button label={where.source === 'gewaehlt' ? 'Ort ändern' : 'Ort auf der Karte wählen'} icon="pin-outline" variant="secondary" onPress={() => setPicking(true)} />
         </View>
+        <LocationPicker visible={picking} start={{ lat: where.lat, lon: where.lon }} onClose={() => setPicking(false)}
+          onPick={(p) => { setChosen(p); setPicking(false); haptic.select(); }} />
 
         <View style={{ gap: space.sm }}>
           <Button label="Spot veröffentlichen" disabled={!ready} loading={busy} onPress={publish} />
@@ -195,6 +218,7 @@ const st = StyleSheet.create({
   slot: { aspectRatio: 4 / 5, borderRadius: radius.card, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
   input: { borderWidth: 1, borderRadius: radius.thumb, paddingHorizontal: space.md + 2, paddingVertical: space.md },
+  mapBox: { height: 160, borderRadius: radius.card, overflow: 'hidden', borderWidth: StyleSheet.hairlineWidth },
   where: { flexDirection: 'row', alignItems: 'center', gap: space.sm, padding: space.md, borderRadius: radius.thumb + 2, borderWidth: StyleSheet.hairlineWidth },
   step: { flexDirection: 'row', alignItems: 'center', gap: space.sm + 2, padding: space.md, borderRadius: radius.thumb, borderWidth: StyleSheet.hairlineWidth },
 });
