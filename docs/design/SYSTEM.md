@@ -74,7 +74,7 @@ Weitere: `motion` (fast 120 ms, base 220 ms, pop-Feder fürs Herz), `hit` = 44 (
 
 | Muster | Aufbau |
 |---|---|
-| `Masonry` + `pinRatio` | Zweispaltiges Raster mit unterschiedlich hohen Kacheln (Home, Fotos an einem Spot, Ähnliche Spots). Kachel: Foto mit Radius 16, darunter Name, Ort und Merken. Kein Liken |
+| `Masonry` + `pinRatio` | Zweispaltiges Raster mit unterschiedlich hohen Kacheln (Home, Gemerkt auf Shoots, Fotos an einem Spot, Ähnliche Spots). Kachel: Foto mit Radius 16, darunter Name, Ort und Merken. Kein Liken |
 | `PhotoGrid` | `square`: 3 Spalten, 2 px Abstand (Profil) · `mosaic`: Dreiergruppen 1 groß + 2 klein, abwechselnd (Entdecken) |
 
 ---
@@ -110,8 +110,11 @@ Weitere: `motion` (fast 120 ms, base 220 ms, pop-Feder fürs Herz), `hit` = 44 (
 ## Raster wie Pinterest
 Token `grid` (Rand 4, Spaltenabstand 6, Ecken 16, Fußzeile 28). Kacheln: nur Bild + kleine Zeile (Name grau, Merken-Symbol). `Tab` = Text-Reiter mit Strich (Filterleiste).
 
+## Karten-Ausschnitt
+Token `mapZoom`: `single` (ein Spot, fester Ausschnitt statt Maximal-Zoom) und `city` (mehrere Spots, dann `fitToCoordinates`).
+
 ## Dock (Tab-Leiste)
-`Dock` in `src/ui/dock.tsx`: schwebt unten mittig, jedes Symbol in eigenem runden Quadrat (Token `dock`, Farben `dock`/`onDock`). Screens mit Tab-Leiste brauchen unten `dock.clearance` Platz. Hochladen = + oben rechts auf Home.
+`Dock` in `src/ui/dock.tsx`: schwebt unten mittig, jedes Symbol in eigenem runden Quadrat (Token `dock`, Farben `dock`/`onDock`). Dahinter ein weicher Verlauf in `paper` (`dock.fade`), damit Kachel-Texte nicht zerschnitten durchscheinen; auf der Karte (Entdecken) aus. Screens mit Tab-Leiste brauchen unten `dock.clearance` Platz. Hochladen = + oben rechts auf Home.
 
 ## StatusBadge
 `<StatusBadge status="pending|live|rejected" />`: kleines umrandetes Schild für den Prüf-Status eigener Inhalte (Sichtbar = Tinte, Wird geprüft = Asphalt, Abgelehnt = danger). Vorschaubilder in Listen: `thumbSize` (64) mit `radius.thumb`.

@@ -9,12 +9,12 @@ import { useAuth } from '../../src/lib/auth';
 import { loadLists, type ShootList } from '../../src/lib/lists';
 import { useStore } from '../../src/store';
 import { Image } from 'expo-image';
-import { Button, GlowPress, PhotoGrid, PhotoPin, T, radius, space, thumbSize, useColors, useIsDark, dock } from '../../src/ui';
+import { Button, GlowPress, Masonry, PhotoPin, T, dock, mapZoom, pinRatio, radius, space, thumbSize, useColors, useIsDark, type Pin } from '../../src/ui';
 
 /** Shoots: gemerkte Spots. Später: eigene Shoot-Listen mit Route (Etappe G). */
 export default function Shoots() {
   const c = useColors();
-  const { spots, saved, city } = useStore();
+  const { spots, saved, city, toggleSave } = useStore();
   const { session } = useAuth();
   const [lists, setLists] = useState<ShootList[]>([]);
   useFocusEffect(useCallback(() => { if (session) loadLists().then(setLists, () => {}); else setLists([]); }, [session]));
@@ -27,6 +27,24 @@ export default function Shoots() {
   const [livePins, setLivePins] = useState(true);
   useEffect(() => { setLivePins(true); const t = setTimeout(() => setLivePins(false), 1500); return () => clearTimeout(t); }, [saved]);
   const list = spots.filter((s) => saved.has(s.id)).sort((a, b) => a.dist - b.dist);
+  // Bei nur einem Spot fester Ausschnitt, sonst würde die Karte maximal hineinzoomen.
+  const frame = useCallback((animated: boolean) => {
+    if (!onMap.length) return;
+    if (onMap.length === 1) {
+      const r = { latitude: onMap[0].lat, longitude: onMap[0].lon, latitudeDelta: mapZoom.single, longitudeDelta: mapZoom.single };
+      map.current?.animateToRegion(r, animated ? 250 : 0);
+      return;
+    }
+    map.current?.fitToCoordinates(onMap.map((s) => ({ latitude: s.lat, longitude: s.lon })),
+      { edgePadding: { top: space.xxl * 2, bottom: space.xxl, left: space.xxl, right: space.xxl }, animated });
+  }, [onMap]);
+  const mapKey = onMap.map((s) => s.id).join(',');
+  useEffect(() => { frame(true); }, [mapKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  const pins: Pin[] = list.map((s) => ({
+    key: String(s.id), photo: s.images[0], ratio: pinRatio(s.id * 3), title: s.name,
+    label: `${s.name}, ${fmtDist(s.dist)}. Öffnen`, saved: true,
+    onPress: () => router.push(`/spot/${s.id}`), onSave: () => toggleSave(s.id),
+  }));
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: c.paper }}>
@@ -61,23 +79,16 @@ export default function Shoots() {
           })}
         </View>
         <T variant="name" accessibilityRole="header" style={st.savedHead}>Gemerkt</T>
-        {list.length ? (
-          <PhotoGrid
-            items={list.map((s) => ({
-              key: String(s.id), photo: s.images[0], label: `${s.name}, ${fmtDist(s.dist)}`,
-              onPress: () => router.push(`/spot/${s.id}`),
-            }))}
-          />
-        ) : null}
+        {list.length ? <Masonry pins={pins} /> : null}
         {list.length ? (
           <View style={st.mapWrap}>
             <T variant="name" accessibilityRole="header">Auf der Karte · {onMap[0]?.city ?? 'Bielefeld'}</T>
             <MapView
               ref={map}
               style={{ width: width - space.lg * 2, height: width - space.lg * 2, borderRadius: radius.card }}
-              initialRegion={{ latitude: onMap[0].lat, longitude: onMap[0].lon, latitudeDelta: 0.05, longitudeDelta: 0.05 }}
-              onMapReady={() => map.current?.fitToCoordinates(onMap.map((s) => ({ latitude: s.lat, longitude: s.lon })),
-                { edgePadding: { top: space.xxl * 2, bottom: space.xxl, left: space.xxl, right: space.xxl }, animated: false })}
+              initialRegion={{ latitude: onMap[0].lat, longitude: onMap[0].lon,
+                latitudeDelta: onMap.length === 1 ? mapZoom.single : mapZoom.city, longitudeDelta: onMap.length === 1 ? mapZoom.single : mapZoom.city }}
+              onMapReady={() => frame(false)}
               showsUserLocation
               showsPointsOfInterests={false}
               userInterfaceStyle={dark ? 'dark' : 'light'}
