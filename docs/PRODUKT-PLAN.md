@@ -123,7 +123,7 @@ Jede Etappe ist ein eigenes Sitzungs-Thema und endet mit einem Update auf **prev
 | **C · Insta-Umbau** ✅ (mit Beispiel-Beiträgen) | Home-Feed mit Post-Karten + Doppeltipp-Like, Entdecken mit Raster ↔ Karte, Profil mit Raster, neue Spot-Seite | L |
 | **D · Echter Standort + Licht** | `expo-location`, Radius-Filter, Sonnenstand und Golden Hour pro Spot, Wand-Himmelsrichtung beim Upload | M |
 | **E · Echte Fotos** | Du fotografierst 50–100 Spots, ich baue einen einfachen Admin-Upload für Startfotos | M (vor allem deine Zeit) |
-| **F · Prüfung** (Phase 1c) | GPS-Check, Metadaten entfernen, Duplikat-Check, KI-Check, Melde-Button | M |
+| **F · Prüfung** (Phase 1c) | Teil 1 ✅ 28.11.: Melde-Knopf (Spot), automatisch ausblenden ab 3 Meldungen, GPS-Abstand beim Foto (Hinweis + `gps_distance_m`), Metadaten geprüft (kein GPS in Uploads). Teil 2 offen: Prüf-Bildschirm mit Admin-Rolle, Duplikat-Check, KI-Check | M |
 | **G · Shoot-Listen + Farb-Filter** | Listen, Route, Teilen-Link; Hauptfarben je Foto, Farbfilter | M |
 | **H · Social & Credits** | Fitpics an Spots ✅, Merkliste in der Cloud ✅ 28.11., Credits für Spots und Fotos, Rangliste Bielefeld (Likes vorerst gestrichen) | M |
 | **I · Testphase** (Phase 2) | TestFlight/Play-Test mit 30–100 Leuten, Feedback einbauen | – |
@@ -185,6 +185,7 @@ Pins kleiner, unten eine wischbare Spot-Leiste wie bei Apple Karten ✅ (27.11.)
 |---|---|---|
 | Uploads | sofort sichtbar (`testphase_autolive` setzt `live`) | neue Migration: `pending`, Prüfung (Etappe F) |
 | Login | E-Mail + Passwort, **ohne Bestätigungs-Mail** (`mailer_autoconfirm = true`) | eigener Mail-Dienst (SMTP), Bestätigung wieder an, Code-Login möglich |
+| Meldungen | ab 3 Meldungen ausgeblendet, prüfen nur direkt in der Datenbank | Prüf-Bildschirm (Teil 2) |
 | Bearbeiten | Änderungen an sichtbaren Spots gehen ohne neue Prüfung live | Änderungen erneut prüfen (Etappe F) |
 | Mails | Supabase-Standard, max. 2 pro Stunde | eigener Mail-Dienst |
 

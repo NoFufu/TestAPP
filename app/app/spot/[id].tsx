@@ -104,6 +104,10 @@ export default function SpotDetail() {
             <IconButton icon="camera-outline" label="Eigenes Foto hinzufügen"
               onPress={() => session ? router.push({ pathname: '/add-photo', params: { spot: String(s.id) } }) : router.push('/login')} />
           ) : null}
+          {!s.user ? (
+            <IconButton icon="flag-outline" label="Spot melden"
+              onPress={() => router.push({ pathname: '/report', params: { spot: String(s.id), name: s.name } })} />
+          ) : null}
           <View style={{ flex: 1 }} />
           <Button label={isSaved ? 'Gemerkt' : 'Merken'} icon={isSaved ? 'bookmark' : 'bookmark-outline'}
             variant={isSaved ? 'secondary' : 'primary'} onPress={() => toggleSave(s.id)} />

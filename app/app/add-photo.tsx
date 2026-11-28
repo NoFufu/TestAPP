@@ -6,7 +6,8 @@ import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAuth } from '../src/lib/auth';
-import { addPhotoToSpot, cleanInstagramUrl } from '../src/lib/upload';
+import { distanceKm } from '../src/data/spots';
+import { addPhotoToSpot, cleanInstagramUrl, gpsFromExif } from '../src/lib/upload';
 import { useStore } from '../src/store';
 import { Button, IconButton, T, haptic, radius, space, type, useColors } from '../src/ui';
 
@@ -18,6 +19,7 @@ export default function AddPhoto() {
   const { spots, reload } = useStore();
   const s = spots.find((x) => String(x.id) === spot);
   const [uri, setUri] = useState<string | null>(null);
+  const [gps, setGps] = useState<{ lat: number; lon: number } | null>(null);
   const [insta, setInsta] = useState('');
   const [step, setStep] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -28,17 +30,22 @@ export default function AddPhoto() {
   const ready = (!!uri || !!instaClean) && !instaInvalid && !busy;
 
   async function pick(camera: boolean) {
-    const opts: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], quality: 0.9 };
+    const opts: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], quality: 0.9, exif: true };
     if (camera && !(await ImagePicker.requestCameraPermissionsAsync()).granted) return;
     const res = camera ? await ImagePicker.launchCameraAsync(opts) : await ImagePicker.launchImageLibraryAsync(opts);
-    if (!res.canceled) setUri(res.assets[0].uri);
+    if (!res.canceled) { setUri(res.assets[0].uri); setGps(gpsFromExif(res.assets[0].exif as Record<string, unknown>)); }
   }
+
+  // GPS-Check: Foto-Standort gegen Spot. Nur Hinweis, in der Testphase kein Blocker.
+  const distM = uri && gps && s ? Math.round(distanceKm(gps, s) * 1000) : null;
+  const gpsHint = !uri ? null : distM == null ? 'Im Foto ist kein Standort gespeichert. Das ist okay, wird aber später geprüft.'
+    : distM > 300 ? `Das Foto wurde etwa ${distM >= 1000 ? `${(distM / 1000).toFixed(1)} km` : `${distM} m`} vom Spot entfernt aufgenommen. Stimmt der Spot?` : null;
 
   async function submit() {
     if (!session || !s) return;
     setError(null);
     try {
-      await addPhotoToSpot(session.user.id, s.id, uri, instaClean, setStep);
+      await addPhotoToSpot(session.user.id, s.id, uri, instaClean, setStep, distM);
       haptic.like();
       reload();
       router.back();
@@ -65,6 +72,8 @@ export default function AddPhoto() {
             </View>
           )}
         </Pressable>
+        {gpsHint ? <T variant="small" color="asphalt">{gpsHint}</T> : null}
+        <T variant="small" color="asphalt">Standort und andere Metadaten werden vor dem Hochladen aus dem Foto entfernt.</T>
         <Button label="Mit der Kamera aufnehmen" icon="camera-outline" variant="secondary" onPress={() => pick(true)} />
         <View style={{ gap: space.sm }}>
           <T variant="label">Oder dein Instagram-Post</T>

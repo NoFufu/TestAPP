@@ -24,6 +24,7 @@ export default function RootLayout() {
         <Stack.Screen name="add-photo" options={{ presentation: 'modal' }} />
         <Stack.Screen name="mine" options={{ presentation: "modal" }} />
         <Stack.Screen name="edit-spot" options={{ presentation: "modal" }} />
+        <Stack.Screen name="report" options={{ presentation: "modal" }} />
       </Stack>
     </StoreProvider>
     </AuthProvider>

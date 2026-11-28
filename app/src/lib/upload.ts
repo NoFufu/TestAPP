@@ -88,7 +88,7 @@ export async function createSpot(uid: string, s: NewSpot, step: (i: number) => v
 }
 
 /** Fügt einem bestehenden Spot ein Foto (mit Person) und/oder einen Instagram-Link hinzu. */
-export async function addPhotoToSpot(uid: string, spotId: number, uri: string | null, instagramUrl: string | null, step: (i: number) => void) {
+export async function addPhotoToSpot(uid: string, spotId: number, uri: string | null, instagramUrl: string | null, step: (i: number) => void, gpsDistanceM: number | null = null) {
   step(0);
   const small = uri ? await prepareImage(uri) : null;
   step(1);
@@ -96,7 +96,7 @@ export async function addPhotoToSpot(uid: string, spotId: number, uri: string | 
   if (small && path) await uploadFile('spot-photos', path, small);
   step(2);
   const { error } = await supabase.from('spot_photos').insert({
-    spot_id: spotId, storage_path: path, kind: 'outfit', uploaded_by: uid, instagram_url: instagramUrl,
+    spot_id: spotId, storage_path: path, kind: 'outfit', uploaded_by: uid, instagram_url: instagramUrl, gps_distance_m: gpsDistanceM,
   });
   if (error) throw error;
   step(3);
@@ -120,4 +120,21 @@ export async function loadSpotPhotos(spotId: number): Promise<SpotPhoto[]> {
     instagram_url: r.instagram_url as string | null,
     by: ((r.profiles as unknown as { username: string | null } | null)?.username) ?? null,
   }));
+}
+
+export type ReportReason = 'falscher_ort' | 'unangemessen' | 'person' | 'spam' | 'sonstiges';
+export const REPORT_REASONS: { key: ReportReason; label: string }[] = [
+  { key: 'falscher_ort', label: 'Falscher Ort' },
+  { key: 'unangemessen', label: 'Unangemessen' },
+  { key: 'person', label: 'Person ohne Zustimmung' },
+  { key: 'spam', label: 'Spam oder Werbung' },
+  { key: 'sonstiges', label: 'Sonstiges' },
+];
+
+/** Meldet einen Spot oder ein Foto. Doppelte Meldung zählt als erledigt. */
+export async function sendReport(uid: string, target: { spotId?: number; photoId?: number }, reason: ReportReason, note: string) {
+  const { error } = await supabase.from('reports').insert({
+    reporter_id: uid, spot_id: target.spotId ?? null, photo_id: target.photoId ?? null, reason, note: note.trim() || null,
+  });
+  if (error && error.code !== '23505') throw error;
 }
