@@ -191,3 +191,15 @@ Pins kleiner, unten eine wischbare Spot-Leiste wie bei Apple Karten ✅ (27.11.)
 
 ## Barcelona (27.11.2026)
 20 Spots (IDs 9001–9020, Migrationen 0006 + 0007), KI-Beispielbilder für 16 Orte, 4 noch Platzhalter. Koordinaten: bekannte Lage, nicht vor Ort geprüft. Offen: echte Fotos mit Lizenz (Wikimedia/Openverse waren aus der Cloud gesperrt), Koordinaten und Öffnungszeiten prüfen. Liste und Quellen: Übergabe-Datei fitspot-barcelona.
+
+## 10. Neue Ideen (28.11.2026, aus dem Test) – nächste Sitzungen
+Reihenfolge = Vorschlag. Je Punkt eine Sitzung.
+
+1. **Farben / Hell + Dunkel neu** – kein reines Schwarz/Weiß. Hell: leichtes Lila-Weiß. Dunkel: Blaugrau. Beide Modi sauber über die Tokens in `app/src/ui/tokens.ts` (palette.light/dark), Doku `docs/design/SYSTEM.md`.
+2. **Shoots-Seite aufräumen** (Screenshot 28.11.): Raster „Gemerkt" sieht hart aus (eckige Kacheln ohne Abstand). Einheitlich: gleiche Abstände, abgerundete Ecken, wie das Home-Raster. Karte bei nur 1 Spot zu weit reingezoomt (fitToCoordinates bei einem Punkt → festen Ausschnitt nehmen).
+3. **Top-10-Sammlungen deutlich anders** als normale Kacheln: eigener Look (z. B. farbige Fläche/Verlauf, große Nummer „Top 10", Titel auf dem Bild), damit sie sich klar vom Feed abheben.
+4. **Moods statt Farben** in der Leiste oben (neben Land/Stadt): z. B. ruhig, modern, urban, verspielt, romantisch, düster – jeweils mit kleinem Bild. Farben wandern in die Suche.
+5. **Suche mit Filtern**: Textsuche (Name, Viertel, Beschreibung) + genaue Filter: Kategorie, Mood, Farbe, Entfernung, Stadt, nur mit echten Fotos.
+6. **Hot Zones auf der Karte**: Bereiche, wo viele Fotos gemacht werden, als farbiger Kreis (aus der Anzahl Fotos/Spots in der Nähe).
+
+Außerdem offen aus der Testphase-Vorbereitung (docs/TESTPHASE.md): Konto löschen, Einwilligungs-Häkchen beim Upload, Datenschutz/Impressum-Links – wartet auf Zustimmung.
