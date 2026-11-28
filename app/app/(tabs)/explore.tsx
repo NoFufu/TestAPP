@@ -4,14 +4,14 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Circle, Marker } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CityButton } from '../../src/components/ui';
 import { MapSearch } from '../../src/components/MapSearch';
 import { MOODS, moodTint } from '../../src/data/moods';
 import { BIELEFELD, CITIES, catInfo, distanceKm, fmtDist } from '../../src/data/spots';
 import { useStore } from '../../src/store';
-import { PhotoGrid, PhotoPin, T, hit, radius, space, useColors, useIsDark, dock } from '../../src/ui';
+import { PhotoGrid, PhotoPin, T, hit, hotZone, radius, space, useColors, useIsDark, dock, withAlpha } from '../../src/ui';
 
 type Mode = 'map' | 'grid';
 const CARD_W = 150;
@@ -25,6 +25,7 @@ export default function Explore() {
   const map = useRef<MapView>(null);
   const { visible: storeVisible, setMapCenter, city, me, realLocation, locate, filters, moodFilter } = useStore();
   const [searchOpen, setSearchOpen] = useState(false);
+  const [hot, setHot] = useState(true);
   const [q, setQ] = useState('');
   // Suchtext zusätzlich zu den Filtern (ohne Akzente, jedes Wort muss vorkommen)
   const visible = useMemo(() => {
@@ -40,6 +41,21 @@ export default function Explore() {
   const [headerH, setHeaderH] = useState(100);
   const dockTop = Math.max(insets.bottom + dock.bottom, space.sm) + dock.size + space.sm;
   const sorted = [...visible].sort((a, b) => a.dist - b.dist);
+  // Hot Zones: Spots nah beieinander zusammenfassen, Gewicht = Anzahl Fotos. Starke Bereiche bekommen einen Kreis.
+  const zones = useMemo(() => {
+    const left = [...visible].sort((a, b) => b.images.length - a.images.length);
+    const out: { lat: number; lon: number; weight: number; spots: number }[] = [];
+    while (left.length) {
+      const seed = left.shift()!;
+      const group = [seed, ...left.filter((x) => distanceKm(seed, x) * 1000 <= hotZone.merge)];
+      for (const g of group.slice(1)) left.splice(left.indexOf(g), 1);
+      const weight = group.reduce((a, g) => a + g.images.length, 0);
+      if (weight >= hotZone.min && group.length >= 2) {
+        out.push({ lat: group.reduce((a, g) => a + g.lat, 0) / group.length, lon: group.reduce((a, g) => a + g.lon, 0) / group.length, weight, spots: group.length });
+      }
+    }
+    return out;
+  }, [visible]);
   const list = useRef<FlatList<(typeof sorted)[number]>>(null);
   const fromCarousel = useRef(false);
 
@@ -106,6 +122,14 @@ export default function Explore() {
           onPress={() => setSelId(null)}
           mapPadding={{ top: headerH, bottom: CARD_H + dockTop + space.sm, left: 0, right: 0 }}
         >
+          {hot ? zones.map((z, i) => {
+            const strength = Math.min(1, z.weight / 14);
+            return (
+              <Circle key={`hz${i}`} center={{ latitude: z.lat, longitude: z.lon }}
+                radius={Math.min(hotZone.max, hotZone.base + hotZone.per * z.weight)}
+                fillColor={withAlpha(hotZone.color, hotZone.fill * (0.6 + strength))} strokeColor={withAlpha(hotZone.color, hotZone.stroke)} strokeWidth={1.5} />
+            );
+          }) : null}
           {visible.map((s) => {
             const active = selId === s.id;
             return (
@@ -188,6 +212,15 @@ export default function Explore() {
         <BlurView intensity={70} tint={dark ? 'dark' : 'light'} style={[st.fab, { top: headerH + space.md }]}>
           <Pressable onPress={goToMe} style={st.fabInner} accessibilityRole="button" accessibilityLabel="Zu meinem Standort">
             <Ionicons name={realLocation ? 'navigate' : 'navigate-outline'} size={20} color={c.ink} />
+          </Pressable>
+        </BlurView>
+      ) : null}
+
+      {mode === 'map' ? (
+        <BlurView intensity={70} tint={dark ? 'dark' : 'light'} style={[st.fab, { top: headerH + space.md + hit + space.sm }]}>
+          <Pressable onPress={() => setHot(!hot)} style={st.fabInner} accessibilityRole="button" accessibilityState={{ selected: hot }}
+            accessibilityLabel={hot ? 'Hot Zones ausblenden' : 'Hot Zones einblenden'}>
+            <Ionicons name={hot ? 'flame' : 'flame-outline'} size={20} color={hot ? hotZone.color : c.ink} />
           </Pressable>
         </BlurView>
       ) : null}

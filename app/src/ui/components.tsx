@@ -269,6 +269,12 @@ export function StatusBadge({ status }: { status: 'pending' | 'live' | 'rejected
   );
 }
 
+/** Hex-Farbe mit Deckkraft (0–1) als rgba. */
+export function withAlpha(hex: string, a: number) {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+}
+
 /* ---------- GlowPress ---------- */
 /** Pressable für Kacheln und Posts: kein Leuchten, nur ein leichtes Einsinken beim Antippen (Name bleibt aus Gewohnheit). */
 export function GlowPress({ rounded = 16, style, children, ...rest }: ComponentProps<typeof Pressable> & { rounded?: number; children: ReactNode }) {
@@ -279,6 +285,20 @@ export function GlowPress({ rounded = 16, style, children, ...rest }: ComponentP
       typeof style === 'function' ? style(state) : style,
     ]}>
       {children}
+    </Pressable>
+  );
+}
+
+/* ---------- ConsentRow ---------- */
+/** Einwilligung beim Hochladen: Rechte an den Fotos, abgebildete Personen einverstanden. */
+export function ConsentRow({ checked, onToggle }: { checked: boolean; onToggle: () => void }) {
+  const c = useColors();
+  return (
+    <Pressable onPress={() => { haptic.select(); onToggle(); }} accessibilityRole="checkbox" accessibilityState={{ checked }}
+      accessibilityLabel="Ich habe die Rechte an den Fotos, abgebildete Personen sind einverstanden"
+      style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm, padding: space.md, borderRadius: radius.thumb + 2, borderWidth: StyleSheet.hairlineWidth, backgroundColor: c.surface, borderColor: c.line }}>
+      <Ionicons name={checked ? 'checkbox' : 'square-outline'} size={24} color={checked ? c.ink : c.asphalt} />
+      <Text style={[type.small, { color: c.ink, flex: 1 }]}>Ich habe die Rechte an den Fotos. Abgebildete Personen sind damit einverstanden, dass die Fotos hier öffentlich gezeigt werden.</Text>
     </Pressable>
   );
 }

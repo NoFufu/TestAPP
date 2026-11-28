@@ -201,7 +201,7 @@ Reihenfolge = Vorschlag. Je Punkt eine Sitzung.
 4. ✅ 28.11. **Moods statt Farben** in der Leiste oben (neben Land/Stadt): z. B. ruhig, modern, urban, verspielt, romantisch, düster – jeweils mit kleinem Bild. Farben wandern in die Suche.
 5. ✅ 28.11. **Suche mit Filtern**: Textsuche (Name, Viertel, Beschreibung) + genaue Filter: Kategorie, Mood, Farbe, Entfernung, Stadt, nur mit echten Fotos.
    Dazu (28.11.): Land/Stadt-Auswahl mit Landesfarben-Zeichen, Sammlungs-Screen als Rangliste.
-6. **Hot Zones auf der Karte**: Bereiche, wo viele Fotos gemacht werden, als farbiger Kreis (aus der Anzahl Fotos/Spots in der Nähe).
+6. ✅ 28.11. **Hot Zones auf der Karte**: Bereiche, wo viele Fotos gemacht werden, als farbiger Kreis (aus der Anzahl Fotos/Spots in der Nähe).
 
 Außerdem offen aus der Testphase-Vorbereitung (docs/TESTPHASE.md): Konto löschen, Einwilligungs-Häkchen beim Upload, Datenschutz/Impressum-Links – wartet auf Zustimmung.
 

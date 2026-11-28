@@ -163,3 +163,6 @@ export const locationPin = { size: 44 } as const;
 
 /** Chat: Spot-Karte in der Nachricht, Abzeichen für Ungelesenes */
 export const chat = { spotW: 200, spotH: 120, badge: 18 } as const;
+
+/** Hot Zones auf der Karte (Meter): Spots innerhalb `merge` zählen zusammen, ab `min` Fotos wird ein Kreis gezeichnet. */
+export const hotZone = { color: '#FF5A36', merge: 450, min: 5, base: 200, per: 45, max: 700, fill: 0.2, stroke: 0.55 } as const;

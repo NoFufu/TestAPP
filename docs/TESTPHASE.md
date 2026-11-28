@@ -22,9 +22,9 @@ Stand: 28.11.2026. Ziel: 30–100 Tester in Bielefeld über **TestFlight** (iPho
 ## Muss ich noch bauen (mit deiner Zustimmung)
 | Was | Warum | Zustimmung nötig für |
 |---|---|---|
-| **Konto löschen** in der App | Apple verlangt es, DSGVO | Neue Funktion, die Daten löscht (eigenes Konto, eigene Fotos) |
-| **Einwilligung beim Upload** („Ich habe die Rechte, Personen sind einverstanden") | Recht am Bild, DSA | – |
-| **Datenschutz/Impressum-Links** in der App | Pflicht | Links von dir (Punkt 4) |
+| ✅ 28.11. **Konto löschen** in der App (Profil, Migration 0015, getestet) | Apple verlangt es, DSGVO | Löscht Konto, eigene Fotos, Nachrichten, Freunde; Spots mit fremden Fotos bleiben anonym |
+| ✅ 28.11. **Einwilligung beim Upload** (Häkchen bei Upload und „Dein Foto hier") | Recht am Bild, DSA | – |
+| **Datenschutz/Impressum-Links** in der App: Knöpfe im Profil sind da, grau bis die URLs in `EXPO_PUBLIC_PRIVACY_URL` / `EXPO_PUBLIC_IMPRINT_URL` stehen (`app/.env` + EAS-Variablen) | Pflicht | Links von dir (Punkt 4) |
 | **Testphase-Einstellungen zurückdrehen** (s. PRODUKT-PLAN Kap. 9) | Fremde laden hoch | Uploads wieder „wird geprüft", Mail-Bestätigung an |
 | **Builds** mit `eas build --profile testflight` / `preview` | – | ausdrücklich (CLAUDE.md: kein Store-Build ohne Zustimmung) |
 

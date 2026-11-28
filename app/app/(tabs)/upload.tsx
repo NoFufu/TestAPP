@@ -12,7 +12,7 @@ import { useAuth } from '../../src/lib/auth';
 import { track } from '../../src/lib/events';
 import { cleanInstagramUrl, createSpot, gpsFromExif } from '../../src/lib/upload';
 import { useStore } from '../../src/store';
-import { Button, Chip, T, haptic, mapZoom, radius, space, type, useColors, useIsDark, dock } from '../../src/ui';
+import { Button, Chip, ConsentRow, T, haptic, mapZoom, radius, space, type, useColors, useIsDark, dock } from '../../src/ui';
 
 type Photo = { uri: string; gps: { lat: number; lon: number } | null };
 type Where = { lat: number; lon: number; source: 'gewaehlt' | 'foto' | 'standort' | 'karte' };
@@ -35,6 +35,8 @@ export default function Upload() {
   // Ort, den du selbst auf der Karte gewählt hast (hat Vorrang vor Foto-GPS und Standort)
   const [chosen, setChosen] = useState<{ lat: number; lon: number } | null>(null);
   const [picking, setPicking] = useState(false);
+  // Einwilligung: Rechte an den Fotos, Einverständnis abgebildeter Personen
+  const [consent, setConsent] = useState(false);
 
   if (!session || !profile?.username) {
     return (
@@ -53,9 +55,9 @@ export default function Upload() {
   const instaClean = insta.trim() ? cleanInstagramUrl(insta) : null;
   const instaInvalid = !!insta.trim() && !instaClean;
   const busy = step !== null && step < STEPS.length;
-  const ready = !!empty && name.trim().length > 1 && cats.length > 0 && !instaInvalid && inCity && !busy;
+  const ready = !!empty && name.trim().length > 1 && cats.length > 0 && !instaInvalid && inCity && consent && !busy;
   const missing = !empty ? 'Wähle zuerst ein Foto vom Spot.' : name.trim().length < 2 ? 'Gib dem Spot einen Namen.'
-    : !cats.length ? 'Wähle mindestens eine Kategorie.' : instaInvalid ? 'Der Instagram-Link sieht nicht richtig aus.' : !inCity ? 'Der Ort liegt außerhalb von Bielefeld und Barcelona.' : null;
+    : !cats.length ? 'Wähle mindestens eine Kategorie.' : instaInvalid ? 'Der Instagram-Link sieht nicht richtig aus.' : !inCity ? 'Der Ort liegt außerhalb von Bielefeld und Barcelona.' : !consent ? 'Bestätige unten, dass du die Rechte an den Fotos hast.' : null;
 
   async function pick(set: (p: Photo) => void, camera: boolean) {
     const opts: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], quality: 0.9, exif: true };
@@ -83,7 +85,7 @@ export default function Upload() {
   }
 
   function reset() {
-    setEmpty(null); setPerson(null); setInsta(''); setName(''); setDesc(''); setCats([]); setStep(null); setNewId(null); setError(null); setChosen(null);
+    setEmpty(null); setPerson(null); setInsta(''); setName(''); setDesc(''); setCats([]); setStep(null); setNewId(null); setError(null); setChosen(null); setConsent(false);
   }
 
   const input = [type.body, st.input, { borderColor: c.line, backgroundColor: c.surface, color: c.ink }];
@@ -169,6 +171,8 @@ export default function Upload() {
         </View>
         <LocationPicker visible={picking} start={{ lat: where.lat, lon: where.lon }} onClose={() => setPicking(false)}
           onPick={(p) => { setChosen(p); setPicking(false); haptic.select(); }} />
+
+        <ConsentRow checked={consent} onToggle={() => setConsent(!consent)} />
 
         <View style={{ gap: space.sm }}>
           <Button label="Spot veröffentlichen" disabled={!ready} loading={busy} onPress={publish} />

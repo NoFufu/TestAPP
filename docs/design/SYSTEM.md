@@ -155,3 +155,9 @@ Auf der Karte oben nur die Textzeile (Wortmarke, Stadt, Lupe, Karte/Raster). Die
 
 ## Freunde und Chat
 Tab „Freunde“ (`people`) in der Tab-Leiste mit Abzeichen (Kirsche, Zahl ungelesen; `chat`-Token). `app/(tabs)/friends.tsx`: Anfragen an dich, Freunde mit letzter Nachricht, Angefragt, Alle Mitglieder (Liste aller mit Benutzername, nie E-Mail). `app/chat/[uid].tsx`: Blasen (eigene in `ink`, fremde in `surface`), Spot als Karte in der Nachricht (tippen öffnet ihn), Spot anhängen mit Suche, Schnell-Texte („Treffen wir uns hier?“). `app/send-spot.tsx`: Spot direkt an einen Freund (Knopf auf der Spot-Seite und nach dem Upload). Code: `src/lib/social.ts`. Aktualisiert beim Öffnen und alle 4 s im offenen Chat bzw. alle 30 s fürs Abzeichen, kein Push (braucht eigenen Build).
+
+## Hot Zones (Karte)
+Token `hotZone`: Spots innerhalb 450 m werden zusammengefasst, Gewicht = Anzahl Fotos; ab Gewicht 5 und mindestens 2 Spots ein farbiger Kreis (`react-native-maps` Circle, Radius wächst mit dem Gewicht bis 700 m). Flammen-Knopf unter dem Standort-Knopf blendet sie aus. Farbe `hotZone.color` ist eine Daten-Farbe.
+
+## ConsentRow
+Häkchen „Ich habe die Rechte an den Fotos, abgebildete Personen sind einverstanden“. Pflicht vor „Spot veröffentlichen“ und „Teilen“ (Foto zu bestehendem Spot).

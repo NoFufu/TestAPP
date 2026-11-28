@@ -14,6 +14,8 @@ type Auth = {
   signOut: () => Promise<void>;
   /** Speichert Benutzername und optional ein neues Profilbild. Gibt eine Fehlermeldung oder null zurück. */
   saveProfile: (username: string, avatarUri?: string | null) => Promise<string | null>;
+  /** Löscht das eigene Konto samt Fotos, Nachrichten und Freunden. Gibt eine Fehlermeldung oder null zurück. */
+  deleteAccount: () => Promise<string | null>;
 };
 
 const Ctx = createContext<Auth | null>(null);
@@ -86,8 +88,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [session, profile, loadProfile]);
 
+  const deleteAccount = useCallback(async () => {
+    const uid = session?.user.id;
+    if (!uid) return 'Bitte melde dich zuerst an.';
+    try {
+      // Erst die eigenen Dateien aus dem Speicher, dann das Konto in der Datenbank.
+      for (const bucket of ['spot-photos', 'avatars'] as const) {
+        const { data } = await supabase.storage.from(bucket).list(uid, { limit: 1000 });
+        if (data?.length) await supabase.storage.from(bucket).remove(data.map((f) => `${uid}/${f.name}`));
+      }
+      const { error } = await supabase.rpc('delete_my_account');
+      if (error) return 'Das Löschen hat nicht geklappt. Versuch es noch mal.';
+      await supabase.auth.signOut();
+      return null;
+    } catch {
+      return 'Keine Verbindung. Prüfe dein Internet und versuch es noch mal.';
+    }
+  }, [session]);
+
   return (
-    <Ctx.Provider value={{ ready, session, profile, signUp, signIn, signOut, saveProfile }}>
+    <Ctx.Provider value={{ ready, session, profile, signUp, signIn, signOut, saveProfile, deleteAccount }}>
       {children}
     </Ctx.Provider>
   );

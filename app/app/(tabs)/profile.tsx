@@ -1,8 +1,10 @@
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
+import { Alert, Linking } from 'react-native';
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LEGAL } from '../../src/config';
 import { fmtDist } from '../../src/data/spots';
 import { useAuth } from '../../src/lib/auth';
 import { isAdmin } from '../../src/lib/upload';
@@ -11,7 +13,7 @@ import { Avatar, Button, PhotoGrid, T, space, useColors, dock } from '../../src/
 
 export default function Profile() {
   const c = useColors();
-  const { session, profile, signOut, saveProfile } = useAuth();
+  const { session, profile, signOut, saveProfile, deleteAccount } = useAuth();
   const { spots, saved } = useStore();
   const [busy, setBusy] = useState(false);
   const [admin, setAdmin] = useState(false);
@@ -33,6 +35,19 @@ export default function Profile() {
     { n: mine.length, label: 'Spots' },
     { n: saved.size, label: 'Gemerkt' },
   ];
+
+  function confirmDelete() {
+    Alert.alert('Konto löschen?', 'Dein Profil, deine Fotos, Nachrichten und Freunde werden endgültig gelöscht. Das lässt sich nicht rückgängig machen.', [
+      { text: 'Abbrechen', style: 'cancel' },
+      { text: 'Endgültig löschen', style: 'destructive', onPress: async () => {
+        setBusy(true);
+        const err = await deleteAccount();
+        setBusy(false);
+        if (err) Alert.alert('Konto löschen', err);
+      } },
+    ]);
+  }
+  const openLegal = (url: string) => { if (url) Linking.openURL(url); };
 
   async function changeAvatar() {
     const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [1, 1], quality: 0.8 });
@@ -76,6 +91,11 @@ export default function Profile() {
         <View style={[st.actions, { paddingTop: 0 }]}>
           <Button label="Feedback" icon="chatbubble-ellipses-outline" variant="secondary" style={{ flex: 1 }} onPress={() => router.push('/feedback')} />
           <Button label="Abmelden" variant="secondary" style={{ flex: 1 }} onPress={signOut} />
+        </View>
+        <View style={[st.actions, { paddingTop: 0 }]}>
+          <Button label="Datenschutz" variant="ghost" disabled={!LEGAL.privacy} style={{ flex: 1 }} onPress={() => openLegal(LEGAL.privacy)} />
+          <Button label="Impressum" variant="ghost" disabled={!LEGAL.imprint} style={{ flex: 1 }} onPress={() => openLegal(LEGAL.imprint)} />
+          <Button label="Konto löschen" variant="ghost" loading={busy} style={{ flex: 1 }} onPress={confirmDelete} />
         </View>
         {mine.length ? (
           <PhotoGrid items={mine.map((s) => ({

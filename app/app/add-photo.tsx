@@ -10,7 +10,7 @@ import { distanceKm } from '../src/data/spots';
 import { addPhotoToSpot, cleanInstagramUrl, gpsFromExif } from '../src/lib/upload';
 import { track } from '../src/lib/events';
 import { useStore } from '../src/store';
-import { Button, IconButton, T, haptic, radius, space, type, useColors } from '../src/ui';
+import { Button, ConsentRow, IconButton, T, haptic, radius, space, type, useColors } from '../src/ui';
 
 /** Eigenes Fitpic (und/oder Instagram-Link) zu einem bestehenden Spot hinzufügen. */
 export default function AddPhoto() {
@@ -24,11 +24,12 @@ export default function AddPhoto() {
   const [insta, setInsta] = useState('');
   const [step, setStep] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [consent, setConsent] = useState(false);
 
   const instaClean = insta.trim() ? cleanInstagramUrl(insta) : null;
   const instaInvalid = !!insta.trim() && !instaClean;
   const busy = step !== null && step < 3;
-  const ready = (!!uri || !!instaClean) && !instaInvalid && !busy;
+  const ready = (!!uri || !!instaClean) && !instaInvalid && consent && !busy;
 
   async function pick(camera: boolean) {
     const opts: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], quality: 0.9, exif: true };
@@ -84,6 +85,7 @@ export default function AddPhoto() {
             style={[type.body, st.input, { borderColor: c.line, backgroundColor: c.surface, color: c.ink }]} />
           {instaInvalid ? <T variant="small" color="danger">Bitte einen Link zu einem Beitrag oder Reel einfügen.</T> : null}
         </View>
+        <ConsentRow checked={consent} onToggle={() => setConsent(!consent)} />
         {error ? <T color="danger" accessibilityLiveRegion="polite">{error}</T> : null}
         <Button label="Teilen" disabled={!ready || !s} loading={busy} onPress={submit} />
       </ScrollView>
